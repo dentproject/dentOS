@@ -9,10 +9,10 @@
 arm64-nxp-ls2088ardb-r0:
   flat_image_tree:
     kernel:
-      <<: *arm64-kernel
+      <<: *arm64-kernel-5-6
     dtb:
       =: fsl-ls2088a-rdb.dtb
-      <<: *arm64-kernel-package
+      <<: *arm64-kernel-5-6-package
     itb:
       <<: *arm64-itb
 

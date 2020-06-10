@@ -67,6 +67,20 @@ default:
       =: kernel-4.9-lts-arm64-all.bin.gz
       <<: *arm64-kernel-package
 
+    arm64-kernel-5-4-package: &arm64-kernel-5-4-package
+      package: onl-kernel-5.4-lts-arm64-all:arm64
+
+    arm64-kernel-5-4: &arm64-kernel-5-4
+      =: kernel-5.4-lts-arm64-all.bin.gz
+      <<: *arm64-kernel-5-4-package
+
+    arm64-kernel-5-6-package: &arm64-kernel-5-6-package
+      package: onl-kernel-5.6-lts-arm64-all:arm64
+
+    arm64-kernel-5-6: &arm64-kernel-5-6
+      =: kernel-5.6-lts-arm64-all.bin.gz
+      <<: *arm64-kernel-5-6-package
+
     ##############################
     #
     # For your system, pick from the above list
@@ -147,11 +161,16 @@ default:
     - ext2load mmc 0:1 $onl_loadaddr $onl_itb
     - "bootm $onl_loadaddr#$onl_platform"
 
-    #ubifs to boot onl
+    # ubifs to boot onl
     flash_bootcmds: &flash_bootcmds
     - ubi part open
     - ubifsmount ONL-BOOT
     - ubifsload $loadaddr  $onl_itb
+    - "bootm $onl_loadaddr#$onl_platform"
+
+    ssd_bootcmds: &ssd_bootcmds
+    - scsi reset
+    - ext2load scsi 0:1 $onl_loadaddr $onl_itb
     - "bootm $onl_loadaddr#$onl_platform"
 
     nos_bootcmds: *ide_bootcmds

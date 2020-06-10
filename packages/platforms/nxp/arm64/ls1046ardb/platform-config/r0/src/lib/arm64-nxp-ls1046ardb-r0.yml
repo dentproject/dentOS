@@ -9,10 +9,10 @@
 arm64-nxp-ls1046ardb-r0:
   flat_image_tree:
     kernel:
-      <<: *arm64-kernel
+      <<: *arm64-kernel-5-6
     dtb:
       =: fsl-ls1046a-rdb-sdk.dtb
-      <<: *arm64-kernel-package
+      <<: *arm64-kernel-5-6-package
     itb:
       <<: *arm64-itb
 

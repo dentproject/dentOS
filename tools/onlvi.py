@@ -4,8 +4,8 @@ class OnlVersionImplementation(object):
 
     PRODUCTS = [
         {
-            "id" : "ONL",
-#            "version": "20YY-MM"
+            "id" : "dentOS",
+#            "version": "2019-11"
         }
     ]
 
@@ -21,7 +21,7 @@ class OnlVersionImplementation(object):
             self.PRODUCTS[0]['version'] = branch
 
     def V_OS_NAME(self, data):
-        return "Open Network Linux OS"
+        return "DENT OS"
 
     def V_BUILD_SHA1(self, data):
         return data['build_sha1']
@@ -45,16 +45,16 @@ class OnlVersionImplementation(object):
         return data['product']['version']
 
     def V_VERSION_ID(self, data):
-        return "ONL-%s" % (self.V_PRODUCT_ID_VERSION(data))
+        return "DENTOS-%s" % (self.V_PRODUCT_ID_VERSION(data))
 
     def V_FNAME_VERSION_ID(self, data):
         return self.V_VERSION_ID(data)
 
     def V_PRODUCT_VERSION(self, data):
-        return "ONL-%s"  % (self.V_PRODUCT_ID_VERSION(data))
+        return "DENTOS-%s"  % (self.V_PRODUCT_ID_VERSION(data))
 
     def V_FNAME_PRODUCT_VERSION(self, data):
-        return "ONL-%s" % (self.V_PRODUCT_ID_VERSION(data))
+        return "DENTOS-%s" % (self.V_PRODUCT_ID_VERSION(data))
 
     def V_VERSION_STRING(self, data):
         return "%s %s, %s" % (self.V_OS_NAME(data), self.V_VERSION_ID(data), self.V_BUILD_ID(data))

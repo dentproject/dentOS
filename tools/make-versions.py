@@ -61,34 +61,52 @@ class OnlVersionsGenerator(object):
         if 'build_config' in d:
             basename += "-%s" % d['build_config']
 
+        # check if buildname is different than version-onl
+        pl = False
+        if basename != "version-onl":
+            pl = True
+
         # JSON
         fname = os.path.join(self.ops.output_dir, basename + '.json')
+        oname = os.path.join(self.ops.output_dir, 'version-onl.json')
         if not os.path.exists(fname) or self.ops.force:
             with open(fname, "w") as f:
                 json.dump(data, f, indent=2)
+        if not os.path.exists(oname):
+            if pl:
+                os.symlink(fname, oname)
 
         # YAML
         fname = os.path.join(self.ops.output_dir, basename + '.yml')
+        oname = os.path.join(self.ops.output_dir, 'version-onl.yml')
         if not os.path.exists(fname) or self.ops.force:
             with open(fname, "w") as f:
                 yaml.dump(data, f, default_flow_style=False)
-
+        if not os.path.exists(oname):
+            if pl:
+                os.symlink(fname, oname)
         # mk
         fname = os.path.join(self.ops.output_dir, basename + '.mk')
+        oname = os.path.join(self.ops.output_dir, 'version-onl.mk')
         if not os.path.exists(fname) or self.ops.force:
             with open(fname, "w") as f:
                 for k in sorted(data.keys()):
                     f.write("%s%s=%s\n" % ("export " if self.ops.export else "", k, data[k]))
                 f.write("\n")
-
+        if not os.path.exists(oname):
+            if pl:
+                os.symlink(fname, oname)
         # sh
         fname = os.path.join(self.ops.output_dir, basename + '.sh')
+        oname = os.path.join(self.ops.output_dir, 'version-onl.sh')
         if not os.path.exists(fname) or self.ops.force:
             with open(fname, "w") as f:
                 for k in sorted(data.keys()):
                     f.write("%s%s='%s'\n" % ("export " if self.ops.export else "", k, data[k]))
                 f.write("\n")
-
+        if not os.path.exists(oname):
+            if pl:
+                os.symlink(fname, oname)
         if self.ops.print_:
             pprint.pprint(data, indent=2)
 

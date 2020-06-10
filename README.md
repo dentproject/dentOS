@@ -1,12 +1,11 @@
-Open Network Linux
-==================
+DENT Project dentOS
+===================
 
-Check out the main/offical website at http://opennetlinux.org .
+dentOS is a SwitchDev based NOS built on top of Open Network Linux
 
-Open Network Linux (ONL) is a Linux distribution for bare metal switches.  ONL
-builds an ONIE-compatible installer and a switch image which contains a complete
-Debian distribution with added drivers and configuration for running on bare metal
-switches.
+Find out more about DENT at https://www.dent.dev
+
+Find out more about ONL  at http://opennetlinux.org
 
 Software License
 -----------------
@@ -20,5 +19,3 @@ Documentation
     Instructions for building ONL from scratch.
 
 Please see the docs directory for additional information. 
-
-![alt text](https://scan.coverity.com/projects/8655/badge.svg "Coverity Scan Build Status")

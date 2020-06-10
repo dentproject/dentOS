@@ -15,8 +15,12 @@ function build
     else
         KERNEL=`onlpm --find-dir $1 mbuilds`
     fi
+
+echo $KERNEL
+
     BUILD_DIR=$2
     INSTALL_DIR=$3
+
     make -C $KERNEL M=$BUILD_DIR modules
     make -C $KERNEL M=$BUILD_DIR INSTALL_MOD_PATH=`pwd` INSTALL_MOD_DIR="$3" modules_install
 }
