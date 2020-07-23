@@ -24,7 +24,7 @@ Multistrap:
     noauth: true
     explicitsuite: false
     unpack: true
-    debootstrap: Debian-Local Local-All Local-Arch ONL-Local
+    debootstrap: Debian-Local Local-All Local-Arch ONL-Local FRR-Local
     aptsources: Debian ONL
 
   Debian:
@@ -62,6 +62,20 @@ Multistrap:
   Local-Arch:
     source: ${ONLPM_OPTION_REPO}/${ONL_DEBIAN_SUITE}/packages/binary-${ARCH}
     omitdebsrc: true
+
+  FRR:
+    packages: *Packages
+    source: http://deb.frrouting.org/frr
+    suite: stretch frr-stable
+    omitdebsrc: true
+    arches: amd64, arm64
+
+  FRR-Local:
+    packages: *Packages
+    source: http://${APT_CACHE}deb.frrouting.org/frr
+    suite: stretch frr-stable
+    omitdebsrc: true
+    arches: amd64, arm64
 
 Configure:
   overlays:
