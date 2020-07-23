@@ -29,7 +29,7 @@
 - nfs-common
 - netbase
 - bsdmainutils
-- ifupdown
+- ifupdown2
 - psmisc
 - make
 - python-cherrypy3
@@ -87,3 +87,5 @@
 - htop
 - tree
 - memtester
+- lsb-release
+- tknos-firmware

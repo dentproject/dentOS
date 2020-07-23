@@ -19,3 +19,6 @@
 [submodule "sm/build-artifacts"]
 	path = sm/build-artifacts
         url = http://github.com/opennetworklinux/build-artifacts
+[submodule "sm/dent-artifacts"]
+	path = sm/dent-artifacts
+	url = https://github.com/dentproject/dent-artifacts.git
