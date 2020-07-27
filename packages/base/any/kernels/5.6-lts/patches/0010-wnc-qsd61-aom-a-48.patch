@@ -1,0 +1,431 @@
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/wnc-qsd61-aom-a-48.dts
+@@ -0,0 +1,217 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Copyright (C) 2016 Marvell Technology Group Ltd.
++ *
++ * Device Tree file for Marvell Armada 7040 Development board platform
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-7040.dtsi"
++
++/ {
++	model = "Marvell Armada 7040 WNC Avenger";
++	compatible = "marvell,armada7040-db-default", "marvell,armada7040-db",
++		     "marvell,armada7040", "marvell,armada-ap806-quad",
++		     "marvell,armada-ap806";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	aliases {
++                serial0 = &uart0;
++                serial1 = &cp0_uart1;
++		ethernet0 = &cp0_eth0;
++		ethernet1 = &cp0_eth1;
++		ethernet2 = &cp0_eth2;
++		i2c0 = &cp0_i2c0;
++		i2c1 = &cp0_i2c1;
++		i2c2 = &i2c0;
++	};
++
++	cp0_utmi: utmi@580000 {
++		compatible = "marvell,mvebu-utmi";
++		reg = <0x580000 0xc>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		cp0_utmi0: utmi@58000c {
++			compatible = "marvell,mvebu-utmi-2.6.0";
++			reg = <0x58000c 0x100>,
++			      <0x440420 0x4>,
++			      <0x440440 0x4>;
++                       utmi-port = <0> ;
++			status = "disabled";
++		};
++               };
++};
++
++&i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++
++&spi0 {
++	status = "okay";
++
++	slb9670: slb9670@0{
++		compatible = "infineon,slb9670";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0>; /* CS=0 */
++		spi-max-frequency = <32000000>;
++		status = "okay";
++	};
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&cp0_uart1{
++	status = "okay";
++};
++
++&cp0_spi0 {
++           pinctrl-names = "default";
++           reg = <0x700600 0x50>;          /* control */
++	   status = "okay";
++	   spi-flash@0 {
++                     #address-cells = <0x1>;
++                     #size-cells = <0x1>;
++                     compatible = "jedec,spi-nor";
++                     reg = <0x0>;
++                     spi-max-frequency = <20000000>;
++
++                     partitions {
++                                compatible = "fixed-partitions";
++                                #address-cells = <1>;
++                                #size-cells = <1>;
++
++                                partition@0 {
++                                           label = "uboot";
++                                           reg = <0x0 0x200000>;
++                                };
++                                partition@200000 {
++                                           label = "uboot-env";
++                                           reg = <0x200000 0x10000>;
++                                           env_size = <0x10000>;
++                                };
++                                partition@210000 {
++                                           label = "onie";
++                                           reg = <0x210000 0x1400000>;
++                                };
++                                partition@1610000 {
++                                           label = "open";
++                                           reg = <0x1610000 0x9f0000>;
++                                };
++                     };
++		};
++};
++
++&cp0_pcie0 {
++	ranges = <0x81000000 0x0 0xf9020000 0x0 0xf9020000 0x0 0x10000
++		  0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x30000000>;
++	status = "okay";
++	phys = <&cp0_comphy0 0>;
++};
++
++&cp0_pcie1 {
++	status = "disabled";
++	phys = <&cp0_comphy4 1>;
++};
++
++&cp0_pcie2 {
++	status = "disabled";
++};
++
++&cp0_i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++
++
++	expander0: pca9555@21 {
++	  status = "disabled";
++  };
++};
++
++&cp0_i2c1 {
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&cp0_sata0 {
++	status = "okay";
++
++	sata-port@0 {
++		status = "okay";
++		/* Generic PHY, providing serdes lanes */
++		phys = <&cp0_comphy1 0>;
++	};
++};
++
++&cp0_usb3_0 {
++	/delete-property/ usb-phy;
++	/delete-property/ phys;
++	/delete-property/ phy-names;
++	status = "okay";
++};
++
++&cp0_usb3_1 {
++	status = "okay";
++};
++
++&cp0_utmi0 {
++	status = "okay";
++};
++
++&cp0_mdio {
++	status = "okay";
++
++	phy0: ethernet-phy@0 {
++		reg = <0>;
++	};
++};
++
++&cp0_ethernet {
++	status = "okay";
++};
++
++&cp0_eth0 {
++	status = "okay";
++	/* Network PHY */
++	/*phy-mode = "sgmii";*/
++	phy-mode = "2500base-x";
++	phys = <&cp0_comphy2 0>;
++	/*phy-speed = <2500>;*/
++	/* Generic PHY, providing serdes lanes */
++	fixed-link {
++		speed = <2500>;
++		full-duplex;
++	};
++};
++
++&cp0_eth1 {
++	status = "okay";
++	/* Network PHY */
++	/*phy = <&phy0>;*/
++	phy-mode = "sgmii";
++	/* Generic PHY, providing serdes lanes */
++	phys = <&cp0_comphy3 1>;
++
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
++};
++
++&cp0_eth2 {
++	status = "okay";
++	phy = <&phy0>;
++	phy-mode = "sgmii";
++	phys = <&cp0_comphy5 2>;
++};
++
++&cp0_crypto {
++	status = "okay";
++};
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/armada-7040-db.dtsi
+@@ -0,0 +1,208 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree file for Marvell Armada 7040 development board platform
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-7040.dtsi"
++
++/ {
++	model = "Marvell Armada 7040 development board";
++	compatible = "marvell,armada7040-db", "marvell,armada7040",
++			"marvell,armada-ap806-quad", "marvell,armada-ap806";
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++
++	cp0_reg_usb3_0_vbus: cp0-usb3-0-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "usb3h0-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		enable-active-high;
++		gpio = <&expander0 0 GPIO_ACTIVE_HIGH>;
++	};
++
++	cp0_reg_usb3_1_vbus: cp0-usb3-1-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "usb3h1-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		enable-active-high;
++		gpio = <&expander0 1 GPIO_ACTIVE_HIGH>;
++	};
++
++	cp0_vccq_sd0_reg: cp0_vccq_sd0 {
++		compatible = "regulator-gpio";
++		regulator-name = "cp0-vccq-sd0";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-boot-on;
++		gpios = <&expander0 15 GPIO_ACTIVE_HIGH>;
++		gpios-states = <0>;
++		states = <1800000 0x1
++			  3300000 0x0>;
++		enable-active-high;
++	};
++
++	cp0_usb3_0_phy: cp0-usb3-0-phy {
++		compatible = "usb-nop-xceiv";
++		/* vcc-supply can be changed by io-expander or GPIO,
++		 * for A7040-DB we are using by default io-expander
++		 * for other board GPIO may be needed, should update
++		 * the phandle to gpio regulator
++		 */
++		vcc-supply = <&cp0_reg_usb3_0_vbus>;
++		current-limiter-supply = <&exp_usb3_0_current_limiter>;
++	};
++
++	cp0_usb3_1_phy: cp0-usb3-1-phy {
++		compatible = "usb-nop-xceiv";
++		vcc-supply = <&cp0_reg_usb3_1_vbus>;
++		current-limiter-supply = <&exp_usb3_1_current_limiter>;
++	};
++	exp_usb3_0_current_limiter: usb3-0-current-limiter {
++		compatible = "regulator-fixed";
++		regulator-name = "usb3-0-current-limiter";
++		enable-active-high;
++		gpio = <&expander0 4 GPIO_ACTIVE_HIGH>;
++	};
++	exp_usb3_1_current_limiter: usb3-1-current-limiter {
++		compatible = "regulator-fixed";
++		regulator-name = "usb3-1-current-limiter";
++		enable-active-high;
++		gpio = <&expander0 5 GPIO_ACTIVE_HIGH>;
++	};
++
++	sfp_eth0: sfp-eth0 {
++		compatible = "sff,sfp";
++	};
++};
++
++&uart0 {
++	pinctrl-0 = <&uart0_pins>;
++	pinctrl-names = "default";
++};
++
++&ap_sdhci0 {
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
++};
++
++/*&cp0_config_space {*/
++	/*ranges = *//* internal regs */
++		 /*<0x0 0x0 0xf2000000 0x2000000>,*/
++		 /* SPI1-DEV0 */
++		 /*<0x2000000 0 0xf9000000 0x1000000>;*/
++/*};*/
++
++&cp0_i2c0 {
++	expander0: pca9555@21 {
++		compatible = "nxp,pca9555";
++		pinctrl-names = "default";
++		gpio-controller;
++		#gpio-cells = <2>;
++		reg = <0x21>;
++	};
++
++	eeprom0: eeprom@50 {
++		compatible = "atmel,24c64";
++		reg = <0x50>;
++		pagesize = <0x20>;
++	};
++
++	eeprom1: eeprom@57 {
++		compatible = "atmel,24c64";
++		reg = <0x57>;
++		pagesize = <0x20>;
++	};
++};
++
++&cp0_nand_controller {
++	pinctrl-names = "default";
++	pinctrl-0 = <&nand_pins &nand_rb>;
++
++	nand@0 {
++		reg = <0>;
++		label = "main-storage";
++		nand-rb = <0>;
++		nand-ecc-mode = "hw";
++		nand-on-flash-bbt;
++		nand-ecc-strength = <8>;
++		nand-ecc-step-size = <512>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "U-Boot";
++				reg = <0 0x200000>;
++			};
++			partition@200000 {
++				label = "Linux";
++				reg = <0x200000 0xd00000>;
++			};
++			partition@1000000 {
++				label = "Filesystem";
++				reg = <0x1000000 0x3f000000>;
++			};
++		};
++	};
++};
++
++&cp0_spi1 {
++	reg = <0x700680 0x50>,          /* control */
++	      <0x2000000 0x1000000>;    /* CS0 */
++	spi-flash@0 {
++		#address-cells = <0x1>;
++		#size-cells = <0x1>;
++		compatible = "jedec,spi-nor";
++		reg = <0x0>;
++		spi-max-frequency = <20000000>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "U-Boot";
++				reg = <0x0 0x400000>;
++			};
++
++			partition@400000 {
++				label = "Filesystem";
++				reg = <0x400000 0xc00000>;
++			};
++		};
++	};
++};
++
++&cp0_sdhci0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&sdhci_pins>;
++	bus-width = <4>;
++	vqmmc-supply = <&cp0_vccq_sd0_reg>;
++	non-removable;
++};
++
++&cp0_usb3_0 {
++	usb-phy = <&cp0_usb3_0_phy>;
++	status = "disabled";
++	/* Generic PHY, providing serdes lanes */
++	phys = <&cp0_comphy1 0>;
++	phy-names = "usb";
++};
++
++&cp0_usb3_1 {
++	usb-phy = <&cp0_usb3_1_phy>;
++	status = "disabled";
++	/* Generic PHY, providing serdes lanes */
++	phys = <&cp0_comphy4 1>;
++	phy-names = "usb";
++};
