@@ -1,0 +1,1 @@
+!include $ONL_TEMPLATES/platform-config-platform.yml ARCH=arm64 VENDOR=wnc BASENAME=arm64-wnc-qsa72-aom-a-48p REVISION=r0
