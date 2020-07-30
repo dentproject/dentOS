@@ -35,7 +35,7 @@ class OnlPlatform_arm64_wnc_qsd61_aom_a_48_r0(OnlPlatformWNC,
                 35, 36, 37, 38, 39, 40, 41, 42,\
                 43, 44, 45, 46, 47, 48, 49, 50,\
                 51, 52, 53, 54, 55, 56, 57, 58,\
-                59, 60, 61, 63, 64, 65, 66]
+                59, 60, 61, 62, 63, 64, 65, 66]
 
         for port in port_num:
             self.new_i2c_devices([

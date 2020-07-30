@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/marvell/wnc-qsa72-aom-a-48p.dts
-@@ -0,0 +1,217 @@
+@@ -0,0 +1,212 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright (C) 2016 Marvell Technology Group Ltd.
@@ -34,7 +34,7 @@
 +
 +	cp0_utmi: utmi@580000 {
 +		compatible = "marvell,mvebu-utmi";
-+		reg = <0x580000 0xc>;
++		reg = <0x0 0x580000 0x0 0xc>;
 +		#address-cells = <1>;
 +		#size-cells = <1>;
 +		cp0_utmi0: utmi@58000c {
@@ -45,7 +45,7 @@
 +                       utmi-port = <0> ;
 +			status = "disabled";
 +		};
-+               };
++    };
 +};
 +
 +&i2c0 {
@@ -131,11 +131,6 @@
 +&cp0_i2c0 {
 +	status = "okay";
 +	clock-frequency = <100000>;
-+
-+
-+	expander0: pca9555@21 {
-+	  status = "disabled";
-+  };
 +};
 +
 +&cp0_i2c1 {
