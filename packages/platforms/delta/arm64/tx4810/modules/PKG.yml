@@ -1,0 +1,1 @@
+!include $ONL_TEMPLATES/platform-modules.yml ARCH=arm64 VENDOR=delta BASENAME=arm64-delta-tx4810 KERNELS="onl-kernel-5.6-lts-arm64-all:arm64"
