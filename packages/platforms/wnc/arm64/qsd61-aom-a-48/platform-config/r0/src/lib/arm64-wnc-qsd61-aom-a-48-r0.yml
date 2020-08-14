@@ -1,0 +1,54 @@
+---
+
+######################################################################
+#
+# platform-config for Avenger
+#
+######################################################################
+
+arm64-wnc-qsd61-aom-a-48-r0:
+  flat_image_tree:
+    kernel:
+      <<: *arm64-kernel-5-6
+    dtb:
+      =: wnc-qsd61-aom-a-48.dtb
+      <<: *arm64-kernel-5-6-package
+    itb:
+      <<: *arm64-itb
+
+  loader:
+    device: /dev/sda
+    loadaddr: 0x10000000
+    nos_bootcmds: *ssd_bootcmds
+
+    setenv:
+    - bootargs: >-
+        $console
+        onl_platform=$onl_platform
+
+    environment:
+    - device: /dev/mtd1
+      env_offset: 0x00000000
+      env_size: 0x00010000
+      sector_size: 0x00010000
+
+  installer:
+  - ONL-BOOT:
+      =: 128MiB
+      format: ext2
+      ##format: raw
+  - ONL-CONFIG:
+      =: 128MiB
+      format: ext4
+  - ONL-IMAGES:
+      =: 1GiB
+      format: ext4
+  - ONL-DATA:
+      =: 100%
+      format: ext4
+
+  network:
+    interfaces:
+      ma1:
+        name: eth2
+
