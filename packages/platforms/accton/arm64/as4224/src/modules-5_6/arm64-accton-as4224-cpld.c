@@ -347,7 +347,7 @@ enum as4224_cpld_sysfs_attributes {
 static SENSOR_DEVICE_ATTR(platform_id, S_IRUGO, show_platform_id, NULL, PLATFORM_ID);
 static SENSOR_DEVICE_ATTR(version, S_IRUGO, show_version, NULL, CPLD_VERSION);
 static SENSOR_DEVICE_ATTR(access, S_IWUSR, NULL, access, ACCESS);
-static SENSOR_DEVICE_ATTR(wtd_reset_7040, S_IRUGO | S_IWUSR, NULL, reset_wtd, WTD_RESET_7040);
+static SENSOR_DEVICE_ATTR(wtd_reset_7040, S_IWUSR, NULL, reset_wtd, WTD_RESET_7040);
 static SENSOR_DEVICE_ATTR(wtd_state_7040, S_IRUGO, show_wtd, NULL, WTD_STATE_7040);
 static SENSOR_DEVICE_ATTR(wtd_enable_7040, S_IRUGO | S_IWUSR, show_wtd, set_wtd, WTD_ENABLE_7040);
 static SENSOR_DEVICE_ATTR(wtd_clock_7040, S_IRUGO | S_IWUSR, show_wtd, set_wtd, WTD_CLOCK_7040);
@@ -1114,6 +1114,7 @@ static ssize_t set_wtd(struct device *dev, struct device_attribute *da,
     case WTD_COUNTER_7040:
         reg  = 0x92;
         mask = 0x3F;
+        value &= mask;
         VALIDATE_WTD_VAL_RETURN(value, mask);
         break;
     default:
