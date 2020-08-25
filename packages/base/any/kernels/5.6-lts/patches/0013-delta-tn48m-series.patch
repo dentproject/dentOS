@@ -1,6 +1,6 @@
 --- a/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
 +++ b/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
-@@ -0,0 +1,500 @@
+@@ -0,0 +1,486 @@
 +/*
 + * Delta TN48M/TN48M2/TN48M-POE Device Tree Source
 + *
@@ -459,25 +459,11 @@
 +};
 +
 +&cp0_eth0 {
-+	status = "okay";
-+
-+	phy-mode = "2500base-x";
-+	phys = <&cp0_comphy2 0>;
-+	fixed-link {
-+		speed = <2500>;
-+		full-duplex;
-+        };
++	status = "disabled";
 +};
 +
 +&cp0_eth1 {
-+	status = "okay";
-+
-+	phy-mode = "1000base-x";
-+	phys = <&cp0_comphy3 1>;
-+	fixed-link {
-+		speed = <1000>;
-+		full-duplex;
-+	};
++	status = "disabled";
 +};
 +
 +&cp0_eth2 {
@@ -503,7 +489,7 @@
 +
 --- a/arch/arm64/boot/dts/marvell/delta-tn48m.dts
 +++ b/arch/arm64/boot/dts/marvell/delta-tn48m.dts
-@@ -0,0 +1,266 @@
+@@ -0,0 +1,252 @@
 +/*
 + * Delta TN48M/TN48M2/TN48M-POE Device Tree Source
 + *
@@ -729,25 +715,11 @@
 +};
 +
 +&cp0_eth0 {
-+	status = "okay";
-+
-+	phy-mode = "2500base-x";
-+	phys = <&cp0_comphy2 0>;
-+	fixed-link {
-+		speed = <2500>;
-+		full-duplex;
-+        };
++	status = "disabled";
 +};
 +
 +&cp0_eth1 {
-+	status = "okay";
-+
-+	phy-mode = "1000base-x";
-+	phys = <&cp0_comphy3 1>;
-+	fixed-link {
-+		speed = <1000>;
-+		full-duplex;
-+	};
++	status = "disabled";
 +};
 +
 +&cp0_eth2 {
