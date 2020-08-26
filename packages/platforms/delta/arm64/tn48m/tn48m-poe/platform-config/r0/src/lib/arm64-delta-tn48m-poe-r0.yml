@@ -51,4 +51,4 @@ arm64-delta-tn48m-poe-r0:
   network:
     interfaces:
       ma1:
-        name: eth2
+        name: eth0
