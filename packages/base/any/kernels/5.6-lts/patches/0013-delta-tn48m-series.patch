@@ -1,6 +1,6 @@
 --- a/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
 +++ b/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
-@@ -0,0 +1,491 @@
+@@ -0,0 +1,510 @@
 +/*
 + * Delta TN48M/TN48M2/TN48M-POE Device Tree Source
 + *
@@ -71,6 +71,20 @@
 +		compatible = "marvell,prestera-switch-rxtx-sdma";
 +		status = "okay";
 +	};
++
++	onie_eeprom: onie-eeprom {
++		compatible = "onie-nvmem-cells";
++		status = "okay";
++
++		nvmem = <&eeprom_at24>;
++	};
++
++	prestera {
++		compatible = "marvell,prestera";
++		status = "okay";
++
++		base-mac-provider = <&onie_eeprom>;
++	};
 +};
 +
 +&i2c0 {
@@ -103,6 +117,11 @@
 +&cp0_i2c0 {
 +	status = "okay";
 +	clock-frequency = <100000>;
++
++	eeprom_at24: at24@56 {
++		compatible = "atmel,24c64";
++		reg = <0x56>;
++	};
 +};
 +
 +&cp0_i2c1 {
@@ -494,7 +513,7 @@
 +
 --- a/arch/arm64/boot/dts/marvell/delta-tn48m.dts
 +++ b/arch/arm64/boot/dts/marvell/delta-tn48m.dts
-@@ -0,0 +1,257 @@
+@@ -0,0 +1,276 @@
 +/*
 + * Delta TN48M/TN48M2/TN48M-POE Device Tree Source
 + *
@@ -564,6 +583,20 @@
 +        switch-cpu {
 +                compatible = "marvell,prestera-switch-rxtx-sdma";
 +                status = "okay";
++        };
++
++        onie_eeprom: onie-eeprom {
++                compatible = "onie-nvmem-cells";
++                status = "okay";
++
++                nvmem = <&eeprom_at24>;
++        };
++
++        prestera {
++                compatible = "marvell,prestera";
++                status = "okay";
++
++                base-mac-provider = <&onie_eeprom>;
 +        };
 +
 +        i2cmux {
@@ -646,6 +679,11 @@
 +&cp0_i2c0 {
 +        status = "okay";
 +        clock-frequency = <100000>;
++
++        eeprom_at24: at24@56 {
++                compatible = "atmel,24c64";
++                reg = <0x56>;
++        };
 +};
 +
 +&cp0_i2c1 {

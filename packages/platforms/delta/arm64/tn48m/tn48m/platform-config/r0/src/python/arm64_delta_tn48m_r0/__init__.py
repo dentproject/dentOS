@@ -32,9 +32,6 @@ class OnlPlatform_arm64_delta_tn48m_r0(OnlPlatformDelta,
                 # Temperature devices
                 ('tmp1075', 0x4a, 1),
                 ('tmp1075', 0x4b, 1),
-
-                # System EEPROM
-                ('24c64', 0x56, 1),
             ]
         )
 
