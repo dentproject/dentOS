@@ -1,0 +1,180 @@
+--- a/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
++++ b/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
+@@ -74,10 +74,24 @@
+ &i2c0 {
+ 	status = "okay";
+ 	clock-frequency = <100000>;
++
++	i2c-mux@77 {
++		compatible = "nxp,pca9546";
++		reg = <0x77>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
+ };
+ 
+ &spi0 {
+ 	status = "okay";
++
++	tpm0: slb9670@0 {
++		compatible = "infineon,slb9670";
++		reg = <0>;
++		spi-max-frequency = <38000000>;
++		status = "okay";
++	};
+ };
+ 
+ &uart0 {
+@@ -395,12 +409,10 @@
+ 				reg = <0x0 0x003f0000>;
+ 			};
+ 
+-			partition@3f0000 {
+-				/* 64KB */
+-				reg = <0x003f0000 0x00010000>;
+-				label = "uboot-env";
+-				env_size = <0x10000>;
+-			};
++                        partition@400000 {
++                                label = "ONIE";
++                                reg = <0x400000 0xc00000>;
++                        };
+ 		};
+ 	};
+ };
+@@ -446,16 +458,20 @@
+ 
+ &cp0_eth0 {
+ 	status = "okay";
+-	phy-mode = "sgmii";
++
++	phy-mode = "2500base-x";
++	phys = <&cp0_comphy2 0>;
+ 	fixed-link {
+-		speed = <1000>;
++		speed = <2500>;
+ 		full-duplex;
+-	};
++        };
+ };
+ 
+ &cp0_eth1 {
+ 	status = "okay";
+-	phy-mode = "sgmii";
++
++	phy-mode = "1000base-x";
++	phys = <&cp0_comphy3 1>;
+ 	fixed-link {
+ 		speed = <1000>;
+ 		full-duplex;
+@@ -464,8 +480,10 @@
+ 
+ &cp0_eth2 {
+ 	status = "okay";
++
+ 	phy-mode = "sgmii";
+ 	phy = <&OOB_E1512_PHY>;
++	phys = <&cp0_comphy5 2>;
+ };
+ 
+ &cp0_crypto {
+--- a/arch/arm64/boot/dts/marvell/delta-tn48m.dts
++++ b/arch/arm64/boot/dts/marvell/delta-tn48m.dts
+@@ -135,26 +135,11 @@
+ &spi0 {
+ 	status = "okay";
+ 
+-	/* connect to TPM 
+-        pinctrl-names = "default";
+-        pinctrl-0 = <&ap_spi0_pins>;
+-	*/
+ 	tpm0: slb9670@0 {
+-
+-        compatible = "infineon,slb9670";
+-
+-        reg = <0>;
+-
+-        /*resets = <&tpm_reset>;*/
+-
+-        spi-max-frequency = <38000000>;
+-
+-        /*interrupt-parent = <&gpio3>;
+-
+-        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;*/
+-
+-                status = "okay";
+-
++		compatible = "infineon,slb9670";
++		reg = <0>;
++		spi-max-frequency = <38000000>;
++		status = "okay";
+     };
+ };
+ 
+@@ -187,14 +172,12 @@
+ 
+                         partition@0 {
+                                 label = "uboot";
+-                                reg = <0x0 0x003f0000>;
++                                reg = <0x0 0x400000>;
+                         };
+ 
+-                        partition@3f0000 {
+-                                /* 64KB */
+-                                reg = <0x003f0000 0x00010000>;
+-                                label = "uboot-env";
+-                                env_size = <0x10000>;
++                        partition@400000 {
++                                label = "ONIE";
++                                reg = <0x400000 0xc00000>;
+                         };
+                 };
+         };
+@@ -241,27 +224,33 @@
+ };
+ 
+ &cp0_eth0 {
+-        status = "okay";
+-        phy-mode = "sgmii";
+-        fixed-link {
+-                speed = <1000>;
+-                full-duplex;
++	status = "okay";
++
++	phy-mode = "2500base-x";
++	phys = <&cp0_comphy2 0>;
++	fixed-link {
++		speed = <2500>;
++		full-duplex;
+         };
+ };
+ 
+ &cp0_eth1 {
+-        status = "okay";
+-        phy-mode = "sgmii";
+-        fixed-link {
+-                speed = <1000>;
+-                full-duplex;
+-        };
++	status = "okay";
++
++	phy-mode = "1000base-x";
++	phys = <&cp0_comphy3 1>;
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
+ };
+ 
+ &cp0_eth2 {
+-        status = "okay";
+-        phy-mode = "sgmii";
+-        phy = <&OOB_E1512_PHY>;
++	status = "okay";
++
++	phy-mode = "sgmii";
++	phy = <&OOB_E1512_PHY>;
++	phys = <&cp0_comphy5 2>;
+ };
+ 
+ &cp0_crypto {

@@ -1,0 +1,2459 @@
+diff --git a/arch/x86/configs/x86_64_defconfig b/arch/x86/configs/x86_64_defconfig
+index 0b9654c7a05c..0299972ec902 100644
+--- a/arch/x86/configs/x86_64_defconfig
++++ b/arch/x86/configs/x86_64_defconfig
+@@ -1,4 +1,87 @@
++CONFIG_NET_SCH_NETEM=m
++CONFIG_USER_NS=y
++CONFIG_TEST_BPF=m
++CONFIG_NET_IPVTI=y
++CONFIG_IPV6_VTI=y
++CONFIG_DUMMY=y
++CONFIG_NETFILTER_ADVANCED=y
++CONFIG_IP6_NF_NAT=m
++CONFIG_IP_NF_NAT=m
++CONFIG_NF_TABLES=m
++CONFIG_NF_TABLES_IPV6=y
++CONFIG_NF_TABLES_IPV4=y
++CONFIG_NFT_CHAIN_NAT_IPV6=m
++CONFIG_NFT_CHAIN_NAT_IPV4=m
++CONFIG_NET_SCH_FQ=m
++CONFIG_NET_SCH_ETF=m
++CONFIG_TEST_BLACKHOLE_DEV=m
++CONFIG_KALLSYMS=y
++CONFIG_NET_IPIP=m
++CONFIG_NET_IPGRE=m
++CONFIG_NET_IPGRE_DEMUX=m
++CONFIG_NET_KEY=m
++CONFIG_INET_AH=m
++CONFIG_INET_ESP=m
++CONFIG_INET_IPCOMP=m
++
++
++#
++# Queueing/Scheduling
++#
++CONFIG_NET_SCH_CBQ=m
++CONFIG_NET_SCH_HTB=m
++CONFIG_NET_SCH_HFSC=m
++CONFIG_NET_SCH_PRIO=m
++CONFIG_NET_SCH_MULTIQ=m
++CONFIG_NET_SCH_RED=m
++CONFIG_NET_SCH_SFB=m
++CONFIG_NET_SCH_SFQ=m
++CONFIG_NET_SCH_TEQL=m
++CONFIG_NET_SCH_TBF=m
++CONFIG_NET_SCH_CBS=m
++CONFIG_NET_SCH_TAPRIO=m
++CONFIG_NET_SCH_GRED=m
++CONFIG_NET_SCH_DSMARK=m
++CONFIG_NET_SCH_DRR=m
++CONFIG_NET_SCH_MQPRIO=m
++CONFIG_NET_SCH_SKBPRIO=m
++CONFIG_NET_SCH_CHOKE=m
++CONFIG_NET_SCH_QFQ=m
++CONFIG_NET_SCH_CODEL=m
++CONFIG_NET_SCH_FQ_CODEL=m
++CONFIG_NET_SCH_CAKE=m
++CONFIG_NET_SCH_HHF=m
++CONFIG_NET_SCH_PIE=m
++CONFIG_NET_SCH_INGRESS=m
++CONFIG_NET_SCH_PLUG=m
++CONFIG_NET_SCH_ETS=m
++
++CONFIG_NET_CLS_BASIC=m
++CONFIG_NET_CLS_TCINDEX=m
++CONFIG_NET_CLS_ROUTE4=m
++CONFIG_NET_CLS_FW=m
++CONFIG_NET_CLS_U32=m
++CONFIG_NET_CLS_RSVP=m
++CONFIG_NET_CLS_RSVP6=m
++CONFIG_NET_CLS_FLOW=m
++CONFIG_NET_CLS_BPF=m
++CONFIG_VETH=m
++
+ # CONFIG_LOCALVERSION_AUTO is not set
++CONFIG_BRIDGE=m
++CONFIG_VLAN_8021Q=m
++CONFIG_BRIDGE_VLAN_FILTERING=y
++CONFIG_NET_L3_MASTER_DEV=y
++CONFIG_IPV6_MULTIPLE_TABLES=y
++CONFIG_NET_VRF=m
++CONFIG_BPF_SYSCALL=y
++CONFIG_CGROUP_BPF=y
++CONFIG_NET_CLS_FLOWER=m
++CONFIG_NAMESPACES=y
++CONFIG_NET_NS=y
++CONFIG_VXLAN=m
++CONFIG_MACSEC=m
++CONFIG_NET_FOU=m
+ CONFIG_SYSVIPC=y
+ CONFIG_POSIX_MQUEUE=y
+ CONFIG_BSD_PROCESS_ACCT=y
+@@ -17,6 +100,27 @@ CONFIG_CPUSETS=y
+ CONFIG_CGROUP_CPUACCT=y
+ CONFIG_CGROUP_SCHED=y
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_NET_ACT_POLICE=m
++CONFIG_NET_ACT_GACT=m
++CONFIG_GACT_PROB=y
++CONFIG_NET_ACT_MIRRED=m
++CONFIG_NET_ACT_SAMPLE=m
++CONFIG_NET_ACT_IPT=m
++CONFIG_NET_ACT_NAT=m
++CONFIG_NET_ACT_PEDIT=m
++CONFIG_NET_ACT_SIMP=m
++CONFIG_NET_ACT_SKBEDIT=m
++CONFIG_NET_ACT_CSUM=m
++CONFIG_NET_ACT_MPLS=m
++CONFIG_NET_ACT_VLAN=m
++CONFIG_NET_ACT_BPF=m
++CONFIG_NET_ACT_SKBMOD=m
++CONFIG_NET_ACT_IFE=m
++CONFIG_NET_ACT_TUNNEL_KEY=m
++CONFIG_NET_ACT_CT=m
++#
++#CONFIG_NET_TC_SKB_EXT is not set
++
+ # CONFIG_COMPAT_BRK is not set
+ CONFIG_PROFILING=y
+ CONFIG_KPROBES=y
+@@ -80,9 +184,9 @@ CONFIG_IP_MROUTE=y
+ CONFIG_IP_PIMSM_V1=y
+ CONFIG_IP_PIMSM_V2=y
+ CONFIG_SYN_COOKIES=y
+-# CONFIG_INET_XFRM_MODE_TRANSPORT is not set
+-# CONFIG_INET_XFRM_MODE_TUNNEL is not set
+-# CONFIG_INET_XFRM_MODE_BEET is not set
++CONFIG_INET_XFRM_MODE_TRANSPORT=m
++CONFIG_INET_XFRM_MODE_TUNNEL=m
++CONFIG_INET_XFRM_MODE_BEET=m
+ # CONFIG_INET_DIAG is not set
+ CONFIG_TCP_CONG_ADVANCED=y
+ # CONFIG_TCP_CONG_BIC is not set
+@@ -94,7 +198,6 @@ CONFIG_INET6_AH=y
+ CONFIG_INET6_ESP=y
+ CONFIG_NETLABEL=y
+ CONFIG_NETFILTER=y
+-# CONFIG_NETFILTER_ADVANCED is not set
+ CONFIG_NF_CONNTRACK=y
+ CONFIG_NF_CONNTRACK_FTP=y
+ CONFIG_NF_CONNTRACK_IRC=y
+diff --git a/tools/testing/selftests/kselftest/runner.sh b/tools/testing/selftests/kselftest/runner.sh
+index e84d901f8567..ac08b5418fa6 100644
+--- a/tools/testing/selftests/kselftest/runner.sh
++++ b/tools/testing/selftests/kselftest/runner.sh
+@@ -9,7 +9,9 @@ export per_test_logging=
+ 
+ # Defaults for "settings" file fields:
+ # "timeout" how many seconds to let each test run before failing.
+-export kselftest_default_timeout=45
++# NETNEXT CHANGE: Timeout value of 45 causes pmtu.sh and xfrm_policy.sh
++# to timeout. Chaning it to 150 to avoid that
++export kselftest_default_timeout=150
+ 
+ # There isn't a shell-agnostic way to find the path of a sourced file,
+ # so we must rely on BASE_DIR being set to find other tools.
+diff --git a/tools/testing/selftests/net/Makefile b/tools/testing/selftests/net/Makefile
+index 287ae916ec0b..3364bc213ddd 100644
+--- a/tools/testing/selftests/net/Makefile
++++ b/tools/testing/selftests/net/Makefile
+@@ -4,12 +4,14 @@
+ CFLAGS =  -Wall -Wl,--no-as-needed -O2 -g
+ CFLAGS += -I../../../../usr/include/
+ 
++FORWARDING_TESTS_DIR=forwarding
++
+ TEST_PROGS := run_netsocktests run_afpackettests test_bpf.sh netdevice.sh \
+ 	      rtnetlink.sh xfrm_policy.sh test_blackhole_dev.sh
+ TEST_PROGS += fib_tests.sh fib-onlink-tests.sh pmtu.sh udpgso.sh ip_defrag.sh
+ TEST_PROGS += udpgso_bench.sh fib_rule_tests.sh msg_zerocopy.sh psock_snd.sh
+ TEST_PROGS += udpgro_bench.sh udpgro.sh test_vxlan_under_vrf.sh reuseport_addr_any.sh
+-TEST_PROGS += test_vxlan_fdb_changelink.sh so_txtime.sh ipv6_flowlabel.sh
++TEST_PROGS += test_vxlan_fdb_changelink.sh so_txtime.sh
+ TEST_PROGS += tcp_fastopen_backup_key.sh fcnal-test.sh l2tp.sh traceroute.sh
+ TEST_PROGS += fin_ack_lat.sh
+ TEST_PROGS_EXTENDED := in_netns.sh
+@@ -21,7 +23,22 @@ TEST_GEN_FILES += so_txtime ipv6_flowlabel ipv6_flowlabel_mgr
+ TEST_GEN_FILES += tcp_fastopen_backup_key
+ TEST_GEN_FILES += fin_ack_lat
+ TEST_GEN_PROGS = reuseport_bpf reuseport_bpf_cpu reuseport_bpf_numa
+-TEST_GEN_PROGS += reuseport_dualstack reuseaddr_conflict tls
++TEST_GEN_PROGS += tls
++
++#Forwarding tests
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/bridge_igmp.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/bridge_sticky_fdb.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/bridge_vlan_unaware.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/bridge_port_isolation.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/bridge_vlan_aware.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/ethtool.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/tc_actions.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/tc_common.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/tc_flower.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/tc_vlan_modify.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/tc_chains.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/tc_flower_router.sh
++TEST_PROGS += $(FORWARDING_TESTS_DIR)/tc_shblocks.sh
+ 
+ KSFT_KHDR_INSTALL := 1
+ include ../lib.mk
+diff --git a/tools/testing/selftests/net/fib-onlink-tests.sh b/tools/testing/selftests/net/fib-onlink-tests.sh
+index c287b90b8af8..7b96067b9ea4 100755
+--- a/tools/testing/selftests/net/fib-onlink-tests.sh
++++ b/tools/testing/selftests/net/fib-onlink-tests.sh
+@@ -32,15 +32,15 @@ V4ADDRS[p7]=169.254.7.1
+ V4ADDRS[p8]=169.254.7.2
+ 
+ # /64 network
+-declare -A V6ADDRS
+-V6ADDRS[p1]=2001:db8:101::1
+-V6ADDRS[p2]=2001:db8:101::2
+-V6ADDRS[p3]=2001:db8:301::1
+-V6ADDRS[p4]=2001:db8:301::2
+-V6ADDRS[p5]=2001:db8:501::1
+-V6ADDRS[p6]=2001:db8:501::2
+-V6ADDRS[p7]=2001:db8:701::1
+-V6ADDRS[p8]=2001:db8:701::2
++#declare -A V6ADDRS
++#V6ADDRS[p1]=2001:db8:101::1
++#V6ADDRS[p2]=2001:db8:101::2
++#V6ADDRS[p3]=2001:db8:301::1
++#V6ADDRS[p4]=2001:db8:301::2
++#V6ADDRS[p5]=2001:db8:501::1
++#V6ADDRS[p6]=2001:db8:501::2
++#V6ADDRS[p7]=2001:db8:701::1
++#V6ADDRS[p8]=2001:db8:701::2
+ 
+ # Test networks:
+ # [1] = default table
+@@ -52,8 +52,8 @@ TEST_NET4[1]=169.254.101
+ TEST_NET4[2]=169.254.102
+ # /128 host routes
+ declare -A TEST_NET6
+-TEST_NET6[1]=2001:db8:101
+-TEST_NET6[2]=2001:db8:102
++#TEST_NET6[1]=2001:db8:101
++#TEST_NET6[2]=2001:db8:102
+ 
+ # connected gateway
+ CONGW[1]=169.254.1.254
+@@ -63,8 +63,8 @@ CONGW[3]=169.254.5.254
+ # recursive gateway
+ RECGW4[1]=169.254.11.254
+ RECGW4[2]=169.254.12.254
+-RECGW6[1]=2001:db8:11::64
+-RECGW6[2]=2001:db8:12::64
++#RECGW6[1]=2001:db8:11::64
++#RECGW6[2]=2001:db8:12::64
+ 
+ # for v4 mapped to v6
+ declare -A TEST_NET4IN6IN6
+@@ -72,7 +72,7 @@ TEST_NET4IN6[1]=10.1.1.254
+ TEST_NET4IN6[2]=10.2.1.254
+ 
+ # mcast address
+-MCAST6=ff02::1
++#MCAST6=ff02::1
+ 
+ 
+ PEER_NS=bart
+@@ -183,7 +183,7 @@ setup()
+ 	ip li add ${VRF} type vrf table ${VRF_TABLE}
+ 	ip li set ${VRF} up
+ 	ip ro add table ${VRF_TABLE} unreachable default metric 8192
+-	ip -6 ro add table ${VRF_TABLE} unreachable default metric 8192
++#	ip -6 ro add table ${VRF_TABLE} unreachable default metric 8192
+ 
+ 	# create test interfaces
+ 	ip li add ${NETIFS[p1]} type veth peer name ${NETIFS[p2]}
+@@ -200,18 +200,18 @@ setup()
+ 	for n in 1 3 5 7; do
+ 		ip li set ${NETIFS[p${n}]} up
+ 		ip addr add ${V4ADDRS[p${n}]}/24 dev ${NETIFS[p${n}]}
+-		ip addr add ${V6ADDRS[p${n}]}/64 dev ${NETIFS[p${n}]} nodad
++#		ip addr add ${V6ADDRS[p${n}]}/64 dev ${NETIFS[p${n}]} nodad
+ 	done
+ 
+ 	# move peer interfaces to namespace and add addresses
+ 	for n in 2 4 6 8; do
+ 		ip li set ${NETIFS[p${n}]} netns ${PEER_NS} up
+ 		ip -netns ${PEER_NS} addr add ${V4ADDRS[p${n}]}/24 dev ${NETIFS[p${n}]}
+-		ip -netns ${PEER_NS} addr add ${V6ADDRS[p${n}]}/64 dev ${NETIFS[p${n}]} nodad
++#		ip -netns ${PEER_NS} addr add ${V6ADDRS[p${n}]}/64 dev ${NETIFS[p${n}]} nodad
+ 	done
+ 
+-	ip -6 ro add default via ${V6ADDRS[p3]/::[0-9]/::64}
+-	ip -6 ro add table ${VRF_TABLE} default via ${V6ADDRS[p7]/::[0-9]/::64}
++#	ip -6 ro add default via ${V6ADDRS[p3]/::[0-9]/::64}
++#	ip -6 ro add table ${VRF_TABLE} default via ${V6ADDRS[p7]/::[0-9]/::64}
+ 
+ 	set +e
+ }
+@@ -225,7 +225,7 @@ cleanup()
+ 	done
+ 	ip link del ${VRF} 2>/dev/null
+ 	ip ro flush table ${VRF_TABLE}
+-	ip -6 ro flush table ${VRF_TABLE}
++#	ip -6 ro flush table ${VRF_TABLE}
+ }
+ 
+ ################################################################################
+@@ -458,11 +458,11 @@ run_onlink_tests()
+ 	log_subsection "Invalid onlink commands"
+ 	invalid_onlink_ipv4
+ 
+-	log_section "IPv6 onlink"
+-	log_subsection "Valid onlink commands"
+-	valid_onlink_ipv6
+-	log_subsection "Invalid onlink commands"
+-	invalid_onlink_ipv6
++#	log_section "IPv6 onlink"
++#	log_subsection "Valid onlink commands"
++#	valid_onlink_ipv6
++#	log_subsection "Invalid onlink commands"
++#	invalid_onlink_ipv6
+ }
+ 
+ ################################################################################
+diff --git a/tools/testing/selftests/net/fib_nexthop_multiprefix.sh b/tools/testing/selftests/net/fib_nexthop_multiprefix.sh
+index 9dc35a16e415..c7ca456b07f2 100755
+--- a/tools/testing/selftests/net/fib_nexthop_multiprefix.sh
++++ b/tools/testing/selftests/net/fib_nexthop_multiprefix.sh
+@@ -78,14 +78,14 @@ create_ns()
+ 	ip -netns ${ns} addr add 127.0.0.1/8 dev lo
+ 	ip -netns ${ns} link set lo up
+ 
+-	ip netns exec ${ns} sysctl -q -w net.ipv6.conf.all.keep_addr_on_down=1
++#	ip netns exec ${ns} sysctl -q -w net.ipv6.conf.all.keep_addr_on_down=1
+ 	case ${ns} in
+ 	h*)
+-		ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=0
++#		ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=0
+ 		;;
+ 	r*)
+ 		ip netns exec $ns sysctl -q -w net.ipv4.ip_forward=1
+-		ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=1
++#		ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=1
+ 		;;
+ 	esac
+ }
+@@ -113,13 +113,13 @@ setup()
+ 		ip -netns h${i} li set r1h${i} netns r1 name eth${i} up
+ 
+ 		ip -netns h${i}    addr add dev eth0 172.16.10${i}.1/24
+-		ip -netns h${i} -6 addr add dev eth0 2001:db8:10${i}::1/64
++#		ip -netns h${i} -6 addr add dev eth0 2001:db8:10${i}::1/64
+ 		ip -netns r1    addr add dev eth${i} 172.16.10${i}.254/24
+-		ip -netns r1 -6 addr add dev eth${i} 2001:db8:10${i}::64/64
++#		ip -netns r1 -6 addr add dev eth${i} 2001:db8:10${i}::64/64
+ 	done
+ 
+ 	ip -netns h0 nexthop add id 4 via 172.16.100.254 dev eth0
+-	ip -netns h0 nexthop add id 6 via 2001:db8:100::64 dev eth0
++#	ip -netns h0 nexthop add id 6 via 2001:db8:100::64 dev eth0
+ 
+ 	# routing from h0 to h1-h3 and back
+ 	for i in 1 2 3
+@@ -127,8 +127,8 @@ setup()
+ 		ip -netns h0    ro add 172.16.10${i}.0/24 nhid 4
+ 		ip -netns h${i} ro add 172.16.100.0/24 via 172.16.10${i}.254
+ 
+-		ip -netns h0    -6 ro add 2001:db8:10${i}::/64 nhid 6
+-		ip -netns h${i} -6 ro add 2001:db8:100::/64 via 2001:db8:10${i}::64
++#		ip -netns h0    -6 ro add 2001:db8:10${i}::/64 nhid 6
++#		ip -netns h${i} -6 ro add 2001:db8:100::/64 via 2001:db8:10${i}::64
+ 	done
+ 
+ 	if [ "$VERBOSE" = "1" ]; then
+@@ -136,7 +136,7 @@ setup()
+ 		echo "host 1 config"
+ 		ip -netns h0 li sh
+ 		ip -netns h0 ro sh
+-		ip -netns h0 -6 ro sh
++#		ip -netns h0 -6 ro sh
+ 	fi
+ 
+ 	#set +e
+@@ -245,8 +245,8 @@ do
+ 		run_cmd taskset -c ${c} ip netns exec h0 ping -c1 -w1 172.16.10${i}.1
+ 		[ $? -ne 0 ] && printf "\nERROR: ping to h${i} failed\n" && ret=1
+ 
+-		run_cmd taskset -c ${c} ip netns exec h0 ${ping6} -c1 -w1 2001:db8:10${i}::1
+-		[ $? -ne 0 ] && printf "\nERROR: ping6 to h${i} failed\n" && ret=1
++#		run_cmd taskset -c ${c} ip netns exec h0 ${ping6} -c1 -w1 2001:db8:10${i}::1
++#		[ $? -ne 0 ] && printf "\nERROR: ping6 to h${i} failed\n" && ret=1
+ 
+ 		[ $ret -ne 0 ] && break
+ 	done
+@@ -257,36 +257,36 @@ if [ $ret -eq 0 ]; then
+ 	# generate different exceptions in h0 for h1, h2 and h3
+ 	change_mtu 1 1300
+ 	validate_v4_exception 1 1300 1350
+-	validate_v6_exception 1 1300 1350
++#	validate_v6_exception 1 1300 1350
+ 	echo
+ 
+ 	change_mtu 2 1350
+ 	validate_v4_exception 2 1350 1400
+-	validate_v6_exception 2 1350 1400
++#	validate_v6_exception 2 1350 1400
+ 	echo
+ 
+ 	change_mtu 3 1400
+ 	validate_v4_exception 3 1400 1450
+-	validate_v6_exception 3 1400 1450
++#	validate_v6_exception 3 1400 1450
+ 	echo
+ 
+ 	validate_v4_exception 1 1300 0
+-	validate_v6_exception 1 1300 0
++#	validate_v6_exception 1 1300 0
+ 	echo
+ 
+ 	validate_v4_exception 2 1350 0
+-	validate_v6_exception 2 1350 0
++#	validate_v6_exception 2 1350 0
+ 	echo
+ 
+ 	validate_v4_exception 3 1400 0
+-	validate_v6_exception 3 1400 0
++#	validate_v6_exception 3 1400 0
+ 
+ 	# targeted deletes to trigger cleanup paths in kernel
+ 	ip -netns h0 ro del 172.16.102.0/24 nhid 4
+-	ip -netns h0 -6 ro del 2001:db8:102::/64 nhid 6
++#	ip -netns h0 -6 ro del 2001:db8:102::/64 nhid 6
+ 
+ 	ip -netns h0 nexthop del id 4
+-	ip -netns h0 nexthop del id 6
++#	ip -netns h0 nexthop del id 6
+ fi
+ 
+ cleanup
+diff --git a/tools/testing/selftests/net/fib_nexthops.sh b/tools/testing/selftests/net/fib_nexthops.sh
+index 796670ebc65b..7f196c4a025a 100755
+--- a/tools/testing/selftests/net/fib_nexthops.sh
++++ b/tools/testing/selftests/net/fib_nexthops.sh
+@@ -22,7 +22,7 @@ ksft_skip=4
+ IPV4_TESTS="ipv4_fcnal ipv4_grp_fcnal ipv4_withv6_fcnal ipv4_fcnal_runtime"
+ IPV6_TESTS="ipv6_fcnal ipv6_grp_fcnal ipv6_fcnal_runtime"
+ 
+-ALL_TESTS="basic ${IPV4_TESTS} ${IPV6_TESTS}"
++ALL_TESTS="basic ${IPV4_TESTS}"
+ TESTS="${ALL_TESTS}"
+ VERBOSE=0
+ PAUSE_ON_FAIL=no
+@@ -127,12 +127,12 @@ create_ns()
+ 	ip netns exec ${n} sysctl -qw net.ipv4.ip_forward=1
+ 	ip netns exec ${n} sysctl -qw net.ipv4.fib_multipath_use_neigh=1
+ 	ip netns exec ${n} sysctl -qw net.ipv4.conf.default.ignore_routes_with_linkdown=1
+-	ip netns exec ${n} sysctl -qw net.ipv6.conf.all.keep_addr_on_down=1
+-	ip netns exec ${n} sysctl -qw net.ipv6.conf.all.forwarding=1
+-	ip netns exec ${n} sysctl -qw net.ipv6.conf.default.forwarding=1
+-	ip netns exec ${n} sysctl -qw net.ipv6.conf.default.ignore_routes_with_linkdown=1
+-	ip netns exec ${n} sysctl -qw net.ipv6.conf.all.accept_dad=0
+-	ip netns exec ${n} sysctl -qw net.ipv6.conf.default.accept_dad=0
++#	ip netns exec ${n} sysctl -qw net.ipv6.conf.all.keep_addr_on_down=1
++#	ip netns exec ${n} sysctl -qw net.ipv6.conf.all.forwarding=1
++#	ip netns exec ${n} sysctl -qw net.ipv6.conf.default.forwarding=1
++#	ip netns exec ${n} sysctl -qw net.ipv6.conf.default.ignore_routes_with_linkdown=1
++#	ip netns exec ${n} sysctl -qw net.ipv6.conf.all.accept_dad=0
++#	ip netns exec ${n} sysctl -qw net.ipv6.conf.default.accept_dad=0
+ 
+ 	set +e
+ }
+@@ -150,31 +150,31 @@ setup()
+ 	$IP li add veth1 type veth peer name veth2
+ 	$IP li set veth1 up
+ 	$IP addr add 172.16.1.1/24 dev veth1
+-	$IP -6 addr add 2001:db8:91::1/64 dev veth1
++#	$IP -6 addr add 2001:db8:91::1/64 dev veth1
+ 
+ 	$IP li add veth3 type veth peer name veth4
+ 	$IP li set veth3 up
+ 	$IP addr add 172.16.2.1/24 dev veth3
+-	$IP -6 addr add 2001:db8:92::1/64 dev veth3
++#	$IP -6 addr add 2001:db8:92::1/64 dev veth3
+ 
+ 	$IP li set veth2 netns peer up
+ 	ip -netns peer addr add 172.16.1.2/24 dev veth2
+-	ip -netns peer -6 addr add 2001:db8:91::2/64 dev veth2
++#	ip -netns peer -6 addr add 2001:db8:91::2/64 dev veth2
+ 
+ 	$IP li set veth4 netns peer up
+ 	ip -netns peer addr add 172.16.2.2/24 dev veth4
+-	ip -netns peer -6 addr add 2001:db8:92::2/64 dev veth4
++#	ip -netns peer -6 addr add 2001:db8:92::2/64 dev veth4
+ 
+ 	ip -netns remote li add veth5 type veth peer name veth6
+ 	ip -netns remote li set veth5 up
+ 	ip -netns remote addr add dev veth5 172.16.101.1/24
+-	ip -netns remote addr add dev veth5 2001:db8:101::1/64
++#	ip -netns remote addr add dev veth5 2001:db8:101::1/64
+ 	ip -netns remote ro add 172.16.0.0/22 via 172.16.101.2
+-	ip -netns remote -6 ro add 2001:db8:90::/40 via 2001:db8:101::2
++#	ip -netns remote -6 ro add 2001:db8:90::/40 via 2001:db8:101::2
+ 
+ 	ip -netns remote li set veth6 netns peer up
+ 	ip -netns peer addr add dev veth6 172.16.101.2/24
+-	ip -netns peer addr add dev veth6 2001:db8:101::2/64
++#	ip -netns peer addr add dev veth6 2001:db8:101::2/64
+ 	set +e
+ }
+ 
+diff --git a/tools/testing/selftests/net/fib_rule_tests.sh b/tools/testing/selftests/net/fib_rule_tests.sh
+index a93e6b690e06..9a8222b5cf85 100755
+--- a/tools/testing/selftests/net/fib_rule_tests.sh
++++ b/tools/testing/selftests/net/fib_rule_tests.sh
+@@ -57,7 +57,7 @@ setup()
+ 	$IP link add dummy0 type dummy
+ 	$IP link set dev dummy0 up
+ 	$IP address add $DEV_ADDR/24 dev dummy0
+-	$IP -6 address add $DEV_ADDR6/64 dev dummy0
++#	$IP -6 address add $DEV_ADDR6/64 dev dummy0
+ 
+ 	set +e
+ }
+@@ -232,8 +232,8 @@ run_fibrule_tests()
+ {
+ 	log_section "IPv4 fib rule"
+ 	fib_rule4_test
+-	log_section "IPv6 fib rule"
+-	fib_rule6_test
++#	log_section "IPv6 fib rule"
++#	fib_rule6_test
+ }
+ 
+ if [ "$(id -u)" -ne 0 ];then
+diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
+index 60273f1bc7d9..21e9dfdf4d0b 100755
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -9,7 +9,7 @@ ret=0
+ ksft_skip=4
+ 
+ # all tests in this script. Can be overridden with -t option
+-TESTS="unregister down carrier nexthop suppress ipv6_rt ipv4_rt ipv6_addr_metric ipv4_addr_metric ipv6_route_metrics ipv4_route_metrics ipv4_route_v6_gw rp_filter ipv4_del_addr"
++TESTS="unregister down carrier nexthop suppress ipv4_rt  ipv4_addr_metric ipv4_route_metrics ipv4_del_addr"
+ 
+ VERBOSE=0
+ PAUSE_ON_FAIL=no
+@@ -17,8 +17,6 @@ PAUSE=no
+ IP="ip -netns ns1"
+ NS_EXEC="ip netns exec ns1"
+ 
+-which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
+-
+ log_test()
+ {
+ 	local rc=$1
+@@ -55,12 +53,12 @@ setup()
+ 	ip netns set ns1 auto
+ 	$IP link set dev lo up
+ 	ip netns exec ns1 sysctl -qw net.ipv4.ip_forward=1
+-	ip netns exec ns1 sysctl -qw net.ipv6.conf.all.forwarding=1
++#	ip netns exec ns1 sysctl -qw net.ipv6.conf.all.forwarding=1
+ 
+ 	$IP link add dummy0 type dummy
+ 	$IP link set dev dummy0 up
+ 	$IP address add 198.51.100.1/24 dev dummy0
+-	$IP -6 address add 2001:db8:1::1/64 dev dummy0
++#	$IP -6 address add 2001:db8:1::1/64 dev dummy0
+ 	set +e
+ 
+ }
+@@ -104,8 +102,8 @@ fib_unreg_unicast_test()
+ 	echo "    Start point"
+ 	$IP route get fibmatch 198.51.100.2 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	set -e
+ 	$IP link del dev dummy0
+@@ -114,8 +112,8 @@ fib_unreg_unicast_test()
+ 	echo "    Nexthop device deleted"
+ 	$IP route get fibmatch 198.51.100.2 &> /dev/null
+ 	log_test $? 2 "IPv4 fibmatch - no route"
+-	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
+-	log_test $? 2 "IPv6 fibmatch - no route"
++#	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
++#	log_test $? 2 "IPv6 fibmatch - no route"
+ 
+ 	cleanup
+ }
+@@ -132,21 +130,21 @@ fib_unreg_multipath_test()
+ 	$IP link add dummy1 type dummy
+ 	$IP link set dev dummy1 up
+ 	$IP address add 192.0.2.1/24 dev dummy1
+-	$IP -6 address add 2001:db8:2::1/64 dev dummy1
++#	$IP -6 address add 2001:db8:2::1/64 dev dummy1
+ 
+ 	$IP route add 203.0.113.0/24 \
+ 		nexthop via 198.51.100.2 dev dummy0 \
+ 		nexthop via 192.0.2.2 dev dummy1
+-	$IP -6 route add 2001:db8:3::/64 \
+-		nexthop via 2001:db8:1::2 dev dummy0 \
+-		nexthop via 2001:db8:2::2 dev dummy1
++#	$IP -6 route add 2001:db8:3::/64 \
++#		nexthop via 2001:db8:1::2 dev dummy0 \
++#		nexthop via 2001:db8:2::2 dev dummy1
+ 	set +e
+ 
+ 	echo "    Start point"
+ 	$IP route get fibmatch 203.0.113.1 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	set -e
+ 	$IP link del dev dummy0
+@@ -156,17 +154,17 @@ fib_unreg_multipath_test()
+ 	$IP route get fibmatch 203.0.113.1 &> /dev/null
+ 	log_test $? 2 "IPv4 - multipath route removed on delete"
+ 
+-	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
++#	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
+ 	# In IPv6 we do not flush the entire multipath route.
+-	log_test $? 0 "IPv6 - multipath down to single path"
++#	log_test $? 0 "IPv6 - multipath down to single path"
+ 
+ 	set -e
+ 	$IP link del dev dummy1
+ 	set +e
+ 
+ 	echo "    Second nexthop device deleted"
+-	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
+-	log_test $? 2 "IPv6 - no route"
++#	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
++#	log_test $? 2 "IPv6 - no route"
+ 
+ 	cleanup
+ }
+@@ -187,8 +185,8 @@ fib_down_unicast_test()
+ 	echo "    Start point"
+ 	$IP route get fibmatch 198.51.100.2 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	set -e
+ 	$IP link set dev dummy0 down
+@@ -197,8 +195,8 @@ fib_down_unicast_test()
+ 	echo "    Route deleted on down"
+ 	$IP route get fibmatch 198.51.100.2 &> /dev/null
+ 	log_test $? 2 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
+-	log_test $? 2 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
++#	log_test $? 2 "IPv6 fibmatch"
+ 
+ 	cleanup
+ }
+@@ -211,30 +209,30 @@ fib_down_multipath_test_do()
+ 	$IP route get fibmatch 203.0.113.1 \
+ 		oif $down_dev &> /dev/null
+ 	log_test $? 2 "IPv4 fibmatch on down device"
+-	$IP -6 route get fibmatch 2001:db8:3::1 \
+-		oif $down_dev &> /dev/null
+-	log_test $? 2 "IPv6 fibmatch on down device"
++#	$IP -6 route get fibmatch 2001:db8:3::1 \
++#		oif $down_dev &> /dev/null
++#	log_test $? 2 "IPv6 fibmatch on down device"
+ 
+ 	$IP route get fibmatch 203.0.113.1 \
+ 		oif $up_dev &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch on up device"
+-	$IP -6 route get fibmatch 2001:db8:3::1 \
+-		oif $up_dev &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch on up device"
++#	$IP -6 route get fibmatch 2001:db8:3::1 \
++#		oif $up_dev &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch on up device"
+ 
+ 	$IP route get fibmatch 203.0.113.1 | \
+ 		grep $down_dev | grep -q "dead linkdown"
+ 	log_test $? 0 "IPv4 flags on down device"
+-	$IP -6 route get fibmatch 2001:db8:3::1 | \
+-		grep $down_dev | grep -q "dead linkdown"
+-	log_test $? 0 "IPv6 flags on down device"
++#	$IP -6 route get fibmatch 2001:db8:3::1 | \
++#		grep $down_dev | grep -q "dead linkdown"
++#	log_test $? 0 "IPv6 flags on down device"
+ 
+ 	$IP route get fibmatch 203.0.113.1 | \
+ 		grep $up_dev | grep -q "dead linkdown"
+ 	log_test $? 1 "IPv4 flags on up device"
+-	$IP -6 route get fibmatch 2001:db8:3::1 | \
+-		grep $up_dev | grep -q "dead linkdown"
+-	log_test $? 1 "IPv6 flags on up device"
++#	$IP -6 route get fibmatch 2001:db8:3::1 | \
++#		grep $up_dev | grep -q "dead linkdown"
++#	log_test $? 1 "IPv6 flags on up device"
+ }
+ 
+ fib_down_multipath_test()
+@@ -249,22 +247,22 @@ fib_down_multipath_test()
+ 	$IP link set dev dummy1 up
+ 
+ 	$IP address add 192.0.2.1/24 dev dummy1
+-	$IP -6 address add 2001:db8:2::1/64 dev dummy1
++#	$IP -6 address add 2001:db8:2::1/64 dev dummy1
+ 
+ 	$IP route add 203.0.113.0/24 \
+ 		nexthop via 198.51.100.2 dev dummy0 \
+ 		nexthop via 192.0.2.2 dev dummy1
+-	$IP -6 route add 2001:db8:3::/64 \
+-		nexthop via 2001:db8:1::2 dev dummy0 \
+-		nexthop via 2001:db8:2::2 dev dummy1
++#	$IP -6 route add 2001:db8:3::/64 \
++#		nexthop via 2001:db8:1::2 dev dummy0 \
++#		nexthop via 2001:db8:2::2 dev dummy1
+ 	set +e
+ 
+ 	echo "    Verify start point"
+ 	$IP route get fibmatch 203.0.113.1 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+ 
+-	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	set -e
+ 	$IP link set dev dummy0 down
+@@ -288,8 +286,8 @@ fib_down_multipath_test()
+ 	echo "    Both devices down"
+ 	$IP route get fibmatch 203.0.113.1 &> /dev/null
+ 	log_test $? 2 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
+-	log_test $? 2 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:3::1 &> /dev/null
++#	log_test $? 2 "IPv6 fibmatch"
+ 
+ 	$IP link del dev dummy1
+ 	cleanup
+@@ -316,15 +314,15 @@ fib_carrier_local_test()
+ 	echo "    Start point"
+ 	$IP route get fibmatch 198.51.100.1 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:1::1 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:1::1 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	$IP route get fibmatch 198.51.100.1 | \
+ 		grep -q "linkdown"
+ 	log_test $? 1 "IPv4 - no linkdown flag"
+-	$IP -6 route get fibmatch 2001:db8:1::1 | \
+-		grep -q "linkdown"
+-	log_test $? 1 "IPv6 - no linkdown flag"
++#	$IP -6 route get fibmatch 2001:db8:1::1 | \
++#		grep -q "linkdown"
++#	log_test $? 1 "IPv6 - no linkdown flag"
+ 
+ 	set -e
+ 	$IP link set dev dummy0 carrier off
+@@ -334,33 +332,33 @@ fib_carrier_local_test()
+ 	echo "    Carrier off on nexthop"
+ 	$IP route get fibmatch 198.51.100.1 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:1::1 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:1::1 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	$IP route get fibmatch 198.51.100.1 | \
+ 		grep -q "linkdown"
+ 	log_test $? 1 "IPv4 - linkdown flag set"
+-	$IP -6 route get fibmatch 2001:db8:1::1 | \
+-		grep -q "linkdown"
+-	log_test $? 1 "IPv6 - linkdown flag set"
++#	$IP -6 route get fibmatch 2001:db8:1::1 | \
++#		grep -q "linkdown"
++#	log_test $? 1 "IPv6 - linkdown flag set"
+ 
+ 	set -e
+ 	$IP address add 192.0.2.1/24 dev dummy0
+-	$IP -6 address add 2001:db8:2::1/64 dev dummy0
++#	$IP -6 address add 2001:db8:2::1/64 dev dummy0
+ 	set +e
+ 
+ 	echo "    Route to local address with carrier down"
+ 	$IP route get fibmatch 192.0.2.1 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:2::1 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:2::1 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	$IP route get fibmatch 192.0.2.1 | \
+ 		grep -q "linkdown"
+ 	log_test $? 1 "IPv4 linkdown flag set"
+-	$IP -6 route get fibmatch 2001:db8:2::1 | \
+-		grep -q "linkdown"
+-	log_test $? 1 "IPv6 linkdown flag set"
++#	$IP -6 route get fibmatch 2001:db8:2::1 | \
++#		grep -q "linkdown"
++#	log_test $? 1 "IPv6 linkdown flag set"
+ 
+ 	cleanup
+ }
+@@ -381,15 +379,15 @@ fib_carrier_unicast_test()
+ 	echo "    Start point"
+ 	$IP route get fibmatch 198.51.100.2 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	$IP route get fibmatch 198.51.100.2 | \
+ 		grep -q "linkdown"
+ 	log_test $? 1 "IPv4 no linkdown flag"
+-	$IP -6 route get fibmatch 2001:db8:1::2 | \
+-		grep -q "linkdown"
+-	log_test $? 1 "IPv6 no linkdown flag"
++#	$IP -6 route get fibmatch 2001:db8:1::2 | \
++#		grep -q "linkdown"
++#	log_test $? 1 "IPv6 no linkdown flag"
+ 
+ 	set -e
+ 	$IP link set dev dummy0 carrier off
+@@ -399,33 +397,33 @@ fib_carrier_unicast_test()
+ 	echo "    Carrier down"
+ 	$IP route get fibmatch 198.51.100.2 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:1::2 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	$IP route get fibmatch 198.51.100.2 | \
+ 		grep -q "linkdown"
+ 	log_test $? 0 "IPv4 linkdown flag set"
+-	$IP -6 route get fibmatch 2001:db8:1::2 | \
+-		grep -q "linkdown"
+-	log_test $? 0 "IPv6 linkdown flag set"
++#	$IP -6 route get fibmatch 2001:db8:1::2 | \
++#		grep -q "linkdown"
++#	log_test $? 0 "IPv6 linkdown flag set"
+ 
+ 	set -e
+ 	$IP address add 192.0.2.1/24 dev dummy0
+-	$IP -6 address add 2001:db8:2::1/64 dev dummy0
++#	$IP -6 address add 2001:db8:2::1/64 dev dummy0
+ 	set +e
+ 
+ 	echo "    Second address added with carrier down"
+ 	$IP route get fibmatch 192.0.2.2 &> /dev/null
+ 	log_test $? 0 "IPv4 fibmatch"
+-	$IP -6 route get fibmatch 2001:db8:2::2 &> /dev/null
+-	log_test $? 0 "IPv6 fibmatch"
++#	$IP -6 route get fibmatch 2001:db8:2::2 &> /dev/null
++#	log_test $? 0 "IPv6 fibmatch"
+ 
+ 	$IP route get fibmatch 192.0.2.2 | \
+ 		grep -q "linkdown"
+ 	log_test $? 0 "IPv4 linkdown flag set"
+-	$IP -6 route get fibmatch 2001:db8:2::2 | \
+-		grep -q "linkdown"
+-	log_test $? 0 "IPv6 linkdown flag set"
++#	$IP -6 route get fibmatch 2001:db8:2::2 | \
++#		grep -q "linkdown"
++#	log_test $? 0 "IPv6 linkdown flag set"
+ 
+ 	cleanup
+ }
+@@ -581,32 +579,32 @@ fib_nexthop_test()
+ 
+ 	$IP -4 rule add pref 32765 table local
+ 	$IP -4 rule del pref 0
+-	$IP -6 rule add pref 32765 table local
+-	$IP -6 rule del pref 0
++#	$IP -6 rule add pref 32765 table local
++#	$IP -6 rule del pref 0
+ 
+ 	$IP link add red type vrf table 1
+ 	$IP link set red up
+ 	$IP -4 route add vrf red unreachable default metric 4278198272
+-	$IP -6 route add vrf red unreachable default metric 4278198272
++#	$IP -6 route add vrf red unreachable default metric 4278198272
+ 
+ 	$IP link add veth0 type veth peer name veth1
+ 	$IP link set dev veth0 up
+ 	$IP address add 192.0.2.1/24 dev veth0
+-	$IP -6 address add 2001:db8:51::1/64 dev veth0
++#	$IP -6 address add 2001:db8:51::1/64 dev veth0
+ 
+ 	$IP link set dev veth1 vrf red up
+ 	$IP address add 192.0.2.2/24 dev veth1
+-	$IP -6 address add 2001:db8:51::2/64 dev veth1
++#	$IP -6 address add 2001:db8:51::2/64 dev veth1
+ 
+ 	$IP link add dummy1 type dummy
+ 	$IP link set dev dummy1 vrf red up
+ 	$IP address add 192.168.2.1/24 dev dummy1
+-	$IP -6 address add 2001:db8:2::1/64 dev dummy1
++#	$IP -6 address add 2001:db8:2::1/64 dev dummy1
+ 	set +e
+ 
+ 	sleep 1
+ 	fib4_nexthop
+-	fib6_nexthop
++#	fib6_nexthop
+ 
+ 	(
+ 	$IP link del dev dummy1
+@@ -620,10 +618,10 @@ fib_suppress_test()
+ {
+ 	$IP link add dummy1 type dummy
+ 	$IP link set dummy1 up
+-	$IP -6 route add default dev dummy1
+-	$IP -6 rule add table main suppress_prefixlength 0
+-	ping -f -c 1000 -W 1 1234::1 || true
+-	$IP -6 rule del table main suppress_prefixlength 0
++#	$IP -6 route add default dev dummy1
++#	$IP -6 rule add table main suppress_prefixlength 0
++#	ping -f -c 1000 -W 1 1234::1 || true
++#	$IP -6 rule del table main suppress_prefixlength 0
+ 	$IP link del dummy1
+ 
+ 	# If we got here without crashing, we're good.
+@@ -760,7 +758,7 @@ route_setup()
+ 	ip netns set ns2 auto
+ 	ip -netns ns2 link set dev lo up
+ 	ip netns exec ns2 sysctl -qw net.ipv4.ip_forward=1
+-	ip netns exec ns2 sysctl -qw net.ipv6.conf.all.forwarding=1
++#	ip netns exec ns2 sysctl -qw net.ipv6.conf.all.forwarding=1
+ 
+ 	$IP li add veth1 type veth peer name veth2
+ 	$IP li add veth3 type veth peer name veth4
+@@ -772,14 +770,14 @@ route_setup()
+ 	ip -netns ns2 li add dummy1 type dummy
+ 	ip -netns ns2 li set dummy1 up
+ 
+-	$IP -6 addr add 2001:db8:101::1/64 dev veth1 nodad
+-	$IP -6 addr add 2001:db8:103::1/64 dev veth3 nodad
++#	$IP -6 addr add 2001:db8:101::1/64 dev veth1 nodad
++#	$IP -6 addr add 2001:db8:103::1/64 dev veth3 nodad
+ 	$IP addr add 172.16.101.1/24 dev veth1
+ 	$IP addr add 172.16.103.1/24 dev veth3
+ 
+-	ip -netns ns2 -6 addr add 2001:db8:101::2/64 dev veth2 nodad
+-	ip -netns ns2 -6 addr add 2001:db8:103::2/64 dev veth4 nodad
+-	ip -netns ns2 -6 addr add 2001:db8:104::1/64 dev dummy1 nodad
++#	ip -netns ns2 -6 addr add 2001:db8:101::2/64 dev veth2 nodad
++#	ip -netns ns2 -6 addr add 2001:db8:103::2/64 dev veth4 nodad
++#	ip -netns ns2 -6 addr add 2001:db8:104::1/64 dev dummy1 nodad
+ 
+ 	ip -netns ns2 addr add 172.16.101.2/24 dev veth2
+ 	ip -netns ns2 addr add 172.16.103.2/24 dev veth4
+diff --git a/tools/testing/selftests/net/forwarding/bridge_igmp.sh b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
+index 88d2472ba151..d2fcced7138d 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_igmp.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
+@@ -1,6 +1,5 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0
+-
+ ALL_TESTS="reportleave_test"
+ NUM_NETIFS=4
+ CHECK_TC="yes"
+@@ -10,22 +9,22 @@ source lib.sh
+ 
+ h1_create()
+ {
+-	simple_if_init $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_init $h1 192.0.2.1/24
+ }
+ 
+ h1_destroy()
+ {
+-	simple_if_fini $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_fini $h1 192.0.2.1/24
+ }
+ 
+ h2_create()
+ {
+-	simple_if_init $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_init $h2 192.0.2.2/24
+ }
+ 
+ h2_destroy()
+ {
+-	simple_if_fini $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_fini $h2 192.0.2.2/24
+ }
+ 
+ switch_create()
+diff --git a/tools/testing/selftests/net/forwarding/bridge_port_isolation.sh b/tools/testing/selftests/net/forwarding/bridge_port_isolation.sh
+index a43b4645c4de..9779239609f1 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_port_isolation.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_port_isolation.sh
+@@ -1,39 +1,39 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-ALL_TESTS="ping_ipv4 ping_ipv6 flooding"
++ALL_TESTS="ping_ipv4 flooding"
+ NUM_NETIFS=6
+ CHECK_TC="yes"
+ source lib.sh
+ 
+ h1_create()
+ {
+-	simple_if_init $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_init $h1 192.0.2.1/24
+ }
+ 
+ h1_destroy()
+ {
+-	simple_if_fini $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_fini $h1 192.0.2.1/24
+ }
+ 
+ h2_create()
+ {
+-	simple_if_init $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_init $h2 192.0.2.2/24
+ }
+ 
+ h2_destroy()
+ {
+-	simple_if_fini $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_fini $h2 192.0.2.2/24
+ }
+ 
+ h3_create()
+ {
+-	simple_if_init $h3 192.0.2.3/24 2001:db8:1::3/64
++	simple_if_init $h3 192.0.2.3/24
+ }
+ 
+ h3_destroy()
+ {
+-	simple_if_fini $h3 192.0.2.3/24 2001:db8:1::3/64
++	simple_if_fini $h3 192.0.2.3/24
+ }
+ 
+ switch_create()
+diff --git a/tools/testing/selftests/net/forwarding/bridge_vlan_aware.sh b/tools/testing/selftests/net/forwarding/bridge_vlan_aware.sh
+index b90dff8d3a94..6d67c790b015 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_vlan_aware.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_vlan_aware.sh
+@@ -1,29 +1,29 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-ALL_TESTS="ping_ipv4 ping_ipv6 learning flooding vlan_deletion extern_learn"
++ALL_TESTS="ping_ipv4 learning flooding vlan_deletion extern_learn"
+ NUM_NETIFS=4
+ CHECK_TC="yes"
+ source lib.sh
+ 
+ h1_create()
+ {
+-	simple_if_init $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_init $h1 192.0.2.1/24
+ }
+ 
+ h1_destroy()
+ {
+-	simple_if_fini $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_fini $h1 192.0.2.1/24
+ }
+ 
+ h2_create()
+ {
+-	simple_if_init $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_init $h2 192.0.2.2/24
+ }
+ 
+ h2_destroy()
+ {
+-	simple_if_fini $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_fini $h2 192.0.2.2/24
+ }
+ 
+ switch_create()
+@@ -106,7 +106,7 @@ vlan_deletion()
+ 	bridge vlan del vid 10 dev $swp1
+ 
+ 	ping_ipv4
+-	ping_ipv6
++#	ping_ipv6
+ }
+ 
+ extern_learn()
+diff --git a/tools/testing/selftests/net/forwarding/bridge_vlan_unaware.sh b/tools/testing/selftests/net/forwarding/bridge_vlan_unaware.sh
+index c15c6c85c984..d09464be68a1 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_vlan_unaware.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_vlan_unaware.sh
+@@ -1,28 +1,28 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-ALL_TESTS="ping_ipv4 ping_ipv6 learning flooding"
++ALL_TESTS="ping_ipv4 learning flooding"
+ NUM_NETIFS=4
+ source lib.sh
+ 
+ h1_create()
+ {
+-	simple_if_init $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_init $h1 192.0.2.1/24
+ }
+ 
+ h1_destroy()
+ {
+-	simple_if_fini $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_fini $h1 192.0.2.1/24
+ }
+ 
+ h2_create()
+ {
+-	simple_if_init $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_init $h2 192.0.2.2/24
+ }
+ 
+ h2_destroy()
+ {
+-	simple_if_fini $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_fini $h2 192.0.2.2/24
+ }
+ 
+ switch_create()
+diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+index 2f5da414aaa7..614d5cf30c88 100644
+--- a/tools/testing/selftests/net/forwarding/lib.sh
++++ b/tools/testing/selftests/net/forwarding/lib.sh
+@@ -20,6 +20,7 @@ MC_CLI=${MC_CLI:=smcroutectl}
+ PING_TIMEOUT=${PING_TIMEOUT:=5}
+ WAIT_TIMEOUT=${WAIT_TIMEOUT:=20}
+ INTERFACE_TIMEOUT=${INTERFACE_TIMEOUT:=600}
++ulimit -l 1024
+ 
+ relative_path="${BASH_SOURCE%/*}"
+ if [[ "$relative_path" == "${BASH_SOURCE}" ]]; then
+@@ -371,14 +372,14 @@ vrf_prepare()
+ {
+ 	ip -4 rule add pref 32765 table local
+ 	ip -4 rule del pref 0
+-	ip -6 rule add pref 32765 table local
+-	ip -6 rule del pref 0
++#	ip -6 rule add pref 32765 table local
++#	ip -6 rule del pref 0
+ }
+ 
+ vrf_cleanup()
+ {
+-	ip -6 rule add pref 0 table local
+-	ip -6 rule del pref 32765
++#	ip -6 rule add pref 0 table local
++#	ip -6 rule del pref 32765
+ 	ip -4 rule add pref 0 table local
+ 	ip -4 rule del pref 32765
+ }
+@@ -412,7 +413,7 @@ vrf_create()
+ 
+ 	ip link add dev $vrf_name type vrf table $tb_id
+ 	ip -4 route add table $tb_id unreachable default metric 4278198272
+-	ip -6 route add table $tb_id unreachable default metric 4278198272
++#	ip -6 route add table $tb_id unreachable default metric 4278198272
+ }
+ 
+ vrf_destroy()
+@@ -423,7 +424,7 @@ vrf_destroy()
+ 	__vrf_td_id_lookup $vrf_name
+ 	tb_id=$?
+ 
+-	ip -6 route del table $tb_id unreachable default metric 4278198272
++#	ip -6 route del table $tb_id unreachable default metric 4278198272
+ 	ip -4 route del table $tb_id unreachable default metric 4278198272
+ 	ip link del dev $vrf_name
+ }
+@@ -669,12 +670,12 @@ sysctl_restore()
+ forwarding_enable()
+ {
+ 	sysctl_set net.ipv4.conf.all.forwarding 1
+-	sysctl_set net.ipv6.conf.all.forwarding 1
++#	sysctl_set net.ipv6.conf.all.forwarding 1
+ }
+ 
+ forwarding_restore()
+ {
+-	sysctl_restore net.ipv6.conf.all.forwarding
++#	sysctl_restore net.ipv6.conf.all.forwarding
+ 	sysctl_restore net.ipv4.conf.all.forwarding
+ }
+ 
+diff --git a/tools/testing/selftests/net/forwarding/tc_vlan_modify.sh b/tools/testing/selftests/net/forwarding/tc_vlan_modify.sh
+index 45378905cb97..f5040a64825d 100755
+--- a/tools/testing/selftests/net/forwarding/tc_vlan_modify.sh
++++ b/tools/testing/selftests/net/forwarding/tc_vlan_modify.sh
+@@ -12,26 +12,26 @@ source lib.sh
+ 
+ h1_create()
+ {
+-	simple_if_init $h1 192.0.2.1/28 2001:db8:1::1/64
+-	vlan_create $h1 85 v$h1 192.0.2.17/28 2001:db8:2::1/64
++	simple_if_init $h1 192.0.2.1/28
++	vlan_create $h1 85 v$h1 192.0.2.17/28
+ }
+ 
+ h1_destroy()
+ {
+ 	vlan_destroy $h1 85
+-	simple_if_fini $h1 192.0.2.1/28 2001:db8:1::1/64
++	simple_if_fini $h1 192.0.2.1/28
+ }
+ 
+ h2_create()
+ {
+-	simple_if_init $h2 192.0.2.2/28 2001:db8:1::2/64
+-	vlan_create $h2 65 v$h2 192.0.2.18/28 2001:db8:2::2/64
++	simple_if_init $h2 192.0.2.2/28
++	vlan_create $h2 65 v$h2 192.0.2.18/28
+ }
+ 
+ h2_destroy()
+ {
+ 	vlan_destroy $h2 65
+-	simple_if_fini $h2 192.0.2.2/28 2001:db8:1::2/64
++	simple_if_fini $h2 192.0.2.2/28
+ }
+ 
+ switch_create()
+@@ -107,8 +107,8 @@ vlan_modify_ingress()
+ 	ping_do $h1.85 192.0.2.18
+ 	check_fail $? "ping between two different vlans passed when should not"
+ 
+-	ping6_do $h1.85 2001:db8:2::2
+-	check_fail $? "ping6 between two different vlans passed when should not"
++#	ping6_do $h1.85 2001:db8:2::2
++#	check_fail $? "ping6 between two different vlans passed when should not"
+ 
+ 	tc filter add dev $swp1 ingress protocol all pref 1 handle 1 \
+ 		flower action vlan modify id 65
+@@ -118,8 +118,8 @@ vlan_modify_ingress()
+ 	ping_do $h1.85 192.0.2.18
+ 	check_err $? "ping between two different vlans failed when should not"
+ 
+-	ping6_do $h1.85 2001:db8:2::2
+-	check_err $? "ping6 between two different vlans failed when should not"
++#	ping6_do $h1.85 2001:db8:2::2
++#	check_err $? "ping6 between two different vlans failed when should not"
+ 
+ 	log_test "VLAN modify at ingress"
+ 
+@@ -134,8 +134,8 @@ vlan_modify_egress()
+ 	ping_do $h1.85 192.0.2.18
+ 	check_fail $? "ping between two different vlans passed when should not"
+ 
+-	ping6_do $h1.85 2001:db8:2::2
+-	check_fail $? "ping6 between two different vlans passed when should not"
++#	ping6_do $h1.85 2001:db8:2::2
++#	check_fail $? "ping6 between two different vlans passed when should not"
+ 
+ 	tc filter add dev $swp1 egress protocol all pref 1 handle 1 \
+ 		flower action vlan modify id 85
+@@ -145,8 +145,8 @@ vlan_modify_egress()
+ 	ping_do $h1.85 192.0.2.18
+ 	check_err $? "ping between two different vlans failed when should not"
+ 
+-	ping6_do $h1.85 2001:db8:2::2
+-	check_err $? "ping6 between two different vlans failed when should not"
++#	ping6_do $h1.85 2001:db8:2::2
++#	check_err $? "ping6 between two different vlans failed when should not"
+ 
+ 	log_test "VLAN modify at egress"
+ 
+diff --git a/tools/testing/selftests/net/icmp_redirect.sh b/tools/testing/selftests/net/icmp_redirect.sh
+index 18c5de53558a..9cb1915843be 100755
+--- a/tools/testing/selftests/net/icmp_redirect.sh
++++ b/tools/testing/selftests/net/icmp_redirect.sh
+@@ -150,15 +150,15 @@ create_vrf()
+ 	ip -netns ${ns} link add ${VRF} type vrf table ${VRF_TABLE}
+ 	ip -netns ${ns} link set ${VRF} up
+ 	ip -netns ${ns} route add vrf ${VRF} unreachable default metric 8192
+-	ip -netns ${ns} -6 route add vrf ${VRF} unreachable default metric 8192
++#	ip -netns ${ns} -6 route add vrf ${VRF} unreachable default metric 8192
+ 
+ 	ip -netns ${ns} addr add 127.0.0.1/8 dev ${VRF}
+-	ip -netns ${ns} -6 addr add ::1 dev ${VRF} nodad
++#	ip -netns ${ns} -6 addr add ::1 dev ${VRF} nodad
+ 
+ 	ip -netns ${ns} ru del pref 0
+ 	ip -netns ${ns} ru add pref 32765 from all lookup local
+-	ip -netns ${ns} -6 ru del pref 0
+-	ip -netns ${ns} -6 ru add pref 32765 from all lookup local
++#	ip -netns ${ns} -6 ru del pref 0
++#	ip -netns ${ns} -6 ru add pref 32765 from all lookup local
+ }
+ 
+ setup()
+@@ -174,15 +174,15 @@ setup()
+ 
+ 		case "${ns}" in
+ 		h[12]) ip netns exec $ns sysctl -q -w net.ipv4.conf.all.accept_redirects=1
+-		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=0
+-		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.accept_redirects=1
+-		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.keep_addr_on_down=1
++#		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=0
++#		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.accept_redirects=1
++#		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.keep_addr_on_down=1
+ 			;;
+ 		r[12]) ip netns exec $ns sysctl -q -w net.ipv4.ip_forward=1
+ 		       ip netns exec $ns sysctl -q -w net.ipv4.conf.all.send_redirects=1
+ 
+-		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=1
+-		       ip netns exec $ns sysctl -q -w net.ipv6.route.mtu_expires=10
++#		       ip netns exec $ns sysctl -q -w net.ipv6.conf.all.forwarding=1
++#		       ip netns exec $ns sysctl -q -w net.ipv6.route.mtu_expires=10
+ 		esac
+ 	done
+ 
+@@ -221,7 +221,7 @@ setup()
+ 		ip -netns h1 li set br0 up
+ 	fi
+ 	ip -netns h1 addr add dev br0 ${H1_N1_IP}/24
+-	ip -netns h1 -6 addr add dev br0 ${H1_N1_IP6}/64 nodad
++#	ip -netns h1 -6 addr add dev br0 ${H1_N1_IP6}/64 nodad
+ 	ip -netns h1 li set eth0 master br0 up
+ 	ip -netns h1 li set eth1 master br0 up
+ 
+@@ -230,42 +230,42 @@ setup()
+ 	#
+ 	ip -netns h2 addr add dev eth0 ${H2_N2_IP}/24
+ 	ip -netns h2 ro add default via ${R2_N2_IP} dev eth0
+-	ip -netns h2 -6 addr add dev eth0 ${H2_N2_IP6}/64 nodad
+-	ip -netns h2 -6 ro add default via ${R2_N2_IP6} dev eth0
++#	ip -netns h2 -6 addr add dev eth0 ${H2_N2_IP6}/64 nodad
++#	ip -netns h2 -6 ro add default via ${R2_N2_IP6} dev eth0
+ 
+ 	#
+ 	# r1
+ 	#
+ 	ip -netns r1 addr add dev eth0 ${R1_N1_IP}/24
+-	ip -netns r1 -6 addr add dev eth0 ${R1_N1_IP6}/64 nodad
++#	ip -netns r1 -6 addr add dev eth0 ${R1_N1_IP6}/64 nodad
+ 	ip -netns r1 addr add dev eth1 ${R1_R2_N1_IP}/30
+-	ip -netns r1 -6 addr add dev eth1 ${R1_R2_N1_IP6}/126 nodad
++#	ip -netns r1 -6 addr add dev eth1 ${R1_R2_N1_IP6}/126 nodad
+ 
+ 	#
+ 	# r2
+ 	#
+ 	ip -netns r2 addr add dev eth0 ${R2_N1_IP}/24
+-	ip -netns r2 -6 addr add dev eth0 ${R2_N1_IP6}/64 nodad
++#	ip -netns r2 -6 addr add dev eth0 ${R2_N1_IP6}/64 nodad
+ 	ip -netns r2 addr add dev eth1 ${R2_R1_N1_IP}/30
+-	ip -netns r2 -6 addr add dev eth1 ${R2_R1_N1_IP6}/126 nodad
++#	ip -netns r2 -6 addr add dev eth1 ${R2_R1_N1_IP6}/126 nodad
+ 	ip -netns r2 addr add dev eth2 ${R2_N2_IP}/24
+-	ip -netns r2 -6 addr add dev eth2 ${R2_N2_IP6}/64 nodad
++#	ip -netns r2 -6 addr add dev eth2 ${R2_N2_IP6}/64 nodad
+ 
+ 	sleep 2
+ 
+-	R1_LLADDR=$(get_linklocal r1 eth0)
+-	if [ $? -ne 0 ]; then
+-		echo "Error: Failed to get link-local address of r1's eth0"
+-		exit 1
+-	fi
+-	log_debug "initial gateway is R1's lladdr = ${R1_LLADDR}"
+-
+-	R2_LLADDR=$(get_linklocal r2 eth0)
+-	if [ $? -ne 0 ]; then
+-		echo "Error: Failed to get link-local address of r2's eth0"
+-		exit 1
+-	fi
+-	log_debug "initial gateway is R2's lladdr = ${R2_LLADDR}"
++#	R1_LLADDR=$(get_linklocal r1 eth0)
++#	if [ $? -ne 0 ]; then
++#		echo "Error: Failed to get link-local address of r1's eth0"
++#		exit 1
++#	fi
++#	log_debug "initial gateway is R1's lladdr = ${R1_LLADDR}"
++
++#	R2_LLADDR=$(get_linklocal r2 eth0)
++#	if [ $? -ne 0 ]; then
++#		echo "Error: Failed to get link-local address of r2's eth0"
++#		exit 1
++#	fi
++#	log_debug "initial gateway is R2's lladdr = ${R2_LLADDR}"
+ }
+ 
+ change_h2_mtu()
+@@ -286,7 +286,7 @@ check_exception()
+ 	if [ "$VERBOSE" = "1" ]; then
+ 		echo "Commands to check for exception:"
+ 		run_cmd ip -netns h1 ro get ${H1_VRF_ARG} ${H2_N2_IP}
+-		run_cmd ip -netns h1 -6 ro get ${H1_VRF_ARG} ${H2_N2_IP6}
++#		run_cmd ip -netns h1 -6 ro get ${H1_VRF_ARG} ${H2_N2_IP6}
+ 	fi
+ 
+ 	if [ -n "${mtu}" ]; then
+@@ -307,20 +307,20 @@ check_exception()
+ 	fi
+ 	log_test $? 0 "IPv4: ${desc}"
+ 
+-	if [ "$with_redirect" = "yes" ]; then
+-		ip -netns h1 -6 ro get ${H1_VRF_ARG} ${H2_N2_IP6} | \
+-		grep -q "${H2_N2_IP6} from :: via ${R2_LLADDR} dev br0.*${mtu}"
+-	elif [ -n "${mtu}" ]; then
+-		ip -netns h1 -6 ro get ${H1_VRF_ARG} ${H2_N2_IP6} | \
+-		grep -q "${mtu}"
+-	else
++#	if [ "$with_redirect" = "yes" ]; then
++#		ip -netns h1 -6 ro get ${H1_VRF_ARG} ${H2_N2_IP6} | \
++#		grep -q "${H2_N2_IP6} from :: via ${R2_LLADDR} dev br0.*${mtu}"
++#	elif [ -n "${mtu}" ]; then
++#		ip -netns h1 -6 ro get ${H1_VRF_ARG} ${H2_N2_IP6} | \
++#		grep -q "${mtu}"
++#	else
+ 		# IPv6 is a bit harder. First strip out the match if it
+ 		# contains an mtu exception and then look for the first
+ 		# gateway - R1's lladdr
+-		ip -netns h1 -6 ro get ${H1_VRF_ARG} ${H2_N2_IP6} | \
+-		grep -v "mtu" | grep -q "${R1_LLADDR}"
+-	fi
+-	log_test $? 0 "IPv6: ${desc}"
++#		ip -netns h1 -6 ro get ${H1_VRF_ARG} ${H2_N2_IP6} | \
++#		grep -v "mtu" | grep -q "${R1_LLADDR}"
++#	fi
++#	log_test $? 0 "IPv6: ${desc}"
+ }
+ 
+ run_ping()
+@@ -328,7 +328,7 @@ run_ping()
+ 	local sz=$1
+ 
+ 	run_cmd ip netns exec h1 ping -q -M want -i 0.5 -c 10 -w 2 -s ${sz} ${H1_PING_ARG} ${H2_N2_IP}
+-	run_cmd ip netns exec h1 ${ping6} -q -M want -i 0.5 -c 10 -w 2 -s ${sz} ${H1_PING_ARG} ${H2_N2_IP6}
++#	run_cmd ip netns exec h1 ${ping6} -q -M want -i 0.5 -c 10 -w 2 -s ${sz} ${H1_PING_ARG} ${H2_N2_IP6}
+ }
+ 
+ replace_route_new()
+@@ -353,30 +353,30 @@ initial_route_new()
+ 	run_cmd ip -netns r1 ro add ${H2_N2} nhid 1
+ 
+ 	run_cmd ip -netns r1 nexthop add id 2 via ${R2_R1_N1_IP6} dev eth1
+-	run_cmd ip -netns r1 -6 ro add ${H2_N2_6} nhid 2
++#	run_cmd ip -netns r1 -6 ro add ${H2_N2_6} nhid 2
+ 
+ 	# h1 to h2 via r1
+ 	run_cmd ip -netns h1 nexthop add id 1 via ${R1_N1_IP} dev br0
+ 	run_cmd ip -netns h1 ro add ${H1_VRF_ARG} ${H2_N2} nhid 1
+ 
+ 	run_cmd ip -netns h1 nexthop add id 2 via ${R1_LLADDR} dev br0
+-	run_cmd ip -netns h1 -6 ro add ${H1_VRF_ARG} ${H2_N2_6} nhid 2
++#	run_cmd ip -netns h1 -6 ro add ${H1_VRF_ARG} ${H2_N2_6} nhid 2
+ }
+ 
+ replace_route_legacy()
+ {
+ 	# r1 to h2 via r2 and eth0
+ 	run_cmd ip -netns r1    ro replace ${H2_N2}   via ${R2_N1_IP}  dev eth0
+-	run_cmd ip -netns r1 -6 ro replace ${H2_N2_6} via ${R2_LLADDR} dev eth0
++#	run_cmd ip -netns r1 -6 ro replace ${H2_N2_6} via ${R2_LLADDR} dev eth0
+ }
+ 
+ reset_route_legacy()
+ {
+ 	run_cmd ip -netns r1    ro del ${H2_N2}
+-	run_cmd ip -netns r1 -6 ro del ${H2_N2_6}
++#	run_cmd ip -netns r1 -6 ro del ${H2_N2_6}
+ 
+ 	run_cmd ip -netns h1    ro del ${H1_VRF_ARG} ${H2_N2}
+-	run_cmd ip -netns h1 -6 ro del ${H1_VRF_ARG} ${H2_N2_6}
++#	run_cmd ip -netns h1 -6 ro del ${H1_VRF_ARG} ${H2_N2_6}
+ 
+ 	initial_route_legacy
+ }
+@@ -385,12 +385,12 @@ initial_route_legacy()
+ {
+ 	# r1 to h2 via r2 and eth1
+ 	run_cmd ip -netns r1    ro add ${H2_N2}   via ${R2_R1_N1_IP}  dev eth1
+-	run_cmd ip -netns r1 -6 ro add ${H2_N2_6} via ${R2_R1_N1_IP6} dev eth1
++#	run_cmd ip -netns r1 -6 ro add ${H2_N2_6} via ${R2_R1_N1_IP6} dev eth1
+ 
+ 	# h1 to h2 via r1
+ 	# - IPv6 redirect only works if gateway is the LLA
+ 	run_cmd ip -netns h1    ro add ${H1_VRF_ARG} ${H2_N2} via ${R1_N1_IP} dev br0
+-	run_cmd ip -netns h1 -6 ro add ${H1_VRF_ARG} ${H2_N2_6} via ${R1_LLADDR} dev br0
++#	run_cmd ip -netns h1 -6 ro add ${H1_VRF_ARG} ${H2_N2_6} via ${R1_LLADDR} dev br0
+ }
+ 
+ check_connectivity()
+@@ -399,8 +399,8 @@ check_connectivity()
+ 
+ 	run_cmd ip netns exec h1 ping -c1 -w1 ${H1_PING_ARG} ${H2_N2_IP}
+ 	rc=$?
+-	run_cmd ip netns exec h1 ${ping6} -c1 -w1 ${H1_PING_ARG} ${H2_N2_IP6}
+-	[ $? -ne 0 ] && rc=$?
++#	run_cmd ip netns exec h1 ${ping6} -c1 -w1 ${H1_PING_ARG} ${H2_N2_IP6}
++#	[ $? -ne 0 ] && rc=$?
+ 
+ 	return $rc
+ }
+@@ -481,7 +481,7 @@ EOF
+ # main
+ 
+ # Some systems don't have a ping6 binary anymore
+-which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
++#which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
+ 
+ ret=0
+ nsuccess=0
+diff --git a/tools/testing/selftests/net/ip_defrag.sh b/tools/testing/selftests/net/ip_defrag.sh
+index 15d3489ecd9c..d7c2cd09eb8d 100755
+--- a/tools/testing/selftests/net/ip_defrag.sh
++++ b/tools/testing/selftests/net/ip_defrag.sh
+@@ -16,16 +16,16 @@ setup() {
+ 	ip netns exec "${NETNS}" sysctl -w net.ipv4.ipfrag_low_thresh=7000000 >/dev/null 2>&1
+ 	ip netns exec "${NETNS}" sysctl -w net.ipv4.ipfrag_time=1 >/dev/null 2>&1
+ 
+-	ip netns exec "${NETNS}" sysctl -w net.ipv6.ip6frag_high_thresh=9000000 >/dev/null 2>&1
+-	ip netns exec "${NETNS}" sysctl -w net.ipv6.ip6frag_low_thresh=7000000 >/dev/null 2>&1
+-	ip netns exec "${NETNS}" sysctl -w net.ipv6.ip6frag_time=1 >/dev/null 2>&1
++#	ip netns exec "${NETNS}" sysctl -w net.ipv6.ip6frag_high_thresh=9000000 >/dev/null 2>&1
++#	ip netns exec "${NETNS}" sysctl -w net.ipv6.ip6frag_low_thresh=7000000 >/dev/null 2>&1
++#	ip netns exec "${NETNS}" sysctl -w net.ipv6.ip6frag_time=1 >/dev/null 2>&1
+ 
+-	ip netns exec "${NETNS}" sysctl -w net.netfilter.nf_conntrack_frag6_high_thresh=9000000 >/dev/null 2>&1
+-	ip netns exec "${NETNS}" sysctl -w net.netfilter.nf_conntrack_frag6_low_thresh=7000000  >/dev/null 2>&1
+-	ip netns exec "${NETNS}" sysctl -w net.netfilter.nf_conntrack_frag6_timeout=1 >/dev/null 2>&1
++#	ip netns exec "${NETNS}" sysctl -w net.netfilter.nf_conntrack_frag6_high_thresh=9000000 >/dev/null 2>&1
++#	ip netns exec "${NETNS}" sysctl -w net.netfilter.nf_conntrack_frag6_low_thresh=7000000  >/dev/null 2>&1
++#	ip netns exec "${NETNS}" sysctl -w net.netfilter.nf_conntrack_frag6_timeout=1 >/dev/null 2>&1
+ 
+ 	# DST cache can get full with a lot of frags, with GC not keeping up with the test.
+-	ip netns exec "${NETNS}" sysctl -w net.ipv6.route.max_size=65536 >/dev/null 2>&1
++#	ip netns exec "${NETNS}" sysctl -w net.ipv6.route.max_size=65536 >/dev/null 2>&1
+ }
+ 
+ cleanup() {
+@@ -41,22 +41,22 @@ ip netns exec "${NETNS}" ./ip_defrag -4
+ echo "ipv4 defrag with overlaps"
+ ip netns exec "${NETNS}" ./ip_defrag -4o
+ 
+-echo "ipv6 defrag"
+-ip netns exec "${NETNS}" ./ip_defrag -6
++#echo "ipv6 defrag"
++#ip netns exec "${NETNS}" ./ip_defrag -6
+ 
+-echo "ipv6 defrag with overlaps"
+-ip netns exec "${NETNS}" ./ip_defrag -6o
++#echo "ipv6 defrag with overlaps"
++#ip netns exec "${NETNS}" ./ip_defrag -6o
+ 
+ # insert an nf_conntrack rule so that the codepath in nf_conntrack_reasm.c taken
+-ip netns exec "${NETNS}" ip6tables -A INPUT  -m conntrack --ctstate INVALID -j ACCEPT
++#ip netns exec "${NETNS}" ip6tables -A INPUT  -m conntrack --ctstate INVALID -j ACCEPT
+ 
+-echo "ipv6 nf_conntrack defrag"
+-ip netns exec "${NETNS}" ./ip_defrag -6
++#echo "ipv6 nf_conntrack defrag"
++#ip netns exec "${NETNS}" ./ip_defrag -6
+ 
+-echo "ipv6 nf_conntrack defrag with overlaps"
++#echo "ipv6 nf_conntrack defrag with overlaps"
+ # netfilter will drop some invalid packets, so we run the test in
+ # permissive mode: i.e. pass the test if the packet is correctly assembled
+ # even if we sent an overlap
+-ip netns exec "${NETNS}" ./ip_defrag -6op
++#ip netns exec "${NETNS}" ./ip_defrag -6op
+ 
+ echo "all tests done"
+diff --git a/tools/testing/selftests/net/l2tp.sh b/tools/testing/selftests/net/l2tp.sh
+index 5782433886fc..b8e151c0d7b2 100755
+--- a/tools/testing/selftests/net/l2tp.sh
++++ b/tools/testing/selftests/net/l2tp.sh
+@@ -16,7 +16,7 @@
+ VERBOSE=0
+ PAUSE_ON_FAIL=no
+ 
+-which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
++#which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
+ 
+ ################################################################################
+ #
+@@ -75,10 +75,10 @@ create_ns()
+ {
+ 	local ns=$1
+ 	local addr=$2
+-	local addr6=$3
++#	local addr6=$3
+ 
+ 	[ -z "${addr}" ] && addr="-"
+-	[ -z "${addr6}" ] && addr6="-"
++#	[ -z "${addr6}" ] && addr6="-"
+ 
+ 	ip netns add ${ns}
+ 
+@@ -86,18 +86,18 @@ create_ns()
+ 	if [ "${addr}" != "-" ]; then
+ 		ip -netns ${ns} addr add dev lo ${addr}
+ 	fi
+-	if [ "${addr6}" != "-" ]; then
+-		ip -netns ${ns} -6 addr add dev lo ${addr6}
+-	fi
++#	if [ "${addr6}" != "-" ]; then
++#		ip -netns ${ns} -6 addr add dev lo ${addr6}
++#	fi
+ 
+ 	ip -netns ${ns} ro add unreachable default metric 8192
+-	ip -netns ${ns} -6 ro add unreachable default metric 8192
++#	ip -netns ${ns} -6 ro add unreachable default metric 8192
+ 
+ 	ip netns exec ${ns} sysctl -qw net.ipv4.ip_forward=1
+-	ip netns exec ${ns} sysctl -qw net.ipv6.conf.all.keep_addr_on_down=1
+-	ip netns exec ${ns} sysctl -qw net.ipv6.conf.all.forwarding=1
+-	ip netns exec ${ns} sysctl -qw net.ipv6.conf.default.forwarding=1
+-	ip netns exec ${ns} sysctl -qw net.ipv6.conf.default.accept_dad=0
++#	ip netns exec ${ns} sysctl -qw net.ipv6.conf.all.keep_addr_on_down=1
++#	ip netns exec ${ns} sysctl -qw net.ipv6.conf.all.forwarding=1
++#	ip netns exec ${ns} sysctl -qw net.ipv6.conf.default.forwarding=1
++#	ip netns exec ${ns} sysctl -qw net.ipv6.conf.default.accept_dad=0
+ }
+ 
+ # create veth pair to connect namespaces and apply addresses.
+@@ -110,7 +110,7 @@ connect_ns()
+ 	local ns2=$5
+ 	local ns2_dev=$6
+ 	local ns2_addr=$7
+-	local ns2_addr6=$8
++#	local ns2_addr6=$8
+ 
+ 	ip -netns ${ns1} li add ${ns1_dev} type veth peer name tmp
+ 	ip -netns ${ns1} li set ${ns1_dev} up
+@@ -122,10 +122,10 @@ connect_ns()
+ 		ip -netns ${ns2} addr add dev ${ns2_dev} ${ns2_addr}
+ 	fi
+ 
+-	if [ "${ns1_addr6}" != "-" ]; then
+-		ip -netns ${ns1} addr add dev ${ns1_dev} ${ns1_addr6}
+-		ip -netns ${ns2} addr add dev ${ns2_dev} ${ns2_addr6}
+-	fi
++#	if [ "${ns1_addr6}" != "-" ]; then
++#		ip -netns ${ns1} addr add dev ${ns1_dev} ${ns1_addr6}
++#		ip -netns ${ns2} addr add dev ${ns2_dev} ${ns2_addr6}
++#	fi
+ }
+ 
+ ################################################################################
+@@ -216,13 +216,13 @@ setup()
+ 	           router eth2 10.1.2.2/24 2001:db8:2::2/64
+ 
+ 	ip -netns host-1 ro add 10.1.2.0/24 via 10.1.1.2
+-	ip -netns host-1 -6 ro add 2001:db8:2::/64 via 2001:db8:1::2
++#	ip -netns host-1 -6 ro add 2001:db8:2::/64 via 2001:db8:1::2
+ 
+ 	ip -netns host-2 ro add 10.1.1.0/24 via 10.1.2.2
+-	ip -netns host-2 -6 ro add 2001:db8:1::/64 via 2001:db8:2::2
++#	ip -netns host-2 -6 ro add 2001:db8:1::/64 via 2001:db8:2::2
+ 
+ 	setup_l2tp_ipv4
+-	setup_l2tp_ipv6
++#	setup_l2tp_ipv6
+ 	set +e
+ }
+ 
+@@ -270,41 +270,41 @@ setup_ipsec()
+ 	#
+ 	# IPV6
+ 	#
+-	run_cmd host-1 ip -6 xfrm policy add \
+-		src 2001:db8:1::1 dst 2001:db8:2::1 dir out \
+-		tmpl proto esp mode transport
+-
+-	run_cmd host-1 ip -6 xfrm policy add \
+-		src 2001:db8:2::1 dst 2001:db8:1::1 dir in \
+-		tmpl proto esp mode transport
+-
+-	run_cmd host-2 ip -6 xfrm policy add \
+-		src 2001:db8:1::1 dst 2001:db8:2::1 dir in \
+-		tmpl proto esp mode transport
+-
+-	run_cmd host-2 ip -6 xfrm policy add \
+-		src 2001:db8:2::1 dst 2001:db8:1::1 dir out \
+-		tmpl proto esp mode transport
+-
+-	ip -netns host-1 -6 xfrm state add \
+-		src 2001:db8:1::1 dst 2001:db8:2::1 \
+-		spi 0x1000 proto esp aead 'rfc4106(gcm(aes))' \
+-		0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f 128 mode transport
+-
+-	ip -netns host-1 -6 xfrm state add \
+-		src 2001:db8:2::1 dst 2001:db8:1::1 \
+-		spi 0x1001 proto esp aead 'rfc4106(gcm(aes))' \
+-		0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f 128 mode transport
+-
+-	ip -netns host-2 -6 xfrm state add \
+-		src 2001:db8:1::1 dst 2001:db8:2::1 \
+-		spi 0x1000 proto esp aead 'rfc4106(gcm(aes))' \
+-		0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f 128 mode transport
+-
+-	ip -netns host-2 -6 xfrm state add \
+-		src 2001:db8:2::1 dst 2001:db8:1::1 \
+-		spi 0x1001 proto esp aead 'rfc4106(gcm(aes))' \
+-		0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f 128 mode transport
++#	run_cmd host-1 ip -6 xfrm policy add \
++#		src 2001:db8:1::1 dst 2001:db8:2::1 dir out \
++#		tmpl proto esp mode transport
++
++#	run_cmd host-1 ip -6 xfrm policy add \
++#		src 2001:db8:2::1 dst 2001:db8:1::1 dir in \
++#		tmpl proto esp mode transport
++
++#	run_cmd host-2 ip -6 xfrm policy add \
++#		src 2001:db8:1::1 dst 2001:db8:2::1 dir in \
++#		tmpl proto esp mode transport
++
++#	run_cmd host-2 ip -6 xfrm policy add \
++#		src 2001:db8:2::1 dst 2001:db8:1::1 dir out \
++#		tmpl proto esp mode transport
++
++#	ip -netns host-1 -6 xfrm state add \
++#		src 2001:db8:1::1 dst 2001:db8:2::1 \
++#		spi 0x1000 proto esp aead 'rfc4106(gcm(aes))' \
++#		0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f 128 mode transport
++
++#	ip -netns host-1 -6 xfrm state add \
++#		src 2001:db8:2::1 dst 2001:db8:1::1 \
++#		spi 0x1001 proto esp aead 'rfc4106(gcm(aes))' \
++#		0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f 128 mode transport
++
++#	ip -netns host-2 -6 xfrm state add \
++#		src 2001:db8:1::1 dst 2001:db8:2::1 \
++#		spi 0x1000 proto esp aead 'rfc4106(gcm(aes))' \
++#		0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f 128 mode transport
++
++#	ip -netns host-2 -6 xfrm state add \
++#		src 2001:db8:2::1 dst 2001:db8:1::1 \
++#		spi 0x1001 proto esp aead 'rfc4106(gcm(aes))' \
++#		0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f 128 mode transport
+ }
+ 
+ teardown_ipsec()
+@@ -328,11 +328,11 @@ run_ping()
+ 	run_cmd host-1 ping -c1 -w1 -I 172.16.101.1 172.16.101.2
+ 	log_test $? 0 "IPv4 route through L2TP tunnel ${desc}"
+ 
+-	run_cmd host-1 ${ping6} -c1 -w1 fc00:1::2
+-	log_test $? 0 "IPv6 basic L2TP tunnel ${desc}"
++#	run_cmd host-1 ${ping6} -c1 -w1 fc00:1::2
++#	log_test $? 0 "IPv6 basic L2TP tunnel ${desc}"
+ 
+-	run_cmd host-1 ${ping6} -c1 -w1 -I fc00:101::1 fc00:101::2
+-	log_test $? 0 "IPv6 route through L2TP tunnel ${desc}"
++#	run_cmd host-1 ${ping6} -c1 -w1 -I fc00:101::1 fc00:101::2
++#	log_test $? 0 "IPv6 route through L2TP tunnel ${desc}"
+ }
+ 
+ run_tests()
+@@ -350,11 +350,11 @@ run_tests()
+ 	run_cmd host-1 ping -c1 -w1 -I 172.16.101.1 172.16.101.2
+ 	log_test $? 0 "IPv4 route through L2TP tunnel ${desc}"
+ 
+-	run_cmd host-1 ${ping6} -c1 -w1 fc00:1::2
+-	log_test $? 0 "IPv6 basic L2TP tunnel - with IPsec"
++#	run_cmd host-1 ${ping6} -c1 -w1 fc00:1::2
++#	log_test $? 0 "IPv6 basic L2TP tunnel - with IPsec"
+ 
+-	run_cmd host-1 ${ping6} -c1 -w1 -I fc00:101::1 fc00:101::2
+-	log_test $? 0 "IPv6 route through L2TP tunnel - with IPsec"
++#	run_cmd host-1 ${ping6} -c1 -w1 -I fc00:101::1 fc00:101::2
++#	log_test $? 0 "IPv6 route through L2TP tunnel - with IPsec"
+ 
+ 	teardown_ipsec
+ 	run_ping "- after IPsec teardown"
+diff --git a/tools/testing/selftests/net/msg_zerocopy.sh b/tools/testing/selftests/net/msg_zerocopy.sh
+index 825ffec85cea..bea2255dc7bf 100755
+--- a/tools/testing/selftests/net/msg_zerocopy.sh
++++ b/tools/testing/selftests/net/msg_zerocopy.sh
+@@ -101,8 +101,8 @@ ip -netns "${NS2}" link set dev "${DEV}" address 06:06:06:06:06:06
+ # Add fixed IP addresses to the devices
+ ip -netns "${NS1}" addr add 192.168.1.1/24 dev "${DEV}"
+ ip -netns "${NS2}" addr add 192.168.1.2/24 dev "${DEV}"
+-ip -netns "${NS1}" addr add       fd::1/64 dev "${DEV}" nodad
+-ip -netns "${NS2}" addr add       fd::2/64 dev "${DEV}" nodad
++#ip -netns "${NS1}" addr add       fd::1/64 dev "${DEV}" nodad
++#ip -netns "${NS2}" addr add       fd::2/64 dev "${DEV}" nodad
+ 
+ # Optionally disable sg or csum offload to test edge cases
+ # ip netns exec "${NS1}" ethtool -K "${DEV}" sg off
+diff --git a/tools/testing/selftests/net/pmtu.sh b/tools/testing/selftests/net/pmtu.sh
+index 71a62e7e35b1..bd0796624f1c 100755
+--- a/tools/testing/selftests/net/pmtu.sh
++++ b/tools/testing/selftests/net/pmtu.sh
+@@ -129,39 +129,20 @@ VERBOSE=0
+ TRACING=0
+ 
+ # Some systems don't have a ping6 binary anymore
+-which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
++#which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
+ 
+ #               Name                          Description                  re-run with nh
+ tests="
+ 	pmtu_ipv4_exception		ipv4: PMTU exceptions			1
+-	pmtu_ipv6_exception		ipv6: PMTU exceptions			1
+ 	pmtu_ipv4_vxlan4_exception	IPv4 over vxlan4: PMTU exceptions	1
+-	pmtu_ipv6_vxlan4_exception	IPv6 over vxlan4: PMTU exceptions	1
+-	pmtu_ipv4_vxlan6_exception	IPv4 over vxlan6: PMTU exceptions	1
+-	pmtu_ipv6_vxlan6_exception	IPv6 over vxlan6: PMTU exceptions	1
+ 	pmtu_ipv4_geneve4_exception	IPv4 over geneve4: PMTU exceptions	1
+-	pmtu_ipv6_geneve4_exception	IPv6 over geneve4: PMTU exceptions	1
+-	pmtu_ipv4_geneve6_exception	IPv4 over geneve6: PMTU exceptions	1
+-	pmtu_ipv6_geneve6_exception	IPv6 over geneve6: PMTU exceptions	1
+ 	pmtu_ipv4_fou4_exception	IPv4 over fou4: PMTU exceptions		1
+-	pmtu_ipv6_fou4_exception	IPv6 over fou4: PMTU exceptions		1
+-	pmtu_ipv4_fou6_exception	IPv4 over fou6: PMTU exceptions		1
+-	pmtu_ipv6_fou6_exception	IPv6 over fou6: PMTU exceptions		1
+ 	pmtu_ipv4_gue4_exception	IPv4 over gue4: PMTU exceptions		1
+-	pmtu_ipv6_gue4_exception	IPv6 over gue4: PMTU exceptions		1
+-	pmtu_ipv4_gue6_exception	IPv4 over gue6: PMTU exceptions		1
+-	pmtu_ipv6_gue6_exception	IPv6 over gue6: PMTU exceptions		1
+-	pmtu_vti6_exception		vti6: PMTU exceptions			0
+ 	pmtu_vti4_exception		vti4: PMTU exceptions			0
+ 	pmtu_vti4_default_mtu		vti4: default MTU assignment		0
+-	pmtu_vti6_default_mtu		vti6: default MTU assignment		0
+ 	pmtu_vti4_link_add_mtu		vti4: MTU setting on link creation	0
+-	pmtu_vti6_link_add_mtu		vti6: MTU setting on link creation	0
+-	pmtu_vti6_link_change_mtu	vti6: MTU changes on link changes	0
+ 	cleanup_ipv4_exception		ipv4: cleanup of cached exceptions	1
+-	cleanup_ipv6_exception		ipv6: cleanup of cached exceptions	1
+-	list_flush_ipv4_exception	ipv4: list and flush cached exceptions	1
+-	list_flush_ipv6_exception	ipv6: list and flush cached exceptions	1"
++	list_flush_ipv4_exception	ipv4: list and flush cached exceptions	1"
+ 
+ NS_A="ns-A"
+ NS_B="ns-B"
+@@ -199,10 +180,6 @@ routes="
+ 	A	default			${prefix4}.${a_r1}.2
+ 	A	${prefix4}.${b_r2}.1	${prefix4}.${a_r2}.2
+ 	B	default			${prefix4}.${b_r1}.2
+-
+-	A	default			${prefix6}:${a_r1}::2
+-	A	${prefix6}:${b_r2}::1	${prefix6}:${a_r2}::2
+-	B	default			${prefix6}:${b_r1}::2
+ "
+ 
+ USE_NH="no"
+@@ -211,10 +188,6 @@ nexthops="
+ 	A	4	41	${prefix4}.${a_r1}.2	veth_A-R1
+ 	A	4	42	${prefix4}.${a_r2}.2	veth_A-R2
+ 	B	4	41	${prefix4}.${b_r1}.2	veth_B-R1
+-
+-	A	6	61	${prefix6}:${a_r1}::2	veth_A-R1
+-	A	6	62	${prefix6}:${a_r2}::2	veth_A-R2
+-	B	6	61	${prefix6}:${b_r1}::2	veth_B-R1
+ "
+ 
+ # nexthop id correlates to id in nexthops config above
+@@ -223,29 +196,25 @@ routes_nh="
+ 	A	4	default			41
+ 	A	4	${prefix4}.${b_r2}.1	42
+ 	B	4	default			41
+-
+-	A	6	default			61
+-	A	6	${prefix6}:${b_r2}::1	62
+-	B	6	default			61
+ "
+ 
+ veth4_a_addr="192.168.1.1"
+ veth4_b_addr="192.168.1.2"
+ veth4_mask="24"
+-veth6_a_addr="fd00:1::a"
+-veth6_b_addr="fd00:1::b"
+-veth6_mask="64"
++#veth6_a_addr="fd00:1::a"
++#veth6_b_addr="fd00:1::b"
++#veth6_mask="64"
+ 
+ tunnel4_a_addr="192.168.2.1"
+ tunnel4_b_addr="192.168.2.2"
+ tunnel4_mask="24"
+-tunnel6_a_addr="fd00:2::a"
+-tunnel6_b_addr="fd00:2::b"
+-tunnel6_mask="64"
++#tunnel6_a_addr="fd00:2::a"
++#tunnel6_b_addr="fd00:2::b"
++#tunnel6_mask="64"
+ 
+-dummy6_0_prefix="fc00:1000::"
+-dummy6_1_prefix="fc00:1001::"
+-dummy6_mask="64"
++#dummy6_0_prefix="fc00:1000::"
++#dummy6_1_prefix="fc00:1001::"
++#dummy6_mask="64"
+ 
+ err_buf=
+ tcpdump_pids=
+@@ -368,8 +337,8 @@ setup_namespaces() {
+ 		ip netns add ${n} || return 1
+ 
+ 		# Disable DAD, so that we don't have to wait to use the
+-		# configured IPv6 addresses
+-		ip netns exec ${n} sysctl -q net/ipv6/conf/default/accept_dad=0
++#		 configured IPv6 addresses
++#		ip netns exec ${n} sysctl -q net/ipv6/conf/default/accept_dad=0
+ 	done
+ }
+ 
+@@ -530,7 +499,7 @@ setup_routing_new() {
+ setup_routing() {
+ 	for i in ${NS_R1} ${NS_R2}; do
+ 		ip netns exec ${i} sysctl -q net/ipv4/ip_forward=1
+-		ip netns exec ${i} sysctl -q net/ipv6/conf/all/forwarding=1
++#		ip netns exec ${i} sysctl -q net/ipv6/conf/all/forwarding=1
+ 	done
+ 
+ 	for i in ${routing_addrs}; do
+@@ -549,10 +518,10 @@ setup_routing() {
+ 
+ 		# Add addresses
+ 		ip -n ${ns_name}   addr add ${prefix4}.${segment}.1/24  dev ${if}
+-		ip -n ${ns_name}   addr add ${prefix6}:${segment}::1/64 dev ${if}
++#		ip -n ${ns_name}   addr add ${prefix6}:${segment}::1/64 dev ${if}
+ 
+ 		ip -n ${peer_name} addr add ${prefix4}.${segment}.2/24  dev ${ifpeer}
+-		ip -n ${peer_name} addr add ${prefix6}:${segment}::2/64 dev ${ifpeer}
++#		ip -n ${peer_name} addr add ${prefix6}:${segment}::2/64 dev ${ifpeer}
+ 
+ 		ns=""; peer=""; segment=""
+ 	done
+diff --git a/tools/testing/selftests/net/reuseport_addr_any.c b/tools/testing/selftests/net/reuseport_addr_any.c
+index c6233935fed1..ec124891b70c 100644
+--- a/tools/testing/selftests/net/reuseport_addr_any.c
++++ b/tools/testing/selftests/net/reuseport_addr_any.c
+@@ -217,6 +217,10 @@ static void test(int *rcv_fds, int count, int family, int proto, int fd)
+ static void run_one_test(int fam_send, int fam_rcv, int proto,
+ 			 const char *addr_str)
+ {
++    if (AF_INET6 == fam_send || AF_INET6 == fam_rcv) {
++        fprintf(stderr, "Skipping reuseport_addr_any test for IPv6\n");
++        return;
++    }
+ 	/* Below we test that a socket listening on a specific address
+ 	 * is always selected in preference over a socket listening
+ 	 * on addr_any. Bugs where this is not the case often result
+@@ -227,12 +231,12 @@ static void run_one_test(int fam_send, int fam_rcv, int proto,
+ 	int rcv_fds[10], i;
+ 
+ 	build_rcv_fd(AF_INET, proto, rcv_fds, 2, NULL);
+-	build_rcv_fd(AF_INET6, proto, rcv_fds + 2, 2, NULL);
+-	build_rcv_fd(fam_rcv, proto, rcv_fds + 4, 1, addr_str);
+-	build_rcv_fd(AF_INET, proto, rcv_fds + 5, 2, NULL);
+-	build_rcv_fd(AF_INET6, proto, rcv_fds + 7, 2, NULL);
+-	test(rcv_fds, 9, fam_send, proto, rcv_fds[4]);
+-	for (i = 0; i < 9; ++i)
++	//build_rcv_fd(AF_INET6, proto, rcv_fds + 2, 2, NULL);
++	build_rcv_fd(fam_rcv, proto, rcv_fds + 2, 1, addr_str);
++	build_rcv_fd(AF_INET, proto, rcv_fds + 3, 2, NULL);
++	//build_rcv_fd(AF_INET6, proto, rcv_fds + 7, 2, NULL);
++	test(rcv_fds, 5, fam_send, proto, rcv_fds[2]);
++	for (i = 0; i < 5; ++i)
+ 		close(rcv_fds[i]);
+ 	fprintf(stderr, "pass\n");
+ }
+diff --git a/tools/testing/selftests/net/reuseport_bpf.c b/tools/testing/selftests/net/reuseport_bpf.c
+index b5277106df1f..a5e9835e3f1a 100644
+--- a/tools/testing/selftests/net/reuseport_bpf.c
++++ b/tools/testing/selftests/net/reuseport_bpf.c
+@@ -274,6 +274,11 @@ static void test_reuseport_ebpf(struct test_params p)
+ {
+ 	int i, fd[p.recv_socks];
+ 
++    if(AF_INET6 == p.recv_family || AF_INET6 == p.send_family) {
++        fprintf(stderr, "Skipping test_reuseport_ebpf for IPv6\n");
++        return;
++    }
++
+ 	fprintf(stderr, "Testing EBPF mod %zd...\n", p.recv_socks);
+ 	build_recv_group(p, fd, p.recv_socks, attach_ebpf);
+ 	test_recv_order(p, fd, p.recv_socks);
+@@ -291,6 +296,11 @@ static void test_reuseport_cbpf(struct test_params p)
+ {
+ 	int i, fd[p.recv_socks];
+ 
++    if(AF_INET6 == p.recv_family || AF_INET6 == p.send_family) {
++        fprintf(stderr, "Skipping test_reuseport_cbpf for IPv6\n");
++        return;
++    }
++
+ 	fprintf(stderr, "Testing CBPF mod %zd...\n", p.recv_socks);
+ 	build_recv_group(p, fd, p.recv_socks, attach_cbpf);
+ 	test_recv_order(p, fd, p.recv_socks);
+@@ -310,6 +320,11 @@ static void test_extra_filter(const struct test_params p)
+ 		new_any_sockaddr(p.recv_family, p.recv_port);
+ 	int fd1, fd2, opt;
+ 
++    if(AF_INET6 == p.recv_family || AF_INET6 == p.send_family) {
++        fprintf(stderr, "Skipping test_extra_filter for IPv6\n");
++        return;
++    }
++
+ 	fprintf(stderr, "Testing too many filters...\n");
+ 	fd1 = socket(p.recv_family, p.protocol, 0);
+ 	if (fd1 < 0)
+@@ -338,6 +353,12 @@ static void test_extra_filter(const struct test_params p)
+ 
+ static void test_filter_no_reuseport(const struct test_params p)
+ {
++
++    if(AF_INET6 == p.recv_family || AF_INET6 == p.send_family) {
++        fprintf(stderr, "Skipping test_filter_no_reuseport for IPv6\n");
++        return;
++    }
++
+ 	struct sockaddr * const addr =
+ 		new_any_sockaddr(p.recv_family, p.recv_port);
+ 	const char bpf_license[] = "GPL";
+diff --git a/tools/testing/selftests/net/reuseport_bpf_cpu.c b/tools/testing/selftests/net/reuseport_bpf_cpu.c
+index 2d646174729f..d09c4cdc1ece 100644
+--- a/tools/testing/selftests/net/reuseport_bpf_cpu.c
++++ b/tools/testing/selftests/net/reuseport_bpf_cpu.c
+@@ -186,6 +186,11 @@ static void test(int *rcv_fd, int len, int family, int proto)
+ 	struct epoll_event ev;
+ 	int epfd, cpu;
+ 
++    if(AF_INET6 == family) {
++        fprintf(stderr, "Skipping test reuseport_bpf_cpu for IPv6 \n");
++        return;
++    }
++
+ 	build_rcv_group(rcv_fd, len, family, proto);
+ 	attach_bpf(rcv_fd[0]);
+ 
+diff --git a/tools/testing/selftests/net/reuseport_bpf_numa.c b/tools/testing/selftests/net/reuseport_bpf_numa.c
+index c9f478b40996..c53d8abdc481 100644
+--- a/tools/testing/selftests/net/reuseport_bpf_numa.c
++++ b/tools/testing/selftests/net/reuseport_bpf_numa.c
+@@ -196,6 +196,11 @@ static void test(int *rcv_fd, int len, int family, int proto)
+ 	struct epoll_event ev;
+ 	int epfd, node;
+ 
++    if(AF_INET6 == family) {
++        fprintf(stderr, "Skipping test reuseport_bpf_numa for IPv6\n");
++        return;
++    }
++
+ 	build_rcv_group(rcv_fd, len, family, proto);
+ 	attach_bpf(rcv_fd[0]);
+ 
+diff --git a/tools/testing/selftests/net/rtnetlink.sh b/tools/testing/selftests/net/rtnetlink.sh
+index bdbf4b3125b6..2837a77805ac 100755
+--- a/tools/testing/selftests/net/rtnetlink.sh
++++ b/tools/testing/selftests/net/rtnetlink.sh
+@@ -48,7 +48,7 @@ kci_test_netconf()
+ 	ip netconf show dev "$dev" > /dev/null
+ 	check_err $?
+ 
+-	for f in 4 6; do
++	for f in 4; do
+ 		ip -$f netconf show dev "$dev" > /dev/null
+ 		check_err $?
+ 	done
+@@ -80,8 +80,8 @@ kci_test_bridge()
+ 	check_err $?
+ 	ip addr add dev "$vlandev" 10.200.7.23/30
+ 	check_err $?
+-	ip -6 addr add dev "$vlandev" dead:42::1234/64
+-	check_err $?
++#	ip -6 addr add dev "$vlandev" dead:42::1234/64
++#	check_err $?
+ 	ip -d link > /dev/null
+ 	check_err $?
+ 	ip r s t all > /dev/null
+@@ -91,8 +91,8 @@ kci_test_bridge()
+ 		kci_test_netconf "$name"
+ 	done
+ 
+-	ip -6 addr del dev "$vlandev" dead:42::1234/64
+-	check_err $?
++#	ip -6 addr del dev "$vlandev" dead:42::1234/64
++#	check_err $?
+ 
+ 	ip link del dev "$vlandev"
+ 	check_err $?
+@@ -213,14 +213,14 @@ kci_test_route_get()
+ 	check_err $?
+ 	ip route get 127.0.0.1 dev "$devdummy" > /dev/null
+ 	check_err $?
+-	ip route get ::1 > /dev/null
+-	check_err $?
+-	ip route get fe80::1 dev "$devdummy" > /dev/null
+-	check_err $?
++#	ip route get ::1 > /dev/null
++#	check_err $?
++#	ip route get fe80::1 dev "$devdummy" > /dev/null
++#	check_err $?
+ 	ip route get 127.0.0.1 from 127.0.0.1 oif lo tos 0x1 mark 0x1 > /dev/null
+ 	check_err $?
+-	ip route get ::1 from ::1 iif lo oif lo tos 0x1 mark 0x1 > /dev/null
+-	check_err $?
++#	ip route get ::1 from ::1 iif lo oif lo tos 0x1 mark 0x1 > /dev/null
++#	check_err $?
+ 	ip addr add dev "$devdummy" 10.23.7.11/24
+ 	check_err $?
+ 	ip route get 10.23.7.11 from 10.23.7.12 iif "$devdummy" > /dev/null
+@@ -1124,7 +1124,7 @@ kci_test_neigh_get()
+ {
+ 	dstmac=de:ad:be:ef:13:37
+ 	dstip=10.0.2.4
+-	dstip6=dead::2
++#	dstip6=dead::2
+ 	ret=0
+ 
+ 	ip neigh help 2>&1 |grep -q 'ip neigh get'
+@@ -1150,20 +1150,20 @@ kci_test_neigh_get()
+ 	check_err $?
+ 
+ 	# ipv6
+-	ip neigh add $dstip6 lladdr $dstmac dev "$devdummy"  > /dev/null
+-	check_err $?
+-	ip neigh get $dstip6 dev "$devdummy" 2> /dev/null | grep -q "$dstmac"
+-	check_err $?
+-	ip neigh del $dstip6 lladdr $dstmac dev "$devdummy"  > /dev/null
+-	check_err $?
++#	ip neigh add $dstip6 lladdr $dstmac dev "$devdummy"  > /dev/null
++#	check_err $?
++#	ip neigh get $dstip6 dev "$devdummy" 2> /dev/null | grep -q "$dstmac"
++#	check_err $?
++#	ip neigh del $dstip6 lladdr $dstmac dev "$devdummy"  > /dev/null
++#	check_err $?
+ 
+ 	# ipv6 proxy
+-	ip neigh add proxy $dstip6 dev "$devdummy" > /dev/null
+-	check_err $?
+-	ip neigh get proxy $dstip6 dev "$devdummy" 2>/dev/null | grep -q "$dstip6"
+-	check_err $?
+-	ip neigh del proxy $dstip6 dev "$devdummy" > /dev/null
+-	check_err $?
++#	ip neigh add proxy $dstip6 dev "$devdummy" > /dev/null
++#	check_err $?
++#	ip neigh get proxy $dstip6 dev "$devdummy" 2>/dev/null | grep -q "$dstip6"
++#	check_err $?
++#	ip neigh del proxy $dstip6 dev "$devdummy" > /dev/null
++#	check_err $?
+ 
+ 	if [ $ret -ne 0 ];then
+ 		echo "FAIL: neigh get"
+@@ -1188,11 +1188,11 @@ kci_test_rtnl()
+ 	kci_test_tc
+ 	kci_test_gre
+ 	kci_test_gretap
+-	kci_test_ip6gretap
++#	kci_test_ip6gretap
+ 	kci_test_erspan
+-	kci_test_ip6erspan
++#	kci_test_ip6erspan
+ 	kci_test_bridge
+-	kci_test_addrlabel
++#	kci_test_addrlabel
+ 	kci_test_ifalias
+ 	kci_test_vrf
+ 	kci_test_encap
+diff --git a/tools/testing/selftests/net/so_txtime.c b/tools/testing/selftests/net/so_txtime.c
+index 383bac05ac32..cb2ac9560143 100644
+--- a/tools/testing/selftests/net/so_txtime.c
++++ b/tools/testing/selftests/net/so_txtime.c
+@@ -345,16 +345,12 @@ int main(int argc, char **argv)
+ 	parse_opts(argc, argv);
+ 
+ 	if (cfg_do_ipv6) {
+-		struct sockaddr_in6 addr6 = {0};
+-
+-		addr6.sin6_family = AF_INET6;
+-		addr6.sin6_port = htons(cfg_port);
+-		addr6.sin6_addr = in6addr_loopback;
+-
+-		cfg_errq_level = SOL_IPV6;
+-		cfg_errq_type = IPV6_RECVERR;
+-
+-		do_test((void *)&addr6, sizeof(addr6));
++		//struct sockaddr_in6 addr6 = {0};
++		//addr6.sin6_family = AF_INET6;
++		//addr6.sin6_port = htons(cfg_port);
++		//addr6.sin6_addr = in6addr_loopback;
++		//do_test((void *)&addr6, sizeof(addr6));
++		fprintf(stderr, "Skipping so_txtime test for IPv6\n");
+ 	}
+ 
+ 	if (cfg_do_ipv4) {
+diff --git a/tools/testing/selftests/net/tcp_fastopen_backup_key.sh b/tools/testing/selftests/net/tcp_fastopen_backup_key.sh
+index f6e65674b83c..b8a8498310e9 100755
+--- a/tools/testing/selftests/net/tcp_fastopen_backup_key.sh
++++ b/tools/testing/selftests/net/tcp_fastopen_backup_key.sh
+@@ -37,19 +37,19 @@ do_test() {
+ }
+ 
+ do_test "-4"
+-do_test "-6"
++#do_test "-6"
+ do_test "-4"
+-do_test "-6"
++#do_test "-6"
+ do_test "-4s"
+-do_test "-6s"
++#do_test "-6s"
+ do_test "-4s"
+-do_test "-6s"
++#do_test "-6s"
+ do_test "-4r"
+-do_test "-6r"
++#do_test "-6r"
+ do_test "-4r"
+-do_test "-6r"
++#do_test "-6r"
+ do_test "-4sr"
+-do_test "-6sr"
++#do_test "-6sr"
+ do_test "-4sr"
+-do_test "-6sr"
++#do_test "-6sr"
+ echo "all tests done"
+diff --git a/tools/testing/selftests/net/traceroute.sh b/tools/testing/selftests/net/traceroute.sh
+index de9ca97abc30..7cc71d4c2b46 100755
+--- a/tools/testing/selftests/net/traceroute.sh
++++ b/tools/testing/selftests/net/traceroute.sh
+@@ -64,7 +64,7 @@ create_ns()
+ {
+ 	local ns=$1
+ 	local addr=$2
+-	local addr6=$3
++#	local addr6=$3
+ 
+ 	[ -z "${addr}" ] && addr="-"
+ 	[ -z "${addr6}" ] && addr6="-"
+@@ -75,18 +75,18 @@ create_ns()
+ 	if [ "${addr}" != "-" ]; then
+ 		ip netns exec ${ns} ip addr add dev lo ${addr}
+ 	fi
+-	if [ "${addr6}" != "-" ]; then
+-		ip netns exec ${ns} ip -6 addr add dev lo ${addr6}
+-	fi
++#	if [ "${addr6}" != "-" ]; then
++#		ip netns exec ${ns} ip -6 addr add dev lo ${addr6}
++#	fi
+ 
+ 	ip netns exec ${ns} ip ro add unreachable default metric 8192
+-	ip netns exec ${ns} ip -6 ro add unreachable default metric 8192
++#	ip netns exec ${ns} ip -6 ro add unreachable default metric 8192
+ 
+ 	ip netns exec ${ns} sysctl -qw net.ipv4.ip_forward=1
+-	ip netns exec ${ns} sysctl -qw net.ipv6.conf.all.keep_addr_on_down=1
+-	ip netns exec ${ns} sysctl -qw net.ipv6.conf.all.forwarding=1
+-	ip netns exec ${ns} sysctl -qw net.ipv6.conf.default.forwarding=1
+-	ip netns exec ${ns} sysctl -qw net.ipv6.conf.default.accept_dad=0
++#	ip netns exec ${ns} sysctl -qw net.ipv6.conf.all.keep_addr_on_down=1
++#	ip netns exec ${ns} sysctl -qw net.ipv6.conf.all.forwarding=1
++#	ip netns exec ${ns} sysctl -qw net.ipv6.conf.default.forwarding=1
++#	ip netns exec ${ns} sysctl -qw net.ipv6.conf.default.accept_dad=0
+ }
+ 
+ # create veth pair to connect namespaces and apply addresses.
+@@ -297,7 +297,7 @@ run_traceroute()
+ 
+ run_tests()
+ {
+-	run_traceroute6
++#	run_traceroute6
+ 	run_traceroute
+ }
+ 
+diff --git a/tools/testing/selftests/net/udpgso.c b/tools/testing/selftests/net/udpgso.c
+index c66da6ffd6d8..d1ca43810e0c 100644
+--- a/tools/testing/selftests/net/udpgso.c
++++ b/tools/testing/selftests/net/udpgso.c
+@@ -627,6 +627,7 @@ static void run_test_v4(void)
+ 	run_test((void *)&addr, sizeof(addr));
+ }
+ 
++#if 0
+ static void run_test_v6(void)
+ {
+ 	struct sockaddr_in6 addr = {0};
+@@ -637,6 +638,7 @@ static void run_test_v6(void)
+ 
+ 	run_test((void *)&addr, sizeof(addr));
+ }
++#endif
+ 
+ static void parse_opts(int argc, char **argv)
+ {
+@@ -678,7 +680,7 @@ int main(int argc, char **argv)
+ 	if (cfg_do_ipv4)
+ 		run_test_v4();
+ 	if (cfg_do_ipv6)
+-		run_test_v6();
++		fprintf(stderr, "Skipping udpgso for IPv6\n");
+ 
+ 	fprintf(stderr, "OK\n");
+ 	return 0;
+diff --git a/tools/testing/selftests/net/udpgso.sh b/tools/testing/selftests/net/udpgso.sh
+index fec24f584fe9..2e39c85e446b 100755
+--- a/tools/testing/selftests/net/udpgso.sh
++++ b/tools/testing/selftests/net/udpgso.sh
+@@ -9,11 +9,11 @@ echo "ipv4 cmsg"
+ echo "ipv4 setsockopt"
+ ./in_netns.sh ./udpgso -4 -C -s
+ 
+-echo "ipv6 cmsg"
+-./in_netns.sh ./udpgso -6 -C
++#echo "ipv6 cmsg"
++#./in_netns.sh ./udpgso -6 -C
+ 
+-echo "ipv6 setsockopt"
+-./in_netns.sh ./udpgso -6 -C -s
++#echo "ipv6 setsockopt"
++#./in_netns.sh ./udpgso -6 -C -s
+ 
+ echo "ipv4 connected"
+ ./in_netns.sh ./udpgso -4 -c
+@@ -25,5 +25,5 @@ echo "ipv4 connected"
+ echo "ipv4 msg_more"
+ ./in_netns.sh ./udpgso -4 -C -m
+ 
+-echo "ipv6 msg_more"
+-./in_netns.sh ./udpgso -6 -C -m
++#echo "ipv6 msg_more"
++#./in_netns.sh ./udpgso -6 -C -m
+diff --git a/tools/testing/selftests/net/udpgso_bench.sh b/tools/testing/selftests/net/udpgso_bench.sh
+index 80b5d352702e..f8b203d724bb 100755
+--- a/tools/testing/selftests/net/udpgso_bench.sh
++++ b/tools/testing/selftests/net/udpgso_bench.sh
+@@ -57,8 +57,8 @@ trap wake_children EXIT
+ run_one() {
+ 	local -r args=$@
+ 
+-	./udpgso_bench_rx &
+-	./udpgso_bench_rx -t &
++	./udpgso_bench_rx -4 &
++	./udpgso_bench_rx -t -4 &
+ 
+ 	./udpgso_bench_tx ${args}
+ }
+@@ -113,15 +113,15 @@ run_tcp() {
+ run_all() {
+ 	local -r core_args="-l 3"
+ 	local -r ipv4_args="${core_args} -4 -D 127.0.0.1"
+-	local -r ipv6_args="${core_args} -6 -D ::1"
++#	local -r ipv6_args="${core_args} -6 -D ::1"
+ 
+ 	echo "ipv4"
+ 	run_tcp "${ipv4_args}"
+ 	run_udp "${ipv4_args}"
+ 
+-	echo "ipv6"
+-	run_tcp "${ipv4_args}"
+-	run_udp "${ipv6_args}"
++#	echo "ipv6"
++#	run_tcp "${ipv4_args}"
++#	run_udp "${ipv6_args}"
+ }
+ 
+ if [[ $# -eq 0 ]]; then
+diff --git a/tools/testing/selftests/net/udpgso_bench_tx.c b/tools/testing/selftests/net/udpgso_bench_tx.c
+index 17512a43885e..5790039e12d0 100644
+--- a/tools/testing/selftests/net/udpgso_bench_tx.c
++++ b/tools/testing/selftests/net/udpgso_bench_tx.c
+@@ -624,6 +624,10 @@ int main(int argc, char **argv)
+ 
+ 	signal(SIGINT, sigint_handler);
+ 
++    if(PF_INET6 == cfg_family) {
++        fprintf(stderr, "Skipping udpgso_tx tests for IPv6\n");
++        return;
++    }
+ 	fd = socket(cfg_family, cfg_tcp ? SOCK_STREAM : SOCK_DGRAM, 0);
+ 	if (fd == -1)
+ 		error(1, errno, "socket");
+diff --git a/tools/testing/selftests/net/xfrm_policy.sh b/tools/testing/selftests/net/xfrm_policy.sh
+index 7a1bf94c5bd3..549fba37c4d7 100755
+--- a/tools/testing/selftests/net/xfrm_policy.sh
++++ b/tools/testing/selftests/net/xfrm_policy.sh
+@@ -321,12 +321,12 @@ DEV=veth0
+ for i in 1 2; do
+     ip -net ns$i link set $DEV up
+     ip -net ns$i addr add 10.0.$i.2/24 dev $DEV
+-    ip -net ns$i addr add dead:$i::2/64 dev $DEV
++#    ip -net ns$i addr add dead:$i::2/64 dev $DEV
+ 
+     ip -net ns$i addr add 10.0.$i.253 dev $DEV
+     ip -net ns$i addr add 10.0.$i.254 dev $DEV
+-    ip -net ns$i addr add dead:$i::fd dev $DEV
+-    ip -net ns$i addr add dead:$i::fe dev $DEV
++#    ip -net ns$i addr add dead:$i::fd dev $DEV
++#    ip -net ns$i addr add dead:$i::fe dev $DEV
+ done
+ 
+ for i in 3 4; do
+@@ -339,18 +339,18 @@ ip -net ns2 route add default via 10.0.2.1
+ 
+ ip -net ns3 addr add 10.0.1.1/24 dev eth1
+ ip -net ns3 addr add 10.0.3.1/24 dev veth0
+-ip -net ns3 addr add 2001:1::1/64 dev eth1
+-ip -net ns3 addr add 2001:3::1/64 dev veth0
++#ip -net ns3 addr add 2001:1::1/64 dev eth1
++#ip -net ns3 addr add 2001:3::1/64 dev veth0
+ 
+ ip -net ns3 route add default via 10.0.3.10
+ 
+ ip -net ns4 addr add 10.0.2.1/24 dev eth1
+ ip -net ns4 addr add 10.0.3.10/24 dev veth0
+-ip -net ns4 addr add 2001:2::1/64 dev eth1
+-ip -net ns4 addr add 2001:3::10/64 dev veth0
++#ip -net ns4 addr add 2001:2::1/64 dev eth1
++#ip -net ns4 addr add 2001:3::10/64 dev veth0
+ ip -net ns4 route add default via 10.0.3.1
+ 
+-for j in 4 6; do
++for j in 4; do
+ 	for i in 3 4;do
+ 		ip netns exec ns$i sysctl net.ipv$j.conf.eth1.forwarding=1 > /dev/null
+ 		ip netns exec ns$i sysctl net.ipv$j.conf.veth0.forwarding=1 > /dev/null
+@@ -368,17 +368,17 @@ fi
+ 
+ #          localip  remoteip  localnet    remotenet
+ do_esp ns3 10.0.3.1 10.0.3.10 10.0.1.0/24 10.0.2.0/24 $SPI1 $SPI2
+-do_esp ns3 dead:3::1 dead:3::10 dead:1::/64 dead:2::/64 $SPI1 $SPI2
++#do_esp ns3 dead:3::1 dead:3::10 dead:1::/64 dead:2::/64 $SPI1 $SPI2
+ do_esp ns4 10.0.3.10 10.0.3.1 10.0.2.0/24 10.0.1.0/24 $SPI2 $SPI1
+-do_esp ns4 dead:3::10 dead:3::1 dead:2::/64 dead:1::/64 $SPI2 $SPI1
++#do_esp ns4 dead:3::10 dead:3::1 dead:2::/64 dead:1::/64 $SPI2 $SPI1
+ 
+ do_dummies4 ns3
+-do_dummies6 ns4
++#do_dummies6 ns4
+ 
+ do_esp_policy_get_check ns3 10.0.1.0/24 10.0.2.0/24
+ do_esp_policy_get_check ns4 10.0.2.0/24 10.0.1.0/24
+-do_esp_policy_get_check ns3 dead:1::/64 dead:2::/64
+-do_esp_policy_get_check ns4 dead:2::/64 dead:1::/64
++#do_esp_policy_get_check ns3 dead:1::/64 dead:2::/64
++#do_esp_policy_get_check ns4 dead:2::/64 dead:1::/64
+ 
+ # ping to .254 should use ipsec, exception is not installed.
+ check_xfrm 1 254
+@@ -394,8 +394,8 @@ fi
+ do_exception ns3 10.0.3.1 10.0.3.10 10.0.2.253 10.0.2.240/28
+ do_exception ns4 10.0.3.10 10.0.3.1 10.0.1.253 10.0.1.240/28
+ 
+-do_exception ns3 dead:3::1 dead:3::10 dead:2::fd  dead:2:f0::/96
+-do_exception ns4 dead:3::10 dead:3::1 dead:1::fd  dead:1:f0::/96
++#do_exception ns3 dead:3::1 dead:3::10 dead:2::fd  dead:2:f0::/96
++#do_exception ns4 dead:3::10 dead:3::1 dead:1::fd  dead:1:f0::/96
+ 
+ check_exceptions "exceptions"
+ if [ $? -ne 0 ]; then

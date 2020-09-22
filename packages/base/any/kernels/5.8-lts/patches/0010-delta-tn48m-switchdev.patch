@@ -1,0 +1,53 @@
+diff --git a/arch/arm64/boot/dts/marvell/delta-tn4810m.dts b/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
+index d874972..1418300 100644
+--- a/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
++++ b/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
+@@ -63,6 +63,12 @@
+ 		ethernet1 = &cp0_eth1;
+ 		ethernet2 = &cp0_eth2;
+ 	};
++
++	switch-cpu {
++		compatible = "marvell,prestera-switch-rxtx-eth";
++		ethernet = <&cp0_eth0>;
++		status = "okay";
++	};
+ };
+ 
+ &i2c0 {
+@@ -470,6 +476,8 @@
+ 	status = "okay";
+ 
+ 	phys = <&cp0_comphy0 0>;
+-	ranges = <0x81000000 0x0 0xf9020000 0x0 0xf9020000 0x0 0x10000 0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x30000000>;
++	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
+ };
+ 
+diff --git a/arch/arm64/boot/dts/marvell/delta-tn48m.dts b/arch/arm64/boot/dts/marvell/delta-tn48m.dts
+index 8be3140..c23c618 100644
+--- a/arch/arm64/boot/dts/marvell/delta-tn48m.dts
++++ b/arch/arm64/boot/dts/marvell/delta-tn48m.dts
+@@ -64,6 +64,12 @@
+ 		ethernet2 = &cp0_eth2;
+ 	};
+ 
++	switch-cpu {
++		compatible = "marvell,prestera-switch-rxtx-eth";
++		ethernet = <&cp0_eth0>;
++		status = "okay";
++	};
++
+ 	i2cmux {
+ 		compatible = "i2c-mux-gpio";
+ 		#address-cells = <1>;
+@@ -244,5 +250,7 @@
+ 	status = "okay";
+ 
+ 	phys = <&cp0_comphy0 0>;
+-	ranges = <0x81000000 0x0 0xf9020000 0x0 0xf9020000 0x0 0x10000 0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x30000000>;
++	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
+ };

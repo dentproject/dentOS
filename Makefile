@@ -26,7 +26,7 @@ $(foreach a,$(ALL_ARCHES),$(eval $(call build_arch_template,$(a))))
 # Available build architectures based on the current suite
 BUILD_ARCHES_wheezy := amd64 powerpc
 BUILD_ARCHES_jessie := amd64 powerpc armel
-BUILD_ARCHES_stretch := arm64 amd64 armel armhf
+BUILD_ARCHES_stretch := arm64 amd64
 
 # Build available architectures by default.
 .DEFAULT_GOAL := all
@@ -46,7 +46,7 @@ endif
 .PHONY: docker
 
 ifndef VERSION
-VERSION := 8
+VERSION := 9
 endif
 
 docker_check:

@@ -1,0 +1,23 @@
+--- a/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.c
++++ b/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.c
+@@ -224,14 +224,18 @@ static struct mvsw_pr_pci_match {
+ 	bool registered;
+ } mvsw_pci_devices[] = {
+ 	{
+-		.driver = { .name = "AC3x B2B", },
++		.driver = { .name = "AC3x B2B 98DX3255", },
+ 		.id = { PRESTERA_DEVICE(0xC804), 0 },
+ 	},
++	{
++		.driver = { .name = "AC3x B2B 98DX3265", },
++		.id = { PRESTERA_DEVICE(0xC80C), 0 },
++	},
+ 	{
+ 		.driver = { .name = "Aldrin2", },
+ 		.id = { PRESTERA_DEVICE(0xCC1E), 0 },
+ 	},
+-	{{ }, { },}
++	{{ }, }
+ };
+ 
+ static int mvsw_pr_fw_load(struct mvsw_pr_fw *fw);

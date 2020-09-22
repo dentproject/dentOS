@@ -1,0 +1,386 @@
+diff --git a/arch/arm64/boot/dts/marvell/delta-tn48m.dts b/arch/arm64/boot/dts/marvell/delta-tn48m-tpm.dts
+index c23c618a..ee170071 100644
+--- a/arch/arm64/boot/dts/marvell/delta-tn48m.dts
++++ b/arch/arm64/boot/dts/marvell/delta-tn48m-tpm.dts
+@@ -46,211 +46,233 @@
+ #include "armada-7040.dtsi"
+ 
+ / {
+-	model = "delta,tn48m";
+-	compatible = "delta,tn48m";
+-
+-	chosen {
+-		stdout-path = "serial0:115200n8";
+-	};
+-
+-	memory@0 {
+-		device_type = "memory";
+-		reg = <0x0 0x0 0x0 0x80000000>;
+-	};
+-
+-	aliases {
+-		ethernet0 = &cp0_eth0;
+-		ethernet1 = &cp0_eth1;
+-		ethernet2 = &cp0_eth2;
+-	};
+-
+-	switch-cpu {
+-		compatible = "marvell,prestera-switch-rxtx-eth";
+-		ethernet = <&cp0_eth0>;
+-		status = "okay";
+-	};
+-
+-	i2cmux {
+-		compatible = "i2c-mux-gpio";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-		mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
+-		i2c-parent = <&cp0_i2c1>;
+-
+-		i2c@0 {
+-			reg = <0>;
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-
+-			optoe@50 {
+-				compatible = "optoe2";
+-				reg = <0x50>;
+-				label = "port49";
+-			};
+-		};
+-
+-		i2c@1 {
+-			reg = <1>;
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-
+-			optoe@50 {
+-				compatible = "optoe2";
+-				reg = <0x50>;
+-				label = "port50";
+-			};
+-		};
+-
+-		i2c@2 {
+-			reg = <2>;
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-
+-			optoe@50 {
+-				compatible = "optoe2";
+-				reg = <0x50>;
+-				label = "port51";
+-			};
+-		};
+-
+-		i2c@3 {
+-			reg = <3>;
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-
+-			optoe@50 {
+-				compatible = "optoe2";
+-				reg = <0x50>;
+-				label = "port52";
+-			};
+-		};
+-	};
++        model = "delta,tn48m";
++        compatible = "delta,tn48m";
++
++        chosen {
++                stdout-path = "serial0:115200n8";
++        };
++
++        memory@0 {
++                device_type = "memory";
++                reg = <0x0 0x0 0x0 0x80000000>;
++        };
++
++        aliases {
++                ethernet0 = &cp0_eth0;
++                ethernet1 = &cp0_eth1;
++                ethernet2 = &cp0_eth2;
++        };
++
++        switch-cpu {
++                compatible = "marvell,prestera-switch-rxtx-eth";
++                ethernet = <&cp0_eth0>;
++                status = "okay";
++        };
++
++        i2cmux {
++                compatible = "i2c-mux-gpio";
++                #address-cells = <1>;
++                #size-cells = <0>;
++                mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
++                i2c-parent = <&cp0_i2c1>;
++
++                i2c@0 {
++                        reg = <0>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++                        optoe@50 {
++                                compatible = "optoe2";
++                                reg = <0x50>;
++                                label = "port49";
++                        };
++                };
++
++                i2c@1 {
++                        reg = <1>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++                        optoe@50 {
++                                compatible = "optoe2";
++                                reg = <0x50>;
++                                label = "port50";
++                        };
++                };
++
++                i2c@2 {
++                        reg = <2>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++                        optoe@50 {
++                                compatible = "optoe2";
++                                reg = <0x50>;
++                                label = "port51";
++                        };
++                };
++
++                i2c@3 {
++                        reg = <3>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++                        optoe@50 {
++                                compatible = "optoe2";
++                                reg = <0x50>;
++                                label = "port52";
++                        };
++                };
++        };
+ };
+ 
+ &i2c0 {
+-	status = "okay";
+-	clock-frequency = <100000>;
++        status = "okay";
++        clock-frequency = <100000>;
+ };
+ 
+ &spi0 {
+ 	status = "okay";
++
++	/* connect to TPM 
++        pinctrl-names = "default";
++        pinctrl-0 = <&ap_spi0_pins>;
++	*/
++	tpm0: slb9670@0 {
++
++        compatible = "infineon,slb9670";
++
++        reg = <0>;
++
++        /*resets = <&tpm_reset>;*/
++
++        spi-max-frequency = <38000000>;
++
++        /*interrupt-parent = <&gpio3>;
++
++        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;*/
++
++                status = "okay";
++
++    };
+ };
+ 
+ &uart0 {
+-	status = "okay";
++        status = "okay";
+ };
+ 
+ &cp0_i2c0 {
+-	status = "okay";
+-	clock-frequency = <100000>;
++        status = "okay";
++        clock-frequency = <100000>;
+ };
+ 
+ &cp0_i2c1 {
+-	status = "okay";
+-	clock-frequency = <100000>;
++        status = "okay";
++        clock-frequency = <100000>;
+ };
+ 
+ &cp0_spi0 {
+-	status = "okay";
+-
+-	spi-flash@0 {
+-		compatible = "jedec,spi-nor";
+-		reg = <0x0>;
+-		spi-max-frequency = <20000000>;
+-
+-		partitions {
+-			compatible = "fixed-partitions";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-
+-			partition@0 {
+-				label = "uboot";
+-				reg = <0x0 0x003f0000>;
+-			};
+-
+-			partition@3f0000 {
+-				/* 64KB */
+-				reg = <0x003f0000 0x00010000>;
+-				label = "uboot-env";
+-				env_size = <0x10000>;
+-			};
+-		};
+-	};
++        status = "okay";
++
++        spi-flash@0 {
++                compatible = "jedec,spi-nor";
++                reg = <0x0>;
++                spi-max-frequency = <20000000>;
++
++                partitions {
++                        compatible = "fixed-partitions";
++                        #address-cells = <1>;
++                        #size-cells = <1>;
++
++                        partition@0 {
++                                label = "uboot";
++                                reg = <0x0 0x003f0000>;
++                        };
++
++                        partition@3f0000 {
++                                /* 64KB */
++                                reg = <0x003f0000 0x00010000>;
++                                label = "uboot-env";
++                                env_size = <0x10000>;
++                        };
++                };
++        };
+ };
+ 
+ &cp0_sata0 {
+-	status = "okay";
++        status = "okay";
+ };
+ 
+ &cp0_usb3_0 {
+-	status = "okay";
++        status = "okay";
+ };
+ 
+ 
+ &cp0_usb3_1 {
+-	status = "okay";
++        status = "okay";
+ };
+ 
+ &ap_sdhci0 {
+-	status = "okay";
+-	bus-width = <4>;
+-	no-1-8-v;
+-	non-removable;
++        status = "okay";
++        bus-width = <4>;
++        no-1-8-v;
++        non-removable;
+ };
+ 
+ &cp0_sdhci0 {
+-	status = "okay";
+-	bus-width = <4>;
+-	no-1-8-v;
+-	non-removable;
++        status = "okay";
++        bus-width = <4>;
++        no-1-8-v;
++        non-removable;
+ };
+ 
+ &cp0_mdio {
+-	status = "okay";
++        status = "okay";
+ 
+-	OOB_E1512_PHY: ethernet-phy@1 {
+-		reg = <0x0>;
+- 	};
++        OOB_E1512_PHY: ethernet-phy@1 {
++                reg = <0x0>;
++        };
+ 
+ };
+ 
+ &cp0_ethernet {
+-	status = "okay";
++        status = "okay";
+ };
+ 
+ &cp0_eth0 {
+-	status = "okay";
+-	phy-mode = "sgmii";
+-	fixed-link {
+-		speed = <1000>;
+-		full-duplex;
+-	};
++        status = "okay";
++        phy-mode = "sgmii";
++        fixed-link {
++                speed = <1000>;
++                full-duplex;
++        };
+ };
+ 
+ &cp0_eth1 {
+-	status = "okay";
+-	phy-mode = "sgmii";
+-	fixed-link {
+-		speed = <1000>;
+-		full-duplex;
+-	};
++        status = "okay";
++        phy-mode = "sgmii";
++        fixed-link {
++                speed = <1000>;
++                full-duplex;
++        };
+ };
+ 
+ &cp0_eth2 {
+-	status = "okay";
+-	phy-mode = "sgmii";
+-	phy = <&OOB_E1512_PHY>;
++        status = "okay";
++        phy-mode = "sgmii";
++        phy = <&OOB_E1512_PHY>;
+ };
+ 
+ &cp0_crypto {
+-	status = "disabled";
++        status = "disabled";
+ };
+ 
+ &cp0_pcie0 {
+-	status = "okay";
++        status = "okay";
+ 
+-	phys = <&cp0_comphy0 0>;
+-	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
+-		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
+-		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
++        phys = <&cp0_comphy0 0>;
++        ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++                0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++                0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
+ };
