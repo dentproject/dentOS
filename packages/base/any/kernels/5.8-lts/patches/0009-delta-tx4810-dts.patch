@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/marvell/delta-tx4810.dts
-@@ -0,0 +1,164 @@
+@@ -0,0 +1,170 @@
 +/*
 + * Copyright (C) 2016 Marvell Technology Group Ltd.
 + *
@@ -95,9 +95,15 @@
 +                        #size-cells = <1>;
 +
 +                        partition@0 {
-+                                label = "U-Boot";
-+                                reg = <0x0 0x400000>;
++                                label = "uboot";
++                                reg = <0x0 0x3f0000>;
 +                        };
++
++                        partition@3f0000 {
++                                label = "uboot-env";
++                                reg = <0x3f0000 0x010000>;
++                        };
++
 +                        partition@400000 {
 +                                label = "ONIE";
 +                                reg = <0x400000 0xc00000>;

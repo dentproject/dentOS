@@ -1,6 +1,6 @@
---- /dev/null
+--- a/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
 +++ b/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
-@@ -0,0 +1,475 @@
+@@ -0,0 +1,510 @@
 +/*
 + * Delta TN48M/TN48M2/TN48M-POE Device Tree Source
 + *
@@ -66,15 +66,48 @@
 +		ethernet1 = &cp0_eth1;
 +		ethernet2 = &cp0_eth2;
 +	};
++
++	switch-cpu {
++		compatible = "marvell,prestera-switch-rxtx-sdma";
++		status = "okay";
++	};
++
++	onie_eeprom: onie-eeprom {
++		compatible = "onie-nvmem-cells";
++		status = "okay";
++
++		nvmem = <&eeprom_at24>;
++	};
++
++	prestera {
++		compatible = "marvell,prestera";
++		status = "okay";
++
++		base-mac-provider = <&onie_eeprom>;
++	};
 +};
 +
 +&i2c0 {
 +	status = "okay";
 +	clock-frequency = <100000>;
++
++	i2c-mux@77 {
++		compatible = "nxp,pca9546";
++		reg = <0x77>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
 +};
 +
 +&spi0 {
 +	status = "okay";
++
++	tpm0: slb9670@0 {
++		compatible = "infineon,slb9670";
++		reg = <0>;
++		spi-max-frequency = <38000000>;
++		status = "okay";
++	};
 +};
 +
 +&uart0 {
@@ -84,6 +117,11 @@
 +&cp0_i2c0 {
 +	status = "okay";
 +	clock-frequency = <100000>;
++
++	eeprom_at24: at24@56 {
++		compatible = "atmel,24c64";
++		reg = <0x56>;
++	};
 +};
 +
 +&cp0_i2c1 {
@@ -387,17 +425,20 @@
 +			#address-cells = <1>;
 +			#size-cells = <1>;
 +
-+			partition@0 {
-+				label = "uboot";
-+				reg = <0x0 0x003f0000>;
-+			};
++                        partition@0 {
++                                label = "uboot";
++                                reg = <0x0 0x3f0000>;
++                        };
 +
-+			partition@3f0000 {
-+				/* 64KB */
-+				reg = <0x003f0000 0x00010000>;
-+				label = "uboot-env";
-+				env_size = <0x10000>;
-+			};
++                        partition@3f0000 {
++                                label = "uboot-env";
++                                reg = <0x3f0000 0x010000>;
++                        };
++
++                        partition@400000 {
++                                label = "ONIE";
++                                reg = <0x400000 0xc00000>;
++                        };
 +		};
 +	};
 +};
@@ -442,27 +483,19 @@
 +};
 +
 +&cp0_eth0 {
-+	status = "okay";
-+	phy-mode = "sgmii";
-+	fixed-link {
-+		speed = <1000>;
-+		full-duplex;
-+	};
++	status = "disabled";
 +};
 +
 +&cp0_eth1 {
-+	status = "okay";
-+	phy-mode = "sgmii";
-+	fixed-link {
-+		speed = <1000>;
-+		full-duplex;
-+	};
++	status = "disabled";
 +};
 +
 +&cp0_eth2 {
 +	status = "okay";
++
 +	phy-mode = "sgmii";
 +	phy = <&OOB_E1512_PHY>;
++	phys = <&cp0_comphy5 2>;
 +};
 +
 +&cp0_crypto {
@@ -473,12 +506,14 @@
 +	status = "okay";
 +
 +	phys = <&cp0_comphy0 0>;
-+	ranges = <0x81000000 0x0 0xf9020000 0x0 0xf9020000 0x0 0x10000 0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x30000000>;
++	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
 +};
 +
---- /dev/null
+--- a/arch/arm64/boot/dts/marvell/delta-tn48m.dts
 +++ b/arch/arm64/boot/dts/marvell/delta-tn48m.dts
-@@ -0,0 +1,248 @@
+@@ -0,0 +1,276 @@
 +/*
 + * Delta TN48M/TN48M2/TN48M-POE Device Tree Source
 + *
@@ -527,205 +562,233 @@
 +#include "armada-7040.dtsi"
 +
 +/ {
-+	model = "delta,tn48m";
-+	compatible = "delta,tn48m";
++        model = "delta,tn48m";
++        compatible = "delta,tn48m";
 +
-+	chosen {
-+		stdout-path = "serial0:115200n8";
-+	};
++        chosen {
++                stdout-path = "serial0:115200n8";
++        };
 +
-+	memory@0 {
-+		device_type = "memory";
-+		reg = <0x0 0x0 0x0 0x80000000>;
-+	};
++        memory@0 {
++                device_type = "memory";
++                reg = <0x0 0x0 0x0 0x80000000>;
++        };
 +
-+	aliases {
-+		ethernet0 = &cp0_eth0;
-+		ethernet1 = &cp0_eth1;
-+		ethernet2 = &cp0_eth2;
-+	};
++        aliases {
++                ethernet0 = &cp0_eth0;
++                ethernet1 = &cp0_eth1;
++                ethernet2 = &cp0_eth2;
++        };
 +
-+	i2cmux {
-+		compatible = "i2c-mux-gpio";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
-+		i2c-parent = <&cp0_i2c1>;
++        switch-cpu {
++                compatible = "marvell,prestera-switch-rxtx-sdma";
++                status = "okay";
++        };
 +
-+		i2c@0 {
-+			reg = <0>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
++        onie_eeprom: onie-eeprom {
++                compatible = "onie-nvmem-cells";
++                status = "okay";
 +
-+			optoe@50 {
-+				compatible = "optoe2";
-+				reg = <0x50>;
-+				label = "port49";
-+			};
-+		};
++                nvmem = <&eeprom_at24>;
++        };
 +
-+		i2c@1 {
-+			reg = <1>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
++        prestera {
++                compatible = "marvell,prestera";
++                status = "okay";
 +
-+			optoe@50 {
-+				compatible = "optoe2";
-+				reg = <0x50>;
-+				label = "port50";
-+			};
-+		};
++                base-mac-provider = <&onie_eeprom>;
++        };
 +
-+		i2c@2 {
-+			reg = <2>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
++        i2cmux {
++                compatible = "i2c-mux-gpio";
++                #address-cells = <1>;
++                #size-cells = <0>;
++                mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
++                i2c-parent = <&cp0_i2c1>;
 +
-+			optoe@50 {
-+				compatible = "optoe2";
-+				reg = <0x50>;
-+				label = "port51";
-+			};
-+		};
++                i2c@0 {
++                        reg = <0>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
 +
-+		i2c@3 {
-+			reg = <3>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
++                        optoe@50 {
++                                compatible = "optoe2";
++                                reg = <0x50>;
++                                label = "port49";
++                        };
++                };
 +
-+			optoe@50 {
-+				compatible = "optoe2";
-+				reg = <0x50>;
-+				label = "port52";
-+			};
-+		};
-+	};
++                i2c@1 {
++                        reg = <1>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++                        optoe@50 {
++                                compatible = "optoe2";
++                                reg = <0x50>;
++                                label = "port50";
++                        };
++                };
++
++                i2c@2 {
++                        reg = <2>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++                        optoe@50 {
++                                compatible = "optoe2";
++                                reg = <0x50>;
++                                label = "port51";
++                        };
++                };
++
++                i2c@3 {
++                        reg = <3>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++                        optoe@50 {
++                                compatible = "optoe2";
++                                reg = <0x50>;
++                                label = "port52";
++                        };
++                };
++        };
 +};
 +
 +&i2c0 {
-+	status = "okay";
-+	clock-frequency = <100000>;
++        status = "okay";
++        clock-frequency = <100000>;
 +};
 +
 +&spi0 {
 +	status = "okay";
++
++	tpm0: slb9670@0 {
++		compatible = "infineon,slb9670";
++		reg = <0>;
++		spi-max-frequency = <38000000>;
++		status = "okay";
++    };
 +};
 +
 +&uart0 {
-+	status = "okay";
++        status = "okay";
 +};
 +
 +&cp0_i2c0 {
-+	status = "okay";
-+	clock-frequency = <100000>;
++        status = "okay";
++        clock-frequency = <100000>;
++
++        eeprom_at24: at24@56 {
++                compatible = "atmel,24c64";
++                reg = <0x56>;
++        };
 +};
 +
 +&cp0_i2c1 {
-+	status = "okay";
-+	clock-frequency = <100000>;
++        status = "okay";
++        clock-frequency = <100000>;
 +};
 +
 +&cp0_spi0 {
-+	status = "okay";
++        status = "okay";
 +
-+	spi-flash@0 {
-+		compatible = "jedec,spi-nor";
-+		reg = <0x0>;
-+		spi-max-frequency = <20000000>;
++        spi-flash@0 {
++                compatible = "jedec,spi-nor";
++                reg = <0x0>;
++                spi-max-frequency = <20000000>;
 +
-+		partitions {
-+			compatible = "fixed-partitions";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
++                partitions {
++                        compatible = "fixed-partitions";
++                        #address-cells = <1>;
++                        #size-cells = <1>;
 +
-+			partition@0 {
-+				label = "uboot";
-+				reg = <0x0 0x003f0000>;
-+			};
++                        partition@0 {
++                                label = "uboot";
++                                reg = <0x0 0x3f0000>;
++                        };
 +
-+			partition@3f0000 {
-+				/* 64KB */
-+				reg = <0x003f0000 0x00010000>;
-+				label = "uboot-env";
-+				env_size = <0x10000>;
-+			};
-+		};
-+	};
++                        partition@3f0000 {
++                                label = "uboot-env";
++                                reg = <0x3f0000 0x010000>;
++                        };
++
++                        partition@400000 {
++                                label = "ONIE";
++                                reg = <0x400000 0xc00000>;
++                        };
++                };
++        };
 +};
 +
 +&cp0_sata0 {
-+	status = "okay";
++        status = "okay";
 +};
 +
 +&cp0_usb3_0 {
-+	status = "okay";
++        status = "okay";
 +};
 +
 +
 +&cp0_usb3_1 {
-+	status = "okay";
++        status = "okay";
 +};
 +
 +&ap_sdhci0 {
-+	status = "okay";
-+	bus-width = <4>;
-+	no-1-8-v;
-+	non-removable;
++        status = "okay";
++        bus-width = <4>;
++        no-1-8-v;
++        non-removable;
 +};
 +
 +&cp0_sdhci0 {
-+	status = "okay";
-+	bus-width = <4>;
-+	no-1-8-v;
-+	non-removable;
++        status = "okay";
++        bus-width = <4>;
++        no-1-8-v;
++        non-removable;
 +};
 +
 +&cp0_mdio {
-+	status = "okay";
++        status = "okay";
 +
-+	OOB_E1512_PHY: ethernet-phy@1 {
-+		reg = <0x0>;
-+ 	};
++        OOB_E1512_PHY: ethernet-phy@1 {
++                reg = <0x0>;
++        };
 +
 +};
 +
 +&cp0_ethernet {
-+	status = "okay";
++        status = "okay";
 +};
 +
 +&cp0_eth0 {
-+	status = "okay";
-+	phy-mode = "sgmii";
-+	fixed-link {
-+		speed = <1000>;
-+		full-duplex;
-+	};
++	status = "disabled";
 +};
 +
 +&cp0_eth1 {
-+	status = "okay";
-+	phy-mode = "sgmii";
-+	fixed-link {
-+		speed = <1000>;
-+		full-duplex;
-+	};
++	status = "disabled";
 +};
 +
 +&cp0_eth2 {
 +	status = "okay";
++
 +	phy-mode = "sgmii";
 +	phy = <&OOB_E1512_PHY>;
++	phys = <&cp0_comphy5 2>;
 +};
 +
 +&cp0_crypto {
-+	status = "disabled";
++        status = "disabled";
 +};
 +
 +&cp0_pcie0 {
-+	status = "okay";
++        status = "okay";
 +
-+	phys = <&cp0_comphy0 0>;
-+	ranges = <0x81000000 0x0 0xf9020000 0x0 0xf9020000 0x0 0x10000 0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x30000000>;
++        phys = <&cp0_comphy0 0>;
++        ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++                0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++                0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
 +};
 --- a/drivers/hwmon/lm75.c
 +++ b/drivers/hwmon/lm75.c
@@ -773,3 +836,4 @@
  	{ },
  };
  MODULE_DEVICE_TABLE(of, lm75_of_match);
+ 
