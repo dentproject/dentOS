@@ -462,6 +462,12 @@ rm -f /usr/sbin/policy-rc.d
                     onlu.execute("sudo chroot %s /usr/sbin/update-rc.d %s" % (dir_, update),
                                  ex=OnlRfsError("update-rc.d %s failed." % (update)))
 
+                for module in Configure.get('modules', []):
+                    monfig = os.path.join(dir_, 'etc/modules')
+                    ua.chmod('a+rw', monfig)
+                    # This is a bad way to add the modules but works for now
+                    onlu.execute("sudo chroot %s echo %s >> %s" % (dir_, module, monfig))
+
                 for script in Configure.get('scripts', []):
                     logger.info("Configuration script %s..." % script)
                     onlu.execute("sudo %s %s" % (script, dir_),
@@ -502,7 +508,8 @@ rm -f /usr/sbin/policy-rc.d
                     lines = open(config).readlines()
                     with open(config, "w") as f:
                         for line in lines:
-                            if line.startswith('PermitRootLogin'):
+                            # Added the hash sign to update this function
+                            if line.startswith('#PermitRootLogin'):
                                 v = options['PermitRootLogin']
                                 logger.info("Setting PermitRootLogin to %s" % v)
                                 f.write('PermitRootLogin %s\n' % v)

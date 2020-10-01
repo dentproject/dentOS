@@ -81,6 +81,13 @@ default:
       =: kernel-5.6-lts-arm64-all.bin.gz
       <<: *arm64-kernel-5-6-package
 
+    arm64-kernel-5-8-package: &arm64-kernel-5-8-package
+      package: onl-kernel-5.8-lts-arm64-all:arm64
+
+    arm64-kernel-5-8: &arm64-kernel-5-8
+      =: kernel-5.8-lts-arm64-all.bin.gz
+      <<: *arm64-kernel-5-8-package
+
     ##############################
     #
     # For your system, pick from the above list
