@@ -28,7 +28,7 @@
 
 #include "arm64_accton_as4224_log.h"
 
-#define CHASSIS_THERMAL_COUNT	4
+#define CHASSIS_THERMAL_COUNT	5
 #define CHASSIS_LED_COUNT		1
 
 #define PSU1_ID 1
@@ -53,7 +53,8 @@ enum onlp_thermal_id
     THERMAL_1_ON_MAIN_BROAD,
     THERMAL_2_ON_MAIN_BROAD,
     THERMAL_3_ON_MAIN_BROAD,
-    THERMAL_4_ON_MAIN_BROAD
+    THERMAL_4_ON_MAIN_BROAD,
+    THERMAL_CPU_CORE
 };
 
 int get_cpld_attr_int(char *attr, int *value);
