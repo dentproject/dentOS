@@ -4,7 +4,7 @@ from onl.platform.base import *
 from onl.platform.accton import *
 
 class OnlPlatform_arm64_accton_as5114_48x_r0(OnlPlatformAccton,
-                                       OnlPlatformPortConfig_48x1_4x10):
+                                       OnlPlatformPortConfig_48x10):
     PLATFORM='arm64-accton-as5114-48x-r0'
     MODEL="AS5114-48X"
     SYS_OBJECT_ID=".5114.48"
