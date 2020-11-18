@@ -15,10 +15,6 @@ class OnlPlatform_arm64_accton_as4224_52p_r0(OnlPlatformAccton,
         # Insert platform drivers
         self.insmod("arm64-accton-as4224-cpld.ko")
 
-        # Insert prestera kernel modules
-        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_sw.ko")
-        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.ko")
-
         ########### initialize I2C bus 0 ###########
         self.new_i2c_devices(
             [
@@ -39,13 +35,6 @@ class OnlPlatform_arm64_accton_as4224_52p_r0(OnlPlatformAccton,
             )
 
         ########### initialize I2C bus 2 ###########
-        self.new_i2c_devices(
-            [
-                # initialize multiplexer (PCA9548)
-                ('pca9548', 0x70, 2),
-                ]
-            )
-
         # initialize SFP devices
         for port in range(49, 53):
             self.new_i2c_device('optoe2', 0x50, port-46)
@@ -54,6 +43,10 @@ class OnlPlatform_arm64_accton_as4224_52p_r0(OnlPlatformAccton,
         # Below platform drivers should be inserted after cpld driver is initiated.
         for m in [ 'fan', 'psu' ]:
             self.insmod("arm64-accton-as4224-%s" % m)
+
+        # Insert prestera kernel modules
+        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_sw.ko")
+        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.ko")
 
         #subprocess.call('echo 1 > ./sys/devices/platform/cp0/cp0:config-space/f2500000.usb3/usb1/1-1/1-1.1/bConfigurationValue', shell=True)
 

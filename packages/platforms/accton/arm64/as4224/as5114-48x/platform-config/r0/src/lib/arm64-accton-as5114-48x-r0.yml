@@ -11,7 +11,7 @@ arm64-accton-as5114-48x-r0:
     kernel:
       <<: *arm64-kernel-5-6
     dtb:
-      =: accton-as4224.dtb
+      =: accton-as5114.dtb
       <<: *arm64-kernel-5-6-package
     itb:
       <<: *arm64-itb
