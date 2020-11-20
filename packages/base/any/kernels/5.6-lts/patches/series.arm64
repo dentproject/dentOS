@@ -2,3 +2,16 @@
 0006-fsl-ls1046a-rdb-sdk.patch
 0007-qoriq-dpaa-eth.patch
 0008-qorig-fman3-0-6oh.patch
+0009-delta-tx4810-dts.patch
+0010-wnc-qsd61-aom-a-48.patch
+0011-wnc-qsa72-aom-a-48p.patch
+0012-accton-as4224.patch
+0013-delta-tn48m-series.patch
+0014-prestera-switchdev-driver.patch
+0015-Add-port-ranges-structures.patch
+0016-nvmem-core-allow-to-register-cells-for-existing-device.patch
+0017-nvmem-add-ONIE-NVMEM-cells-support.patch
+0018-userspace-stp.patch
+0019-pci-EP-reset-fix.patch
+0020-accton-as5114.patch
+

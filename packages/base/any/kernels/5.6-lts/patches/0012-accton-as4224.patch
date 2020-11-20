@@ -1,0 +1,358 @@
+diff --git a/arch/arm64/boot/dts/marvell/accton-as4224.dts b/arch/arm64/boot/dts/marvell/accton-as4224.dts
+new file mode 100644
+index 000000000..b08318fd4
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/accton-as4224.dts
+@@ -0,0 +1,352 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Copyright (C) 2016 Marvell Technology Group Ltd.
++ *
++ * Device Tree file for Marvell Armada 7040 Development board platform
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-7040.dtsi"
++
++/ {
++	model = "Accton Marvell Armada 7040 board setup";
++	compatible = "marvell,armada-7040-as4224",
++		     "marvell,armada7040", "marvell,armada-ap806-quad",
++		     "marvell,armada-ap806";
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	aliases {
++		ethernet0 = &cp0_eth0;
++		ethernet1 = &cp0_eth1;
++		ethernet2 = &cp0_eth2;
++		i2c0 = &i2c0;
++		i2c1 = &cp0_i2c0;
++		i2c2 = &cp0_i2c1;
++	};
++
++	switch-cpu {
++		compatible = "marvell,prestera-switch-rxtx-sdma";
++		status = "okay";
++	};
++
++	onie_eeprom: onie-eeprom {
++		compatible = "onie-nvmem-cells";
++		status = "okay";
++		nvmem = <&eeprom_at24>;
++	};
++
++	prestera {
++		compatible = "marvell,prestera";
++		status = "okay";
++		base-mac-provider = <&onie_eeprom>;
++		ports {
++			port49 {
++				prestera,port-num = <49>;
++				sfp = <&sfp49>;
++			};
++			port50 {
++				prestera,port-num = <50>;
++				sfp = <&sfp50>;
++			};
++			port51 {
++				prestera,port-num = <51>;
++				sfp = <&sfp51>;
++			};
++			port52 {
++				prestera,port-num = <52>;
++				sfp = <&sfp52>;
++			};
++		};
++	};
++
++	sfp49: sfp-49 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp0>;
++	};
++	sfp50: sfp-50 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp1>;
++	};
++	sfp51: sfp-51 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp2>;
++	};
++	sfp52: sfp-52 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp3>;
++	};
++};
++
++&ap_pinctrl {
++	ap_spi0_pins: spi-pins-0 {
++		marvell,pins = "mpp0", "mpp1", "mpp2", "mpp3";
++		marvell,function = "spi0";
++	};
++};
++
++&i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&cp0_i2c1 {
++    status = "okay";
++    clock-frequency = <100000>;
++
++	i2cmux@70 {
++		compatible = "nxp,pca9548";
++		reg = <0x70>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		i2c-mux-idle-disconnect;
++
++		i2c1_sfp0: i2c@0 {
++			reg = <0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++		i2c1_sfp1: i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++		i2c1_sfp2: i2c@2 {
++			reg = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++		i2c1_sfp3: i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
++};
++
++&spi0 {
++	status = "okay";
++	pinctrl-0 = <&ap_spi0_pins>;
++	pinctrl-names = "default";
++
++
++    spidev: tpm@0 {
++       compatible = "tcg,tpm_tis-spi";
++       reg =<0>;
++       #address-cells = <1>;
++       #size-cells = <1>;
++       spi-max-frequency = <500000>;
++    };
++
++};
++
++&uart0 {
++	status = "okay";
++	pinctrl-0 = <&uart0_pins>;
++	pinctrl-names = "default";
++};
++
++
++&cp0_pinctrl {
++        cp0_ge_mdio_pins: ge-mdio-pins {
++                marvell,pins = "mpp0", "mpp1";
++                marvell,function = "ge";
++        };
++        cp0_sata0_prsnt_pin: sata0-prsnt-pins {
++                marvell,pins = "mpp29";
++                marvell,function = "sata0";
++        };
++        cp0_i2c0_pins: i2c0-pins {
++                marvell,pins = "mpp37", "mpp38";
++                marvell,function = "i2c0";
++        };
++        cp0_i2c1_pins: i2c1-pins {
++                marvell,pins = "mpp35", "mpp36";
++                marvell,function = "i2c1";
++        };
++        cp0_spi0_pins: spi0-pins {
++                marvell,pins = "mpp56", "mpp57", "mpp58", "mpp59";
++                marvell,function = "spi0";
++        };
++};
++
++&cp0_pcie0 {
++	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
++	phys = <&cp0_comphy0 0>;
++	status = "okay";
++};
++
++&cp0_i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++
++	expander0: pca9555@21 {
++		compatible = "nxp,pca9555";
++		pinctrl-names = "default";
++		gpio-controller;
++		#gpio-cells = <2>;
++		reg = <0x21>;
++	};
++
++	eeprom_at24: at24@56 {
++		compatible = "atmel,24c64";
++		reg = <0x56>;
++	};
++
++	eeprom0: eeprom@50 {
++		compatible = "atmel,24c64";
++		reg = <0x50>;
++		pagesize = <0x20>;
++	};
++
++	eeprom1: eeprom@57 {
++		compatible = "atmel,24c64";
++		reg = <0x57>;
++		pagesize = <0x20>;
++	};
++};
++
++&cp0_nand_controller {
++	pinctrl-names = "default";
++	pinctrl-0 = <&nand_pins &nand_rb>;
++
++	nand@0 {
++		reg = <0>;
++		label = "main-storage";
++		nand-rb = <0>;
++		nand-ecc-mode = "hw";
++		nand-on-flash-bbt;
++		nand-ecc-strength = <8>;
++		nand-ecc-step-size = <512>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "U-Boot";
++				reg = <0 0x200000>;
++			};
++			partition@200000 {
++				label = "Linux";
++				reg = <0x200000 0xd00000>;
++			};
++			partition@1000000 {
++				label = "Filesystem";
++				reg = <0x1000000 0x3f000000>;
++			};
++		};
++	};
++};
++
++&cp0_spi0 {
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp0_spi0_pins>;
++	status = "okay";
++	spi-flash@0 {
++		#address-cells = <0x1>;
++		#size-cells = <0x1>;
++		compatible = "jedec,spi-nor";
++		reg = <0x0>;
++		spi-max-frequency = <108000000>;
++
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				reg = <0x00000000 0x00200000>;
++				label = "uboot";
++			};
++
++			partition@1 {
++				reg = <0x00200000 0x00010000>;
++				label = "uboot-env";
++				env_size = <0x00010000>;
++			};
++
++			partition@2 {
++				reg = <0x00210000 0x00df0000>;
++				label = "onie";
++			};
++		};
++	};
++};
++
++&cp0_sata0 {
++	status = "okay";
++
++	sata-port@1 {
++		status = "okay";
++		/* Generic PHY, providing serdes lanes */
++		phys = <&cp0_comphy1 0>;
++	};
++};
++
++&cp0_usb3_0 {
++	status = "okay";
++};
++
++&cp0_usb3_1 {
++	status = "okay";
++};
++
++&ap_sdhci0 {
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
++	status = "okay";
++};
++
++&cp0_mdio {
++	status = "okay";
++	OOB_E1512_PHY: ethernet-phy@1 {
++                reg = <0x0>;
++        };
++};
++
++&cp0_ethernet {
++	status = "okay";
++};
++
++&cp0_eth0 {
++	status = "disable";
++	/* Network PHY */
++	phys = <&cp0_comphy2 0>;
++	phy-mode = "2500base-x";
++	phy-speed=<2500>;
++	/* Generic PHY, providing serdes lanes */
++	fixed-link {
++	speed = <2500>;
++	full-duplex;
++	};
++};
++
++&cp0_eth1 {
++	status = "disable";
++	/* Network PHY */
++	phys = <&cp0_comphy3 1>;
++	phy-mode = "1000base-x";
++	fixed-link {
++	      speed = <1000>;
++	      full-duplex;
++	};
++};
++
++&cp0_eth2 {
++	status = "okay";
++	phy-mode = "sgmii";
++	phy = <&OOB_E1512_PHY>;
++	phys = <&cp0_comphy5 2>;
++};
++
++&cp0_crypto {
++	status = "okay";
++};

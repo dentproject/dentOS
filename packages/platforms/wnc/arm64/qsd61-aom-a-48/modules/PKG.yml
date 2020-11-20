@@ -1,0 +1,1 @@
+!include $ONL_TEMPLATES/platform-modules.yml ARCH=arm64 VENDOR=wnc BASENAME=arm64-wnc-qsd61-aom-a-48 KERNELS="onl-kernel-5.6-lts-arm64-all:arm64"

@@ -1,4 +1,13 @@
 - u-boot-tools
+- frr
 - bridge-utils
+- mstpd
+- bash-completion
 - onl-kernel-5.4-lts-arm64-all-modules
 - onl-kernel-5.6-lts-arm64-all-modules
+- onl-kernel-5.8-lts-arm64-all-modules
+- lldpd
+- man-db
+- dnsmasq
+- dnsutils
+- mft
