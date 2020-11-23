@@ -15,6 +15,10 @@ class OnlPlatform_arm64_accton_as4224_52t_r0(OnlPlatformAccton,
         # Insert platform drivers
         self.insmod("arm64-accton-as4224-cpld.ko")
 
+        # Insert prestera kernel modules
+        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_sw.ko")
+        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.ko")
+
         ########### initialize I2C bus 0 ###########
         self.new_i2c_devices(
             [
