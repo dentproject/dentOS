@@ -40,7 +40,7 @@
 #define NUM_OF_SFP_PORT 48
 
 #define MODULE_PRESENT_FORMAT        "/sys/bus/i2c/devices/2-0076/p%.02d_mod_abs"
-#define MODULE_RXLOS_FORMAT          "/sys/class/gpio/gpio%d/value"
+#define MODULE_RXLOS_FORMAT          "/sys/bus/i2c/devices/2-0076/p%.02d_rx_los"
 #define PORT_EEPROM_FORMAT           "/sys/bus/i2c/devices/%d-0050/eeprom"
 #define PORT_GPIO_RXLOS_OFFSET   1
 
@@ -271,7 +271,32 @@ onlp_sfpi_control_set(int port, onlp_sfp_control_t control, int value)
 int
 onlp_sfpi_control_get(int port, onlp_sfp_control_t control, int* value)
 {
-    return ONLP_STATUS_E_UNSUPPORTED;
+    int rv = ONLP_STATUS_OK;
+	char rx_los_path[64] = {0};
+	sprintf(rx_los_path, MODULE_RXLOS_FORMAT, port+1);
+
+    if (port < 0 || port >= NUM_OF_SFP_PORT) {
+        AIM_LOG_ERROR("Illegal port (%d) to control get \r\n", port);
+        return ONLP_STATUS_E_UNSUPPORTED;
+    }
+
+    switch(control)
+    {
+        case ONLP_SFP_CONTROL_RX_LOS:
+			if (onlp_file_read_int_hex(value, rx_los_path) < 0) {
+				AIM_LOG_ERROR("Unable to read rx loss status from port(%d)\r\n", port);
+				return ONLP_STATUS_E_INTERNAL;
+			}
+			else {
+				rv = ONLP_STATUS_OK;
+			}
+            break;
+        default:
+            rv = ONLP_STATUS_E_UNSUPPORTED;
+            break;
+    }
+
+    return rv;
 }
 
 int
