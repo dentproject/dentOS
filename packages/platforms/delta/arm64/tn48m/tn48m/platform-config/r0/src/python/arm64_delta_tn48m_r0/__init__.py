@@ -10,18 +10,13 @@ class OnlPlatform_arm64_delta_tn48m_r0(OnlPlatformDelta,
     SYS_OBJECT_ID=".48.10"
 
     def baseconfig(self):
-        self.insmod('optoe')
-
         # Insert platform drivers
         self.insmod("arm64-delta-tn48m-cpld.ko")
         self.insmod("arm64-delta-tn48m-led.ko")
 
-        ########### initialize I2C bus 0 ###########
-        self.new_i2c_devices (
-            [
-                ('tn48m_cpld',    0x41, 0),
-            ]
-        )
+        # Insert prestera kernel modules
+        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_sw.ko")
+        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.ko")
 
         ########### initialize I2C bus 1 ###########
         self.new_i2c_devices (
@@ -34,12 +29,6 @@ class OnlPlatform_arm64_delta_tn48m_r0(OnlPlatformDelta,
                 ('tmp1075', 0x4b, 1),
             ]
         )
-
-        # Set SFP port name
-        subprocess.call('echo port49 > /sys/bus/i2c/devices/3-0050/port_name', shell=True)
-        subprocess.call('echo port50 > /sys/bus/i2c/devices/4-0050/port_name', shell=True)
-        subprocess.call('echo port51 > /sys/bus/i2c/devices/5-0050/port_name', shell=True)
-        subprocess.call('echo port52 > /sys/bus/i2c/devices/6-0050/port_name', shell=True)
 
         return True
 

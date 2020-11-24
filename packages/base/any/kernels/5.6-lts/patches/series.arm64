@@ -14,4 +14,4 @@
 0018-userspace-stp.patch
 0019-pci-EP-reset-fix.patch
 0020-accton-as5114.patch
-
+0021-tn48m-add-sfp-eeprom-support-to-ethtool.patch

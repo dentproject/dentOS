@@ -10,17 +10,18 @@ class OnlPlatform_arm64_delta_tn48m_poe_r0(OnlPlatformDelta,
     SYS_OBJECT_ID=".48.3"
 
     def baseconfig(self):
-        self.insmod('optoe')
-
         # Insert platform drivers
         self.insmod("arm64-delta-tn48m-poe-psu.ko")
         self.insmod("arm64-delta-tn48m-cpld.ko")
         self.insmod("arm64-delta-tn48m-led.ko")
 
+        # Insert prestera kernel modules
+        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_sw.ko")
+        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.ko")
+
         ########### initialize I2C bus 0 ###########
         self.new_i2c_devices (
             [
-                ('tn48m_cpld',    0x41, 0),
                 ('tn48m_poe_psu', 0x58, 0),
                 ('tn48m_poe_psu', 0x59, 0),
             ]
