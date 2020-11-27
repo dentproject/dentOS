@@ -39,10 +39,4 @@ class OnlPlatform_arm64_delta_tn48m_poe_r0(OnlPlatformDelta,
             ]
         )
 
-        # Set SFP port name
-        subprocess.call('echo port49 > /sys/bus/i2c/devices/3-0050/port_name', shell=True)
-        subprocess.call('echo port50 > /sys/bus/i2c/devices/4-0050/port_name', shell=True)
-        subprocess.call('echo port51 > /sys/bus/i2c/devices/5-0050/port_name', shell=True)
-        subprocess.call('echo port52 > /sys/bus/i2c/devices/6-0050/port_name', shell=True)
-
         return True
