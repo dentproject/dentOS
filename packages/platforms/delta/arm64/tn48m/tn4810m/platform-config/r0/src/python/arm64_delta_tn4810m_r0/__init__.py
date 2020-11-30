@@ -16,10 +16,6 @@ class OnlPlatform_arm64_delta_tn4810m_r0(OnlPlatformDelta,
         self.insmod("arm64-delta-tn48m-cpld.ko")
         self.insmod("arm64-delta-tn48m-led.ko")
 
-        # Insert prestera kernel modules
-        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_sw.ko")
-        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.ko")
-
         ########### initialize I2C bus 1 ###########
         self.new_i2c_devices (
             [
@@ -270,4 +266,7 @@ class OnlPlatform_arm64_delta_tn4810m_r0(OnlPlatformDelta,
         subprocess.call('echo "-2" > /sys/bus/i2c/devices/i2c-2/2-0074/idle_state', shell=True)
         subprocess.call('echo "-2" > /sys/bus/i2c/devices/i2c-2/2-0075/idle_state', shell=True)
 
+        # Insert prestera kernel module
+        self.insmod("prestera_sw.ko")
+        self.insmod("prestera_pci.ko")
         return True
