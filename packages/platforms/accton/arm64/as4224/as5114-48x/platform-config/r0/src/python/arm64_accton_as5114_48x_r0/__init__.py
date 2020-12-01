@@ -38,10 +38,6 @@ class OnlPlatform_arm64_accton_as5114_48x_r0(OnlPlatformAccton,
 
         ########### initialize I2C bus 2 ###########
 
-        # Insert prestera kernel modules
-        self.insmod("prestera_sw.ko")
-        self.insmod("prestera_pci.ko")
-
         # initialize SFP devices
         for port in range(1, 49):
             self.new_i2c_device('optoe2', 0x50, port+2)
@@ -50,6 +46,10 @@ class OnlPlatform_arm64_accton_as5114_48x_r0(OnlPlatformAccton,
         # Below platform drivers should be inserted after cpld driver is initiated.
         for m in [ 'fan', 'psu' ]:
             self.insmod("arm64-accton-as4224-%s" % m)
+
+        # Insert prestera kernel modules
+        self.insmod("prestera_sw.ko")
+        self.insmod("prestera_pci.ko")
 
 
         return True

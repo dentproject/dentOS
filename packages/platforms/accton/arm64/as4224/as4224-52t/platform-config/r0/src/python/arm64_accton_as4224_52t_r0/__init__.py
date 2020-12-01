@@ -36,10 +36,6 @@ class OnlPlatform_arm64_accton_as4224_52t_r0(OnlPlatformAccton,
 
         ########### initialize I2C bus 2 ###########
 
-        # Insert prestera kernel modules
-        self.insmod("prestera_sw.ko")
-        self.insmod("prestera_pci.ko")
-
         # initialize SFP devices
         for port in range(49, 53):
             self.new_i2c_device('optoe2', 0x50, port-46)
@@ -50,5 +46,9 @@ class OnlPlatform_arm64_accton_as4224_52t_r0(OnlPlatformAccton,
             self.insmod("arm64-accton-as4224-%s" % m)
 
         #subprocess.call('echo 1 > ./sys/devices/platform/cp0/cp0:config-space/f2500000.usb3/usb1/1-1/1-1.1/bConfigurationValue', shell=True)
+
+        # Insert prestera kernel modules
+        self.insmod("prestera_sw.ko")
+        self.insmod("prestera_pci.ko")
 
         return True
