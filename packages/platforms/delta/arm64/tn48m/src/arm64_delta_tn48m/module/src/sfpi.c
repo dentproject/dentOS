@@ -28,7 +28,7 @@
 #include "arm64_delta_tn48m_log.h"
 #include "platform_lib.h"
 
-#define PORT_EEPROM_FORMAT      "/sys/bus/i2c/devices/%d-0050/eeprom"
+#define SFP_EEPROM_ADDR         0x50
 #define MODULE_PRESENT_FORMAT   "/sys/bus/i2c/devices/%d-0041/module_present_%d"
 #define MODULE_RXLOS_FORMAT     "/sys/bus/i2c/devices/%d-0041/module_rx_los_%d"
 #define MODULE_TXDIS_FORMAT     "/sys/bus/i2c/devices/%d-0041/module_tx_dis_%d"
@@ -178,9 +178,7 @@ onlp_sfpi_rx_los_bitmap_get(onlp_sfp_bitmap_t* dst)
 int
 onlp_sfpi_eeprom_read(int port, uint8_t data[256])
 {
-    int size = 0;
     int eeprom_bus = front_port_to_eeprom_bus(port);
-    char fullpath[PATH_MAX] = {0};
     plat_info_t *plat_info = &gPlat_info[gPlat_id];
 
     if (port < plat_info->sfp_start_idx || port > plat_info->sfp_end_idx) {
@@ -188,22 +186,15 @@ onlp_sfpi_eeprom_read(int port, uint8_t data[256])
         return ONLP_STATUS_E_UNSUPPORTED;
     }
 
-
     /*
      * Read the SFP eeprom into data[]
      *
      * Return OK if eeprom is read
      */
     memset(data, 0, 256);
-    sprintf(fullpath, PORT_EEPROM_FORMAT, eeprom_bus);
-    if (plat_os_file_read(data, 256, &size, fullpath) != ONLP_STATUS_OK) {
-        AIM_LOG_ERROR("Unable to read eeprom from port(%d)\n", port);
-        return ONLP_STATUS_E_INTERNAL;
-    }
-
-    if (size != 256) {
-        AIM_LOG_ERROR("Unable to read eeprom from port(%d),"
-                      " size is different!\n", port);
+    if (onlp_i2c_read(eeprom_bus, SFP_EEPROM_ADDR, 0, 256, data, 0) != 0)
+    {
+        AIM_LOG_ERROR("Unable to read eeprom from port(%d)\r\n", port);
         return ONLP_STATUS_E_INTERNAL;
     }
 

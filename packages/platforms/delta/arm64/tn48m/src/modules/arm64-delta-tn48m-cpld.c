@@ -23,6 +23,12 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <linux/kernel.h>
+#include <linux/gpio/driver.h>
+#include <linux/init.h>
+#include <linux/platform_device.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/slab.h>
@@ -50,6 +56,9 @@
 
 #define I2C_RW_RETRY_COUNT              10
 #define I2C_RW_RETRY_INTERVAL           60      /* ms */
+
+#define TN48M_GPIO_I2C_NGPIOS           12
+#define TN4810M_GPIO_I2C_NGPIOS         144
 
 static LIST_HEAD(cpld_client_list);
 static struct mutex     list_lock;
@@ -93,17 +102,22 @@ struct tn48m_cpld_data {
     u8 sfp_rx_los[6];       /* 0x40 ~ 0x45 RO */
 };
 
-static struct tn48m_cpld_data *tn48m_cpld_update_device(struct device *dev);
-
-/*
- * Driver Data
- */
-static const struct i2c_device_id tn48m_cpld_id[] = {
-    { "tn48m_cpld", tn48m_cpld },
-    { "tn4810m_cpld", tn4810m_cpld },
-    { }
+struct gpio_i2c_reg {
+    struct list_head head;
+    u32 gpio_num;
+    u32 reg_addr;
+    u32 reg_mask;
 };
-MODULE_DEVICE_TABLE(i2c, tn48m_cpld_id);
+
+struct gpio_i2c_chip {
+    struct gpio_chip gpio_chip;
+    struct i2c_client *i2c;
+    struct device *dev;
+
+    struct list_head gpio_list;
+};
+
+static struct tn48m_cpld_data *tn48m_cpld_update_device(struct device *dev);
 
 enum tn48m_cpld_sysfs_attributes {
     PSU1_PRESENT,
@@ -160,6 +174,7 @@ int tn48m_cpld_read(unsigned short cpld_addr, u8 reg)
 {
     struct list_head   *list_node = NULL;
     struct cpld_client_node *cpld_node = NULL;
+    struct tn48m_cpld_data *data;
     int ret = -EPERM;
 
     mutex_lock(&list_lock);
@@ -169,7 +184,10 @@ int tn48m_cpld_read(unsigned short cpld_addr, u8 reg)
         cpld_node = list_entry(list_node, struct cpld_client_node, list);
 
         if (cpld_node->client->addr == cpld_addr) {
+            data = i2c_get_clientdata(cpld_node->client);
+            mutex_lock(&data->update_lock);
             ret = tn48m_cpld_read_internal(cpld_node->client, reg);
+            mutex_unlock(&data->update_lock);
             break;
         }
     }
@@ -184,6 +202,7 @@ int tn48m_cpld_write(unsigned short cpld_addr, u8 reg, u8 value)
 {
     struct list_head   *list_node = NULL;
     struct cpld_client_node *cpld_node = NULL;
+    struct tn48m_cpld_data *data;
     int ret = -EIO;
 
     mutex_lock(&list_lock);
@@ -193,7 +212,10 @@ int tn48m_cpld_write(unsigned short cpld_addr, u8 reg, u8 value)
         cpld_node = list_entry(list_node, struct cpld_client_node, list);
 
         if (cpld_node->client->addr == cpld_addr) {
+            data = i2c_get_clientdata(cpld_node->client);
+            mutex_lock(&data->update_lock);
             ret = tn48m_cpld_write_internal(cpld_node->client, reg, value);
+            mutex_unlock(&data->update_lock);
             break;
         }
     }
@@ -204,6 +226,62 @@ int tn48m_cpld_write(unsigned short cpld_addr, u8 reg, u8 value)
 }
 EXPORT_SYMBOL(tn48m_cpld_write);
 
+static struct gpio_i2c_reg *gpio_i2c_reg_by_num(struct gpio_i2c_chip *chip,
+                                                unsigned int offs)
+{
+    struct gpio_i2c_reg *gpio_reg;
+
+    list_for_each_entry(gpio_reg, &chip->gpio_list, head) {
+        if (gpio_reg->gpio_num == offs)
+            return gpio_reg;
+    }
+
+    return NULL;
+}
+
+static int gpio_i2c_get_value(struct gpio_chip *gc, unsigned int offs)
+{
+    struct gpio_i2c_chip *chip = gpiochip_get_data(gc);
+    struct gpio_i2c_reg *gpio_reg;
+    struct tn48m_cpld_data *data = i2c_get_clientdata(chip->i2c);
+    int val;
+
+    gpio_reg = gpio_i2c_reg_by_num(chip, offs);
+    if (!gpio_reg) {
+        dev_err(chip->dev, "invalid gpio offset (0x%x)\n", offs);
+        return -EINVAL;
+    }
+
+    mutex_lock(&data->update_lock);
+    val = tn48m_cpld_read_internal(chip->i2c, gpio_reg->reg_addr);
+    mutex_unlock(&data->update_lock);
+    val &= gpio_reg->reg_mask;
+
+    return val;
+}
+
+static void gpio_i2c_set_value(struct gpio_chip *gc, unsigned int offs, int set)
+{
+    struct gpio_i2c_chip *chip = gpiochip_get_data(gc);
+    struct gpio_i2c_reg *gpio_reg;
+    struct tn48m_cpld_data *data = i2c_get_clientdata(chip->i2c);
+    unsigned int val;
+
+    gpio_reg = gpio_i2c_reg_by_num(chip, offs);
+    if (!gpio_reg) {
+        dev_err(chip->dev, "invalid gpio offset (0x%x)\n", offs);
+        return;
+    }
+
+    mutex_lock(&data->update_lock);
+    val = tn48m_cpld_read_internal(chip->i2c, gpio_reg->reg_addr);
+    val &= ~gpio_reg->reg_mask;
+    if (set)
+        val |= gpio_reg->reg_mask;
+
+    tn48m_cpld_write_internal(chip->i2c, gpio_reg->reg_addr, val);
+    mutex_unlock(&data->update_lock);
+}
 
 /* Read and Write CPLD register data codes */
 static ssize_t show_reg_offset(struct device *dev,
@@ -213,8 +291,9 @@ static ssize_t show_reg_offset(struct device *dev,
     struct tn48m_cpld_data *data = i2c_get_clientdata(client);
     u8 reg_offset;
 
+    mutex_lock(&data->update_lock);
     reg_offset = data->reg_offset;
-
+    mutex_unlock(&data->update_lock);
     return sprintf(buf, "0x%x\n", reg_offset);
 }
 
@@ -226,7 +305,6 @@ static ssize_t set_reg_offset(struct device *dev,
     struct tn48m_cpld_data *data = i2c_get_clientdata(client);
 
     u8 reg_offset = simple_strtoul(buf, NULL, 16);
-
     mutex_lock(&data->update_lock);
     data->reg_offset = reg_offset;
     mutex_unlock(&data->update_lock);
@@ -652,6 +730,57 @@ static const struct attribute_group tn4810m_cpld_group = {
     .attrs = tn4810m_cpld_attributes,
 };
 
+static int gpio_i2c_reg_parse(struct gpio_i2c_chip *chip, struct device_node *np)
+{
+    struct gpio_i2c_reg *gpio_reg;
+    struct device *dev = chip->dev;
+    u32 gpio_reg_map[2];
+    u32 gpio_num;
+    int err;
+
+    err = of_property_read_u32_array(np, "reg-map", gpio_reg_map,
+                     ARRAY_SIZE(gpio_reg_map));
+
+    if (err) {
+        dev_err(dev, "error while parsing 'reg-map' property\n");
+        return err;
+    }
+
+    err = of_property_read_u32(np, "gpio-num", &gpio_num);
+    if (err) {
+        dev_err(dev, "error while parsing 'gpio-num' property\n");
+        return err;
+    }
+
+    gpio_reg = devm_kmalloc(dev, sizeof(*gpio_reg), GFP_KERNEL);
+    if (!gpio_reg)
+        return err;
+
+    gpio_reg->reg_addr = gpio_reg_map[0];
+    gpio_reg->reg_mask = gpio_reg_map[1];
+    gpio_reg->gpio_num = gpio_num;
+
+    list_add(&gpio_reg->head, &chip->gpio_list);
+
+    return 0;
+}
+
+static int gpio_i2c_map_parse(struct gpio_i2c_chip *chip,
+                  struct device_node *gpio_map_np)
+{
+    struct device_node *node;
+
+    for_each_child_of_node(gpio_map_np, node) {
+        int err;
+
+        err = gpio_i2c_reg_parse(chip, node);
+        if (err)
+            return err;
+    }
+
+    return 0;
+}
+
 static void tn48m_cpld_add_client(struct i2c_client *client)
 {
     struct cpld_client_node *node =
@@ -701,12 +830,50 @@ static int tn48m_cpld_probe(struct i2c_client *client,
                             const struct i2c_device_id *id)
 {
     struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+    struct device *dev = &client->dev;
+    struct device_node *np = dev->of_node;
+    struct device_node *gpio_map_np;
+    struct gpio_i2c_chip *chip;
     struct tn48m_cpld_data *data;
     int ret = -ENODEV;
     int product_id;
+    int err;
 
     if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
         goto exit;
+
+    if (!np) {
+        ret = -EINVAL;
+        goto exit;
+    }
+
+    chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
+    if (!chip) {
+        ret = -ENOMEM;
+        goto exit;
+    }
+
+    INIT_LIST_HEAD(&chip->gpio_list);
+    chip->i2c = client;
+    chip->dev = dev;
+
+    gpio_map_np = of_find_node_by_name(np, "gpio-map");
+    if (gpio_map_np) {
+        ret = gpio_i2c_map_parse(chip, gpio_map_np);
+        if (ret)
+            goto exit;
+    }
+
+    chip->gpio_chip.parent = dev;
+
+    i2c_set_clientdata(client, chip);
+
+    chip->gpio_chip.label = dev_name(dev);
+    chip->gpio_chip.get = gpio_i2c_get_value;
+    chip->gpio_chip.set = gpio_i2c_set_value;
+    chip->gpio_chip.base = -1;
+    chip->gpio_chip.owner = THIS_MODULE;
+    chip->gpio_chip.can_sleep = true;
 
     data = kzalloc(sizeof(struct tn48m_cpld_data), GFP_KERNEL);
     if (!data) {
@@ -731,21 +898,22 @@ static int tn48m_cpld_probe(struct i2c_client *client,
             goto exit_free;
         }
 
+        chip->gpio_chip.ngpio = TN4810M_GPIO_I2C_NGPIOS;
         data->sfp_group_num = 6;
 
         ret = sysfs_create_group(&client->dev.kobj, &tn4810m_cpld_group);
-        if (ret)
-            goto exit_free;
+        if (ret) goto exit_free;
     } else {
+        chip->gpio_chip.ngpio = TN48M_GPIO_I2C_NGPIOS;
         data->sfp_group_num = 1;
 
         ret = sysfs_create_group(&client->dev.kobj, &tn48m_cpld_group);
-        if (ret)
-            goto exit_free;
+        if (ret) goto exit_free;
     }
 
     tn48m_cpld_add_client(client);
-    return 0;
+
+    return devm_gpiochip_add_data(dev, &chip->gpio_chip, chip);
 
 exit_free:
     kfree(data);
@@ -769,16 +937,6 @@ static int tn48m_cpld_remove(struct i2c_client *client)
 
     return 0;
 }
-
-static struct i2c_driver tn48m_cpld_driver = {
-    .driver = {
-        .name  = "arm64_delta_tn48m_cpld",
-        .owner = THIS_MODULE,
-    },
-    .probe     = tn48m_cpld_probe,
-    .remove    = tn48m_cpld_remove,
-    .id_table  = tn48m_cpld_id,
-};
 
 int tn48m_platform_id(void)
 {
@@ -833,6 +991,42 @@ static struct tn48m_cpld_data *tn48m_cpld_update_device(struct device *dev)
     return data;
 }
 
+/*
+ * Driver Data
+ */
+static const struct i2c_device_id tn48m_cpld_id[] = {
+    { "tn48m_cpld", tn48m_cpld },
+    { "tn4810m_cpld", tn4810m_cpld },
+    { }
+};
+MODULE_DEVICE_TABLE(i2c, tn48m_cpld_id);
+
+#ifdef CONFIG_OF
+static const struct of_device_id tn48m_cpld_of_match[] = {
+    {
+        .compatible = "dni,tn48m_cpld",
+        .data = (void *)tn48m_cpld,
+    },
+    {
+        .compatible = "dni,tn4810m_cpld",
+        .data = (void *)tn4810m_cpld,
+    },
+    {},
+};
+MODULE_DEVICE_TABLE(i2c, tn48m_cpld_id);
+#endif
+
+static struct i2c_driver tn48m_cpld_driver = {
+    .driver = {
+        .name  = "arm64_delta_tn48m_cpld",
+        .of_match_table = of_match_ptr(tn48m_cpld_of_match),
+        .owner = THIS_MODULE,
+    },
+    .probe     = tn48m_cpld_probe,
+    .remove    = tn48m_cpld_remove,
+    .id_table  = tn48m_cpld_id,
+};
+
 /* I2C init/exit functions */
 static int __init tn48m_cpld_init(void)
 {
@@ -845,9 +1039,9 @@ static void __exit tn48m_cpld_exit(void)
     i2c_del_driver(&tn48m_cpld_driver);
 }
 
+module_init(tn48m_cpld_init);
+module_exit(tn48m_cpld_exit);
+
 MODULE_AUTHOR("Chenglin Tsai <chenglin.tsai@deltaww.com>");
 MODULE_DESCRIPTION("TN48M/TN4810M I2C CPLD driver");
 MODULE_LICENSE("GPL");
-
-module_init(tn48m_cpld_init);
-module_exit(tn48m_cpld_exit);

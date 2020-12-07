@@ -191,7 +191,7 @@ static int plat_psu_is_valid(plat_psu_t *plat_psus, int id)
 
 static int plat_psu_state_update (plat_psu_t *psu)
 {
-    int present ;
+    int present;
     plat_psu_state_t old_state;
 
     do {
@@ -271,7 +271,7 @@ static int plat_psu_state_update (plat_psu_t *psu)
 static int _psu_present(void *e)
 {
     plat_psu_t *psu = e;
-    int present;
+    int present = PLAT_PSU_STATE_UNPRESENT;
 
     if (psu->present_path) {
         if (plat_os_file_read_int(&present, psu->present_path, NULL) < 0)
