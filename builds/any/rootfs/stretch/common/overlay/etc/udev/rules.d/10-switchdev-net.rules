@@ -1,0 +1,2 @@
+SUBSYSTEM=="net", ACTION=="add", ATTR{phys_switch_id}=="[0-9][0-9]", ATTR{phys_port_name}!="", PROGRAM="/bin/sh -c 'printf %1d $attr{phys_switch_id}'", NAME="sw$attr{phys_port_name}"
+SUBSYSTEM=="net", ACTION=="add", ATTR{phys_switch_id}=="[0-9][0-9]", ATTR{phys_port_name}=="p[0-9]*", PROGRAM="/bin/sh -c 'printf %1d $attr{phys_switch_id}'", NAME="sw$attr{phys_port_name}"

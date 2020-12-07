@@ -30,4 +30,7 @@ class OnlPlatform_arm64_delta_tn48m2_r0(OnlPlatformDelta,
         os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_sw.ko")
         os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.ko")
 
+        # Insert prestera kernel module
+        self.insmod("prestera_sw.ko")
+        self.insmod("prestera_pci.ko")
         return True
