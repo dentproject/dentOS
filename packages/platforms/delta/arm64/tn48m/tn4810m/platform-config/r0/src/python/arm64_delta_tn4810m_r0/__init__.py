@@ -266,4 +266,7 @@ class OnlPlatform_arm64_delta_tn4810m_r0(OnlPlatformDelta,
         subprocess.call('echo "-2" > /sys/bus/i2c/devices/i2c-2/2-0074/idle_state', shell=True)
         subprocess.call('echo "-2" > /sys/bus/i2c/devices/i2c-2/2-0075/idle_state', shell=True)
 
+        # Insert prestera kernel module
+        self.insmod("prestera_sw.ko")
+        self.insmod("prestera_pci.ko")
         return True
