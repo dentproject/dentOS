@@ -206,9 +206,9 @@ class OnlPlatformBase(object):
         #    /lib/modules/<kernel>/onl/onl/common
         # 5. ONL Top-Level
         #    /lib/modules/<kernel>/onl
-        # 5. Kernel Top-level
+        # 6. Kernel Top-level
         #    /lib/modules/<kernel>
-        #
+        # 7. Marvell specific paths
 
         kdir = "/lib/modules/%s" % os.uname()[2]
         basename = "-".join(self.PLATFORM.split('-')[:-1])
@@ -216,11 +216,14 @@ class OnlPlatformBase(object):
         vdir = "%s/%s" % (odir, self.MANUFACTURER.lower())
         bdir = "%s/%s" % (vdir, basename)
         pdir = "%s/%s" % (vdir, self.PLATFORM)
+        ndir = "%s/kernel/drivers/net/ethernet" % kdir
 
         searchdirs = [ os.path.join(vdir, self.PLATFORM),
                        os.path.join(vdir, basename),
                        os.path.join(vdir, "common"),
                        os.path.join(odir, "onl", "common"),
+                       os.path.join(ndir, "mellanox", "mlxsw"),
+                       os.path.join(ndir, "marvell", "prestera_sw"),
                        odir,
                        kdir,
                        ]

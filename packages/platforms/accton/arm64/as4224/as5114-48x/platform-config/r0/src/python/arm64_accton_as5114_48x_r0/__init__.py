@@ -16,6 +16,8 @@ class OnlPlatform_arm64_accton_as5114_48x_r0(OnlPlatformAccton,
         self.insmod("arm64-accton-as4224-cpld.ko")
         self.insmod('arm64-accton-as4224-gpio-i2c.ko')
 
+        # Insert prestera kernel modules
+
         ########### initialize I2C bus 0 ###########
         self.new_i2c_devices(
             [
@@ -36,6 +38,7 @@ class OnlPlatform_arm64_accton_as5114_48x_r0(OnlPlatformAccton,
             )
 
         ########### initialize I2C bus 2 ###########
+
         # initialize SFP devices
         for port in range(1, 49):
             self.new_i2c_device('optoe2', 0x50, port+2)
@@ -46,7 +49,8 @@ class OnlPlatform_arm64_accton_as5114_48x_r0(OnlPlatformAccton,
             self.insmod("arm64-accton-as4224-%s" % m)
 
         # Insert prestera kernel modules
-        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_sw.ko")
-        os.system("insmod /lib/modules/`uname -r`/kernel/drivers/net/ethernet/marvell/prestera_sw/prestera_pci.ko")
+        self.insmod("prestera_sw.ko")
+        self.insmod("prestera_pci.ko")
+
 
         return True
