@@ -54,16 +54,9 @@ enum onlp_led_id
 
 enum led_light_mode {
     LED_MODE_OFF = 0,
-    LED_MODE_GREEN,
     LED_MODE_AMBER,
-    LED_MODE_RED,
-    LED_MODE_BLUE,
-    LED_MODE_GREEN_BLINK,
-    LED_MODE_AMBER_BLINK,
-    LED_MODE_RED_BLINK,
-    LED_MODE_BLUE_BLINK,
-    LED_MODE_AUTO,
-    LED_MODE_UNKNOWN
+    LED_MODE_GREEN,
+    LED_MODE_GREEN_BLINK
 };
 
 typedef struct led_light_mode_map {

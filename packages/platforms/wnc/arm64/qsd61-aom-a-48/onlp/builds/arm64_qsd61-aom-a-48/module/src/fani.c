@@ -129,7 +129,7 @@ static int
 _onlp_fani_info_get_fan(int fid, onlp_fan_info_t* info)
 {
     int   present = 0, direction = 0;
-    int   value;
+    int   value = 0, high_byte = 0, low_byte = 0, tach = 0;
 	char  fanId_hex[10] = {0};
     char  path[FAN_NODE_MAX_NAME_LEN] = {0};
 
@@ -162,7 +162,7 @@ _onlp_fani_info_get_fan(int fid, onlp_fan_info_t* info)
         AIM_LOG_ERROR("Unable to read status from file (%s)\r\n", path);
         return ONLP_STATUS_E_INTERNAL;
     }
-    info->rpm = value;
+    high_byte = value;
 
     /* get rear fan speed */
     memset(path, 0, sizeof(path));
@@ -173,17 +173,12 @@ _onlp_fani_info_get_fan(int fid, onlp_fan_info_t* info)
         AIM_LOG_ERROR("Unable to read status from file (%s)\r\n", path);
         return ONLP_STATUS_E_INTERNAL;
     }
+    low_byte = value;
 
-    /* take the min value from front/rear fan speed */
-    if (info->rpm > value) {
-        info->rpm = value;
-    }
-
-	/* change rpm format 0~255 to 0~17600 */
-	if(info->rpm==0xff)
-		info->rpm = MAX_FAN_SPEED;
-	else
-		info->rpm = info->rpm*69; /* (17600/255) */
+	/* calculate fan rpm */
+	tach = ((high_byte << 8) + low_byte );
+	if(tach!=0)
+		info->rpm = 100 * 1000 * 60 / tach;
 
     /* get speed percentage from rpm  */
     info->percentage = ((info->rpm) * 100) / MAX_FAN_SPEED;
@@ -255,6 +250,7 @@ onlp_fani_percentage_set(onlp_oid_t id, int p)
     int  percent_v;
     char path[FAN_NODE_MAX_NAME_LEN] = {0};
     char percent_hex[10] = {0};
+	int MAX_PWM=0xff;
 
     VALIDATE(id);
 
@@ -273,7 +269,7 @@ onlp_fani_percentage_set(onlp_oid_t id, int p)
         case FAN_4_ON_MAIN_BOARD:
         case FAN_5_ON_MAIN_BOARD:
         case FAN_6_ON_MAIN_BOARD:
-			percent_v = 0x80 + (int)((p-50)*2.6);
+			percent_v = MAX_PWM*p/100;
 			if (percent_v > 0xFF)
             	percent_v = 0xFF;
             sprintf(percent_hex, "%x", percent_v);

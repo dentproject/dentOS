@@ -61,8 +61,8 @@ enum onlp_led_id
 
 enum led_light_mode {
     LED_MODE_OFF = 0,
-    LED_MODE_GREEN,
     LED_MODE_AMBER,
+    LED_MODE_GREEN,
     LED_MODE_GREEN_BLINK
 };
 
