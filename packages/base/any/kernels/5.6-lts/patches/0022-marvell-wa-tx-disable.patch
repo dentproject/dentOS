@@ -1,0 +1,35 @@
+diff --git a/drivers/net/ethernet/marvell/prestera_sw/prestera.c b/drivers/net/ethernet/marvell/prestera_sw/prestera.c
+index 2f7a758..1f36a88 100644
+--- a/drivers/net/ethernet/marvell/prestera_sw/prestera.c
++++ b/drivers/net/ethernet/marvell/prestera_sw/prestera.c
+@@ -367,6 +367,11 @@ static int mvsw_pr_port_state_set(struct net_device *dev, bool is_up)
+ 
+ static int mvsw_pr_port_open(struct net_device *dev)
+ {
++	struct mvsw_pr_port *port = netdev_priv(dev);
++
++	if (port->caps.transceiver == MVSW_PORT_TRANSCEIVER_SFP)
++		phylink_start(port->phy_link);
++
+ 	return mvsw_pr_port_state_set(dev, true);
+ }
+ 
+@@ -376,6 +381,9 @@ static int mvsw_pr_port_close(struct net_device *dev)
+ 
+ 	mvsw_pr_fdb_flush_port(port, MVSW_PR_FDB_FLUSH_MODE_DYNAMIC);
+ 
++	if (port->caps.transceiver == MVSW_PORT_TRANSCEIVER_SFP)
++		phylink_stop(port->phy_link);
++
+ 	return mvsw_pr_port_state_set(dev, false);
+ }
+ 
+@@ -1565,7 +1573,7 @@ static int mvsw_pr_port_create(struct mvsw_pr_switch *sw, u32 id)
+ 	net_dev = alloc_etherdev(sizeof(*port));
+ 	if (!net_dev)
+ 		return -ENOMEM;
+-
++	SET_NETDEV_DEV(net_dev, sw->dev->dev);
+ 	port = netdev_priv(net_dev);
+ 
+ 	INIT_LIST_HEAD(&port->vlans_list);
