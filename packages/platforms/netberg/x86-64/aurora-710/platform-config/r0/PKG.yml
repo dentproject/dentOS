@@ -1,1 +1,0 @@
-!include $ONL_TEMPLATES/platform-config-platform.yml ARCH=amd64 VENDOR=netberg BASENAME=x86-64-netberg-aurora-710 REVISION=r0

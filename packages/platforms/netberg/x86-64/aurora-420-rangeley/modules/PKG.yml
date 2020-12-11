@@ -1,1 +1,0 @@
-!include $ONL_TEMPLATES/no-platform-modules.yml ARCH=amd64 VENDOR=netberg BASENAME=x86-64-netberg-aurora-420-rangeley
