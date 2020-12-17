@@ -1217,10 +1217,10 @@ class OnlPackageManager(object):
 
     def list_platforms(self, arch):
         platforms = []
-        whitelist = None
+        allowlist = None
 
-        if os.environ.get('ONLPM_OPTION_PLATFORM_WHITELIST'):
-            whitelist = os.environ.get('ONLPM_OPTION_PLATFORM_WHITELIST').split()
+        if os.environ.get('ONLPM_OPTION_PLATFORM_ALLOWLIST'):
+            allowlist = os.environ.get('ONLPM_OPTION_PLATFORM_ALLOWLIST').split()
 
         for pg in self.package_groups:
             for p in pg.packages:
@@ -1229,7 +1229,7 @@ class OnlPackageManager(object):
                 if m:
                     platform = m.groups('platform')[0]
                     if arch in [ pkgArch, "all", None ]:
-                         if ops.force or whitelist is None or platform in whitelist:
+                         if ops.force or allowlist is None or platform in allowlist:
                          	platforms.append(m.groups('platform')[0])
         return platforms
 

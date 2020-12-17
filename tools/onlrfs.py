@@ -462,11 +462,15 @@ rm -f /usr/sbin/policy-rc.d
                     onlu.execute("sudo chroot %s /usr/sbin/update-rc.d %s" % (dir_, update),
                                  ex=OnlRfsError("update-rc.d %s failed." % (update)))
 
+
                 for module in Configure.get('modules', []):
                     monfig = os.path.join(dir_, 'etc/modules')
                     ua.chmod('a+rw', monfig)
                     # This is a bad way to add the modules but works for now
                     onlu.execute("sudo chroot %s echo %s >> %s" % (dir_, module, monfig))
+
+                for sysctl in Configure.get('sysctl', []):
+                    onlu.execute("sudo chroot %s /bin/systemctl %s" % (dir_, sysctl))
 
                 for script in Configure.get('scripts', []):
                     logger.info("Configuration script %s..." % script)
@@ -622,6 +626,58 @@ rm -f /usr/sbin/policy-rc.d
                         f.write("%s\n" % issue)
                     onlu.execute("sudo chmod a-w %s" % fn)
 
+                if Configure.get('easy_install'):
+
+                    # install Python2 eggs (with this version of Python)
+
+                    # tee hee, we cannot use distutils.sysconfig.get_python_lib(),
+                    # because ONL/Dent doesn't use the path layout as the host
+                    pyver = "%d.%d" % (sys.version_info[0], sys.version_info[1],)
+                    pyver = subprocess.check_output(cmd,
+                                                    universal_newlines=True).strip()
+                    pydir = "%s/usr/lib/python%s/dist-packages" % (dir_, pyver,)
+                    bindir = "%s/usr/bin" % (dir_,)
+
+                    cmd = "mkdir -p %s" % pydir
+                    onlu.execute(cmd, sudo=True, ex=True)
+
+                    for egg in Configure.get('easy_install3', []):
+                        logger.info("Installing Egg %s", egg)
+                        cmd = ('easy_install3',
+                               '--always-unzip', '--no-deps',
+                               '--install-dir', pydir,
+                               '--script-dir', bindir,
+                               egg,)
+                        cmd = ("env PYTHONPATH=%s %s"
+                               % (pydir, " ".join(cmd),))
+                        onlu.execute(cmd, sudo=True, ex=True)
+
+                if Configure.get('easy_install3'):
+
+                    # install Python3 eggs (foreign version of Python)
+
+                    # tee hee, we cannot use distutils.sysconfig.get_python_lib(),
+                    # because ONL/Dent doesn't use the path layout as the host
+                    cmd = "import distutils.sysconfig; print(distutils.sysconfig.get_python_version())"
+                    cmd = ('python3', '-c', cmd,)
+                    pyver = subprocess.check_output(cmd,
+                                                    universal_newlines=True).strip()
+                    pydir = "%s/usr/lib/python%s/dist-packages" % (dir_, pyver,)
+                    bindir = "%s/usr/bin" % (dir_,)
+
+                    cmd = "mkdir -p %s" % pydir
+                    onlu.execute(cmd, sudo=True, ex=True)
+
+                    for egg in Configure.get('easy_install3', []):
+                        logger.info("Installing Egg %s", egg)
+                        cmd = ('easy_install3',
+                               '--always-unzip', '--no-deps',
+                               '--install-dir', pydir,
+                               '--script-dir', bindir,
+                               egg,)
+                        cmd = ("env PYTHONPATH=%s %s"
+                               % (pydir, " ".join(cmd),))
+                        onlu.execute(cmd, sudo=True, ex=True)
 
     def update(self, dir_, packages):
 

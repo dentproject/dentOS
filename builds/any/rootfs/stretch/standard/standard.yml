@@ -120,6 +120,9 @@ Configure:
     - 'watchdog defaults'
     - 'wd_keepalive remove'
 
+  sytctl:
+    - 'disable rpcbind'
+
   options:
     clean: True
     securetty: False
