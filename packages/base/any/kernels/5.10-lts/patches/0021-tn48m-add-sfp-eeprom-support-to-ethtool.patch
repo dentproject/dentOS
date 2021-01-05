@@ -1,0 +1,2043 @@
+--- a/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
++++ b/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
+@@ -69,6 +69,546 @@
+ 		status = "okay";
+ 	};
+ 
++	sfp1: sfp-1 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp1>;
++		los-gpio = <&tn48xxm_cpld 0 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 1 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 2 GPIO_ACTIVE_HIGH>;
++	};
++	sfp2: sfp-2 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp2>;
++		los-gpio = <&tn48xxm_cpld 3 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 4 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 5 GPIO_ACTIVE_HIGH>;
++	};
++	sfp3: sfp-3 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp3>;
++		los-gpio = <&tn48xxm_cpld 6 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 7 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 8 GPIO_ACTIVE_HIGH>;
++	};
++	sfp4: sfp-4 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp4>;
++		los-gpio = <&tn48xxm_cpld 9 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 10 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 11 GPIO_ACTIVE_HIGH>;
++	};
++	sfp5: sfp-5 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp5>;
++		los-gpio = <&tn48xxm_cpld 12 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 13 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 14 GPIO_ACTIVE_HIGH>;
++	};
++	sfp6: sfp-6 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp6>;
++		los-gpio = <&tn48xxm_cpld 15 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 16 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 17 GPIO_ACTIVE_HIGH>;
++	};
++	sfp7: sfp-7 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp7>;
++		los-gpio = <&tn48xxm_cpld 18 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 19 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 20 GPIO_ACTIVE_HIGH>;
++	};
++	sfp8: sfp-8 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp8>;
++		los-gpio = <&tn48xxm_cpld 21 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 22 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 23 GPIO_ACTIVE_HIGH>;
++	};
++	sfp9: sfp-9 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp9>;
++		los-gpio = <&tn48xxm_cpld 24 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 25 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 26 GPIO_ACTIVE_HIGH>;
++	};
++	sfp10: sfp-10 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp10>;
++		los-gpio = <&tn48xxm_cpld 27 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 28 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 29 GPIO_ACTIVE_HIGH>;
++	};
++	sfp11: sfp-11 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp11>;
++		los-gpio = <&tn48xxm_cpld 30 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 31 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 32 GPIO_ACTIVE_HIGH>;
++	};
++	sfp12: sfp-12 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp12>;
++		los-gpio = <&tn48xxm_cpld 33 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 34 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 35 GPIO_ACTIVE_HIGH>;
++	};
++	sfp13: sfp-13 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp13>;
++		los-gpio = <&tn48xxm_cpld 36 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 37 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 38 GPIO_ACTIVE_HIGH>;
++	};
++	sfp14: sfp-14 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp14>;
++		los-gpio = <&tn48xxm_cpld 39 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 40 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 41 GPIO_ACTIVE_HIGH>;
++	};
++	sfp15: sfp-15 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp15>;
++		los-gpio = <&tn48xxm_cpld 42 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 43 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 44 GPIO_ACTIVE_HIGH>;
++	};
++	sfp16: sfp-16 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp16>;
++		los-gpio = <&tn48xxm_cpld 45 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 46 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 47 GPIO_ACTIVE_HIGH>;
++	};
++	sfp17: sfp-17 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp17>;
++		los-gpio = <&tn48xxm_cpld 48 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 49 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 50 GPIO_ACTIVE_HIGH>;
++	};
++	sfp18: sfp-18 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp18>;
++		los-gpio = <&tn48xxm_cpld 51 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 52 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 53 GPIO_ACTIVE_HIGH>;
++	};
++	sfp19: sfp-19 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp19>;
++		los-gpio = <&tn48xxm_cpld 54 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 55 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 56 GPIO_ACTIVE_HIGH>;
++	};
++	sfp20: sfp-20 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp20>;
++		los-gpio = <&tn48xxm_cpld 57 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 58 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 59 GPIO_ACTIVE_HIGH>;
++	};
++	sfp21: sfp-21 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp21>;
++		los-gpio = <&tn48xxm_cpld 60 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 61 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 62 GPIO_ACTIVE_HIGH>;
++	};
++	sfp22: sfp-22 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp22>;
++		los-gpio = <&tn48xxm_cpld 63 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 64 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 65 GPIO_ACTIVE_HIGH>;
++	};
++	sfp23: sfp-23 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp23>;
++		los-gpio = <&tn48xxm_cpld 66 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 67 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 68 GPIO_ACTIVE_HIGH>;
++	};
++	sfp24: sfp-24 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp24>;
++		los-gpio = <&tn48xxm_cpld 69 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 70 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 71 GPIO_ACTIVE_HIGH>;
++	};
++	sfp25: sfp-25 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp25>;
++		los-gpio = <&tn48xxm_cpld 72 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 73 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 74 GPIO_ACTIVE_HIGH>;
++	};
++	sfp26: sfp-26 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp26>;
++		los-gpio = <&tn48xxm_cpld 75 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 76 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 77 GPIO_ACTIVE_HIGH>;
++	};
++	sfp27: sfp-27 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp27>;
++		los-gpio = <&tn48xxm_cpld 78 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 79 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 80 GPIO_ACTIVE_HIGH>;
++	};
++	sfp28: sfp-28 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp28>;
++		los-gpio = <&tn48xxm_cpld 81 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 82 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 83 GPIO_ACTIVE_HIGH>;
++	};
++	sfp29: sfp-29 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp29>;
++		los-gpio = <&tn48xxm_cpld 84 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 85 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 86 GPIO_ACTIVE_HIGH>;
++	};
++	sfp30: sfp-30 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp30>;
++		los-gpio = <&tn48xxm_cpld 87 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 88 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 89 GPIO_ACTIVE_HIGH>;
++	};
++	sfp31: sfp-31 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp31>;
++		los-gpio = <&tn48xxm_cpld 90 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 91 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 92 GPIO_ACTIVE_HIGH>;
++	};
++	sfp32: sfp-32 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp32>;
++		los-gpio = <&tn48xxm_cpld 93 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 94 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 95 GPIO_ACTIVE_HIGH>;
++	};
++	sfp33: sfp-33 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp33>;
++		los-gpio = <&tn48xxm_cpld 96 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 97 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 98 GPIO_ACTIVE_HIGH>;
++	};
++	sfp34: sfp-34 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp34>;
++		los-gpio = <&tn48xxm_cpld 99 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 100 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 101 GPIO_ACTIVE_HIGH>;
++	};
++	sfp35: sfp-35 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp35>;
++		los-gpio = <&tn48xxm_cpld 102 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 103 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 104 GPIO_ACTIVE_HIGH>;
++	};
++	sfp36: sfp-36 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp36>;
++		los-gpio = <&tn48xxm_cpld 105 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 106 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 107 GPIO_ACTIVE_HIGH>;
++	};
++	sfp37: sfp-37 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp37>;
++		los-gpio = <&tn48xxm_cpld 108 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 109 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 110 GPIO_ACTIVE_HIGH>;
++	};
++	sfp38: sfp-38 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp38>;
++		los-gpio = <&tn48xxm_cpld 111 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 112 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 113 GPIO_ACTIVE_HIGH>;
++	};
++	sfp39: sfp-39 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp39>;
++		los-gpio = <&tn48xxm_cpld 114 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 115 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 116 GPIO_ACTIVE_HIGH>;
++	};
++	sfp40: sfp-40 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp40>;
++		los-gpio = <&tn48xxm_cpld 117 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 118 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 119 GPIO_ACTIVE_HIGH>;
++	};
++	sfp41: sfp-41 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp41>;
++		los-gpio = <&tn48xxm_cpld 120 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 121 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 122 GPIO_ACTIVE_HIGH>;
++	};
++	sfp42: sfp-42 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp42>;
++		los-gpio = <&tn48xxm_cpld 123 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 124 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 125 GPIO_ACTIVE_HIGH>;
++	};
++	sfp43: sfp-43 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp43>;
++		los-gpio = <&tn48xxm_cpld 126 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 127 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 128 GPIO_ACTIVE_HIGH>;
++	};
++	sfp44: sfp-44 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp44>;
++		los-gpio = <&tn48xxm_cpld 129 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 130 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 131 GPIO_ACTIVE_HIGH>;
++	};
++	sfp45: sfp-45 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp45>;
++		los-gpio = <&tn48xxm_cpld 132 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 133 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 134 GPIO_ACTIVE_HIGH>;
++	};
++	sfp46: sfp-46 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp46>;
++		los-gpio = <&tn48xxm_cpld 135 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 136 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 137 GPIO_ACTIVE_HIGH>;
++	};
++	sfp47: sfp-47 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp47>;
++		los-gpio = <&tn48xxm_cpld 138 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 139 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 140 GPIO_ACTIVE_HIGH>;
++	};
++	sfp48: sfp-48 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp48>;
++		los-gpio = <&tn48xxm_cpld 141 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 142 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 143 GPIO_ACTIVE_HIGH>;
++	};
++
++	prestera {
++		compatible = "marvell,prestera";
++		status = "okay";
++
++		/*
++			Marvell Switchdev driver compatible the SFP number with the front-panel number. 
++		*/
++		ports {
++			port1 {
++				prestera,port-num = <1>;
++				sfp = <&sfp1>;
++			};
++			port2 {
++				prestera,port-num = <2>;
++				sfp = <&sfp2>;
++			};
++			port3 {
++				prestera,port-num = <3>;
++				sfp = <&sfp3>;
++			};
++			port4 {
++				prestera,port-num = <4>;
++				sfp = <&sfp4>;
++			};
++			port5 {
++				prestera,port-num = <5>;
++				sfp = <&sfp5>;
++			};
++			port6 {
++				prestera,port-num = <6>;
++				sfp = <&sfp6>;
++			};
++			port7 {
++				prestera,port-num = <7>;
++				sfp = <&sfp7>;
++			};
++			port8 {
++				prestera,port-num = <8>;
++				sfp = <&sfp8>;
++			};
++			port9 {
++				prestera,port-num = <9>;
++				sfp = <&sfp9>;
++			};
++			port10 {
++				prestera,port-num = <10>;
++				sfp = <&sfp10>;
++			};
++			port11 {
++				prestera,port-num = <11>;
++				sfp = <&sfp11>;
++			};
++			port12 {
++				prestera,port-num = <12>;
++				sfp = <&sfp12>;
++			};
++			port13 {
++				prestera,port-num = <13>;
++				sfp = <&sfp13>;
++			};
++			port14 {
++				prestera,port-num = <14>;
++				sfp = <&sfp14>;
++			};
++			port15 {
++				prestera,port-num = <15>;
++				sfp = <&sfp15>;
++			};
++			port16 {
++				prestera,port-num = <16>;
++				sfp = <&sfp16>;
++			};
++			port17 {
++				prestera,port-num = <17>;
++				sfp = <&sfp17>;
++			};
++			port18 {
++				prestera,port-num = <18>;
++				sfp = <&sfp18>;
++			};
++			port19 {
++				prestera,port-num = <19>;
++				sfp = <&sfp19>;
++			};
++			port20 {
++				prestera,port-num = <20>;
++				sfp = <&sfp20>;
++			};
++			port21 {
++				prestera,port-num = <21>;
++				sfp = <&sfp21>;
++			};
++			port22 {
++				prestera,port-num = <22>;
++				sfp = <&sfp22>;
++			};
++			port23 {
++				prestera,port-num = <23>;
++				sfp = <&sfp23>;
++			};
++			port24 {
++				prestera,port-num = <24>;
++				sfp = <&sfp24>;
++			};
++			port25 {
++				prestera,port-num = <25>;
++				sfp = <&sfp25>;
++			};
++			port26 {
++				prestera,port-num = <26>;
++				sfp = <&sfp26>;
++			};
++			port27 {
++				prestera,port-num = <27>;
++				sfp = <&sfp27>;
++			};
++			port28 {
++				prestera,port-num = <28>;
++				sfp = <&sfp28>;
++			};
++			port29 {
++				prestera,port-num = <29>;
++				sfp = <&sfp29>;
++			};
++			port30 {
++				prestera,port-num = <30>;
++				sfp = <&sfp30>;
++			};
++			port31 {
++				prestera,port-num = <31>;
++				sfp = <&sfp31>;
++			};
++			port32 {
++				prestera,port-num = <32>;
++				sfp = <&sfp32>;
++			};
++			port33 {
++				prestera,port-num = <33>;
++				sfp = <&sfp33>;
++			};
++			port34 {
++				prestera,port-num = <34>;
++				sfp = <&sfp34>;
++			};
++			port35 {
++				prestera,port-num = <35>;
++				sfp = <&sfp35>;
++			};
++			port36 {
++				prestera,port-num = <36>;
++				sfp = <&sfp36>;
++			};
++			port37 {
++				prestera,port-num = <37>;
++				sfp = <&sfp37>;
++			};
++			port38 {
++				prestera,port-num = <38>;
++				sfp = <&sfp38>;
++			};
++			port39 {
++				prestera,port-num = <39>;
++				sfp = <&sfp39>;
++			};
++			port40 {
++				prestera,port-num = <40>;
++				sfp = <&sfp40>;
++			};
++			port41 {
++				prestera,port-num = <41>;
++				sfp = <&sfp41>;
++			};
++			port42 {
++				prestera,port-num = <42>;
++				sfp = <&sfp42>;
++			};
++			port43 {
++				prestera,port-num = <43>;
++				sfp = <&sfp43>;
++			};
++			port44 {
++				prestera,port-num = <44>;
++				sfp = <&sfp44>;
++			};
++			port45 {
++				prestera,port-num = <45>;
++				sfp = <&sfp45>;
++			};
++			port46 {
++				prestera,port-num = <46>;
++				sfp = <&sfp46>;
++			};
++			port47 {
++				prestera,port-num = <47>;
++				sfp = <&sfp47>;
++			};
++			port48 {
++				prestera,port-num = <48>;
++				sfp = <&sfp48>;
++			};
++		};
++	};
++
+ 	onie_eeprom: onie-eeprom {
+ 		compatible = "onie-nvmem-cells";
+ 		status = "okay";
+@@ -93,6 +633,663 @@
+ 		reg = <0x77>;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
++
++		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
++		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++		};
++		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++
++			tn48xxm_cpld: tn48xxm-cpld@41 {
++				compatible = "dni,tn4810m_cpld";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				gpio-controller;
++				#gpio-cells = <2>;
++				reg = <0x41>;  /* CPLD/MUX I2C address */
++
++				gpio-map {
++					/* sfp1 */
++					sfp01_gpio00_loss {
++						reg-map = <0x40 (1 << 0)>;
++						gpio-num = <0>;
++					};
++					sfp01_gpio01_pres {
++						reg-map = <0x3a (1 << 0)>;
++						gpio-num = <1>;
++					};
++					sfp01_gpio02_tx_dis {
++						reg-map = <0x31 (1 << 0)>;
++						gpio-num = <2>;
++					};
++					/* sfp2 */
++					sfp02_gpio00_sfp_loss {
++						reg-map = <0x40 (1 << 1)>;
++						gpio-num = <3>;
++					};
++					sfp02_gpio01_sfp_pres {
++						reg-map = <0x3a (1 << 1)>;
++						gpio-num = <4>;
++					};
++					sfp02_gpio02_tx_dis {
++						reg-map = <0x31 (1 << 1)>;
++						gpio-num = <5>;
++					};
++					/* sfp3 */
++					sfp03_gpio00_loss {
++						reg-map = <0x40 (1 << 2)>;
++						gpio-num = <6>;
++					};
++					sfp03_gpio01_pres {
++						reg-map = <0x3a (1 << 2)>;
++						gpio-num = <7>;
++					};
++					sfp03_gpio02_tx_dis {
++						reg-map = <0x31 (1 << 2)>;
++						gpio-num = <8>;
++					};
++					/* sfp4 */
++					sfp04_gpio00_loss {
++						reg-map = <0x40 (1 << 3)>;
++						gpio-num = <9>;
++					};
++					sfp04_gpio01_sfp_pres {
++						reg-map = <0x3a (1 << 3)>;
++						gpio-num = <10>;
++					};
++					sfp04_gpio02_tx_dis {
++						reg-map = <0x31 (1 << 3)>;
++						gpio-num = <11>;
++					};
++					/* sfp5 */
++					sfp05_gpio00_loss {
++						reg-map = <0x40 (1 << 4)>;
++						gpio-num = <12>;
++					};
++					sfp05_gpio01_pres {
++						reg-map = <0x3a (1 << 4)>;
++						gpio-num = <13>;
++					};
++					sfp05_gpio02_tx_dis {
++						reg-map = <0x31 (1 << 4)>;
++						gpio-num = <14>;
++					};
++					/* sfp6 */
++					sfp06_gpio00_sfp_loss {
++						reg-map = <0x40 (1 << 5)>;
++						gpio-num = <15>;
++					};
++					sfp06_gpio01_sfp_pres {
++						reg-map = <0x3a (1 << 5)>;
++						gpio-num = <16>;
++					};
++					sfp06_gpio02_tx_dis {
++						reg-map = <0x31 (1 << 5)>;
++						gpio-num = <17>;
++					};
++					/* sfp7 */
++					sfp07_gpio00_loss {
++						reg-map = <0x40 (1 << 6)>;
++						gpio-num = <18>;
++					};
++					sfp07_gpio01_pres {
++						reg-map = <0x3a (1 << 6)>;
++						gpio-num = <19>;
++					};
++					sfp07_gpio02_tx_dis {
++						reg-map = <0x31 (1 << 6)>;
++						gpio-num = <20>;
++					};
++					/* sfp8 */
++					sfp08_gpio00_loss {
++						reg-map = <0x41 (1 << 7)>;
++						gpio-num = <21>;
++					};
++					sfp08_gpio01_sfp_pres {
++						reg-map = <0x3a (1 << 7)>;
++						gpio-num = <22>;
++					};
++					sfp08_gpio02_tx_dis {
++						reg-map = <0x31 (1 << 7)>;
++						gpio-num = <23>;
++					};
++					/* sfp9 */
++					sfp09_gpio00_loss {
++						reg-map = <0x41 (1 << 0)>;
++						gpio-num = <24>;
++					};
++					sfp09_gpio01_pres {
++						reg-map = <0x3b (1 << 0)>;
++						gpio-num = <25>;
++					};
++					sfp09_gpio02_tx_dis {
++						reg-map = <0x32 (1 << 0)>;
++						gpio-num = <26>;
++					};
++					/* sfp10 */
++					sfp10_gpio00_sfp_loss {
++						reg-map = <0x41 (1 << 1)>;
++						gpio-num = <27>;
++					};
++					sfp10_gpio01_sfp_pres {
++						reg-map = <0x3b (1 << 1)>;
++						gpio-num = <28>;
++					};
++					sfp10_gpio02_tx_dis {
++						reg-map = <0x32 (1 << 1)>;
++						gpio-num = <29>;
++					};
++					/* sfp11 */
++					sfp11_gpio00_loss {
++						reg-map = <0x41 (1 << 2)>;
++						gpio-num = <30>;
++					};
++					sfp11_gpio01_pres {
++						reg-map = <0x3b (1 << 2)>;
++						gpio-num = <31>;
++					};
++					sfp11_gpio02_tx_dis {
++						reg-map = <0x32 (1 << 2)>;
++						gpio-num = <32>;
++					};
++					/* sfp12 */
++					sfp12_gpio00_loss {
++						reg-map = <0x41 (1 << 3)>;
++						gpio-num = <33>;
++					};
++					sfp12_gpio01_sfp_pres {
++						reg-map = <0x3b (1 << 3)>;
++						gpio-num = <34>;
++					};
++					sfp12_gpio02_tx_dis {
++						reg-map = <0x32 (1 << 3)>;
++						gpio-num = <35>;
++					};
++					/* sfp13 */
++					sfp13_gpio00_loss {
++						reg-map = <0x41 (1 << 4)>;
++						gpio-num = <36>;
++					};
++					sfp13_gpio01_pres {
++						reg-map = <0x3b (1 << 4)>;
++						gpio-num = <37>;
++					};
++					sfp13_gpio02_tx_dis {
++						reg-map = <0x32 (1 << 4)>;
++						gpio-num = <38>;
++					};
++					/* sfp14 */
++					sfp14_gpio00_sfp_loss {
++						reg-map = <0x41 (1 << 5)>;
++						gpio-num = <39>;
++					};
++					sfp14_gpio01_sfp_pres {
++						reg-map = <0x3b (1 << 5)>;
++						gpio-num = <40>;
++					};
++					sfp14_gpio02_tx_dis {
++						reg-map = <0x32 (1 << 5)>;
++						gpio-num = <41>;
++					};
++					/* sfp15 */
++					sfp15_gpio00_loss {
++						reg-map = <0x41 (1 << 6)>;
++						gpio-num = <42>;
++					};
++					sfp15_gpio01_pres {
++						reg-map = <0x3b (1 << 6)>;
++						gpio-num = <43>;
++					};
++					sfp15_gpio02_tx_dis {
++						reg-map = <0x32 (1 << 6)>;
++						gpio-num = <44>;
++					};
++					/* sfp16 */
++					sfp16_gpio00_loss {
++						reg-map = <0x41 (1 << 7)>;
++						gpio-num = <45>;
++					};
++					sfp16_gpio01_sfp_pres {
++						reg-map = <0x3b (1 << 7)>;
++						gpio-num = <46>;
++					};
++					sfp16_gpio02_tx_dis {
++						reg-map = <0x32 (1 << 7)>;
++						gpio-num = <47>;
++					};
++					/* sfp17 */
++					sfp17_gpio00_loss {
++						reg-map = <0x42 (1 << 0)>;
++						gpio-num = <48>;
++					};
++					sfp17_gpio01_pres {
++						reg-map = <0x3c (1 << 0)>;
++						gpio-num = <49>;
++					};
++					sfp17_gpio02_tx_dis {
++						reg-map = <0x33 (1 << 0)>;
++						gpio-num = <50>;
++					};
++					/* sfp18 */
++					sfp18_gpio00_sfp_loss {
++						reg-map = <0x42 (1 << 1)>;
++						gpio-num = <51>;
++					};
++					sfp18_gpio01_sfp_pres {
++						reg-map = <0x3c (1 << 1)>;
++						gpio-num = <52>;
++					};
++					sfp18_gpio02_tx_dis {
++						reg-map = <0x33 (1 << 1)>;
++						gpio-num = <53>;
++					};
++					/* sfp19 */
++					sfp19_gpio00_loss {
++						reg-map = <0x42 (1 << 2)>;
++						gpio-num = <54>;
++					};
++					sfp19_gpio01_pres {
++						reg-map = <0x3c (1 << 2)>;
++						gpio-num = <55>;
++					};
++					sfp19_gpio02_tx_dis {
++						reg-map = <0x33 (1 << 2)>;
++						gpio-num = <56>;
++					};
++					/* sfp20 */
++					sfp20_gpio00_loss {
++						reg-map = <0x42 (1 << 3)>;
++						gpio-num = <57>;
++					};
++					sfp20_gpio01_sfp_pres {
++						reg-map = <0x3c (1 << 3)>;
++						gpio-num = <58>;
++					};
++					sfp20_gpio02_tx_dis {
++						reg-map = <0x33 (1 << 3)>;
++						gpio-num = <59>;
++					};
++					/* sfp21 */
++					sfp21_gpio00_loss {
++						reg-map = <0x42 (1 << 4)>;
++						gpio-num = <60>;
++					};
++					sfp21_gpio01_pres {
++						reg-map = <0x3c (1 << 4)>;
++						gpio-num = <61>;
++					};
++					sfp21_gpio02_tx_dis {
++						reg-map = <0x33 (1 << 4)>;
++						gpio-num = <62>;
++					};
++					/* sfp22 */
++					sfp22_gpio00_sfp_loss {
++						reg-map = <0x42 (1 << 5)>;
++						gpio-num = <63>;
++					};
++					sfp22_gpio01_sfp_pres {
++						reg-map = <0x3c (1 << 5)>;
++						gpio-num = <64>;
++					};
++					sfp22_gpio02_tx_dis {
++						reg-map = <0x33 (1 << 5)>;
++						gpio-num = <65>;
++					};
++					/* sfp23 */
++					sfp23_gpio00_loss {
++						reg-map = <0x42 (1 << 6)>;
++						gpio-num = <66>;
++					};
++					sfp23_gpio01_pres {
++						reg-map = <0x3c (1 << 6)>;
++						gpio-num = <67>;
++					};
++					sfp23_gpio02_tx_dis {
++						reg-map = <0x33 (1 << 6)>;
++						gpio-num = <68>;
++					};
++					/* sfp24 */
++					sfp24_gpio00_loss {
++						reg-map = <0x42 (1 << 7)>;
++						gpio-num = <69>;
++					};
++					sfp24_gpio01_sfp_pres {
++						reg-map = <0x3c (1 << 7)>;
++						gpio-num = <70>;
++					};
++					sfp24_gpio02_tx_dis {
++						reg-map = <0x33 (1 << 7)>;
++						gpio-num = <71>;
++					};
++					/* sfp25 */
++					sfp25_gpio00_loss {
++						reg-map = <0x43 (1 << 0)>;
++						gpio-num = <72>;
++					};
++					sfp25_gpio01_pres {
++						reg-map = <0x3d (1 << 0)>;
++						gpio-num = <73>;
++					};
++					sfp25_gpio02_tx_dis {
++						reg-map = <0x34 (1 << 0)>;
++						gpio-num = <74>;
++					};
++					/* sfp26 */
++					sfp26_gpio00_sfp_loss {
++						reg-map = <0x43 (1 << 1)>;
++						gpio-num = <75>;
++					};
++					sfp26_gpio01_sfp_pres {
++						reg-map = <0x3d (1 << 1)>;
++						gpio-num = <76>;
++					};
++					sfp26_gpio02_tx_dis {
++						reg-map = <0x34 (1 << 1)>;
++						gpio-num = <77>;
++					};
++					/* sfp27 */
++					sfp27_gpio00_loss {
++						reg-map = <0x43 (1 << 2)>;
++						gpio-num = <78>;
++					};
++					sfp27_gpio01_pres {
++						reg-map = <0x3d (1 << 2)>;
++						gpio-num = <79>;
++					};
++					sfp27_gpio02_tx_dis {
++						reg-map = <0x34 (1 << 2)>;
++						gpio-num = <80>;
++					};
++					/* sfp28 */
++					sfp28_gpio00_loss {
++						reg-map = <0x43 (1 << 3)>;
++						gpio-num = <81>;
++					};
++					sfp28_gpio01_sfp_pres {
++						reg-map = <0x3d (1 << 3)>;
++						gpio-num = <82>;
++					};
++					sfp28_gpio02_tx_dis {
++						reg-map = <0x34 (1 << 3)>;
++						gpio-num = <83>;
++					};
++					/* sfp29 */
++					sfp29_gpio00_loss {
++						reg-map = <0x43 (1 << 4)>;
++						gpio-num = <84>;
++					};
++					sfp29_gpio01_pres {
++						reg-map = <0x3d (1 << 4)>;
++						gpio-num = <85>;
++					};
++					sfp29_gpio02_tx_dis {
++						reg-map = <0x34 (1 << 4)>;
++						gpio-num = <86>;
++					};
++					/* sfp30 */
++					sfp30_gpio00_sfp_loss {
++						reg-map = <0x43 (1 << 5)>;
++						gpio-num = <87>;
++					};
++					sfp30_gpio01_sfp_pres {
++						reg-map = <0x3d (1 << 5)>;
++						gpio-num = <88>;
++					};
++					sfp30_gpio02_tx_dis {
++						reg-map = <0x34 (1 << 5)>;
++						gpio-num = <89>;
++					};
++					/* sfp31 */
++					sfp31_gpio00_loss {
++						reg-map = <0x43 (1 << 6)>;
++						gpio-num = <90>;
++					};
++					sfp31_gpio01_pres {
++						reg-map = <0x3d (1 << 6)>;
++						gpio-num = <91>;
++					};
++					sfp31_gpio02_tx_dis {
++						reg-map = <0x34 (1 << 6)>;
++						gpio-num = <92>;
++					};
++					/* sfp32 */
++					sfp32_gpio00_loss {
++						reg-map = <0x43 (1 << 7)>;
++						gpio-num = <93>;
++					};
++					sfp32_gpio01_sfp_pres {
++						reg-map = <0x3d (1 << 7)>;
++						gpio-num = <94>;
++					};
++					sfp32_gpio02_tx_dis {
++						reg-map = <0x34 (1 << 7)>;
++						gpio-num = <95>;
++					};
++					/* sfp33 */
++					sfp33_gpio00_loss {
++						reg-map = <0x44 (1 << 0)>;
++						gpio-num = <96>;
++					};
++					sfp33_gpio01_pres {
++						reg-map = <0x3e (1 << 0)>;
++						gpio-num = <97>;
++					};
++					sfp33_gpio02_tx_dis {
++						reg-map = <0x35 (1 << 0)>;
++						gpio-num = <98>;
++					};
++					/* sfp34 */
++					sfp34_gpio00_sfp_loss {
++						reg-map = <0x44 (1 << 1)>;
++						gpio-num = <99>;
++					};
++					sfp34_gpio01_sfp_pres {
++						reg-map = <0x3e (1 << 1)>;
++						gpio-num = <100>;
++					};
++					sfp34_gpio02_tx_dis {
++						reg-map = <0x35 (1 << 1)>;
++						gpio-num = <101>;
++					};
++					/* sfp35 */
++					sfp35_gpio00_loss {
++						reg-map = <0x44 (1 << 2)>;
++						gpio-num = <102>;
++					};
++					sfp35_gpio01_pres {
++						reg-map = <0x3e (1 << 2)>;
++						gpio-num = <103>;
++					};
++					sfp35_gpio02_tx_dis {
++						reg-map = <0x35 (1 << 2)>;
++						gpio-num = <104>;
++					};
++					/* sfp36 */
++					sfp36_gpio00_loss {
++						reg-map = <0x44 (1 << 3)>;
++						gpio-num = <105>;
++					};
++					sfp36_gpio01_sfp_pres {
++						reg-map = <0x3e (1 << 3)>;
++						gpio-num = <106>;
++					};
++					sfp36_gpio02_tx_dis {
++						reg-map = <0x35 (1 << 3)>;
++						gpio-num = <107>;
++					};
++					/* sfp37 */
++					sfp37_gpio00_loss {
++						reg-map = <0x44 (1 << 4)>;
++						gpio-num = <108>;
++					};
++					sfp37_gpio01_pres {
++						reg-map = <0x3e (1 << 4)>;
++						gpio-num = <109>;
++					};
++					sfp37_gpio02_tx_dis {
++						reg-map = <0x35 (1 << 4)>;
++						gpio-num = <110>;
++					};
++					/* sfp38 */
++					sfp38_gpio00_sfp_loss {
++						reg-map = <0x44 (1 << 5)>;
++						gpio-num = <111>;
++					};
++					sfp38_gpio01_sfp_pres {
++						reg-map = <0x3e (1 << 5)>;
++						gpio-num = <112>;
++					};
++					sfp38_gpio02_tx_dis {
++						reg-map = <0x35 (1 << 5)>;
++						gpio-num = <113>;
++					};
++					/* sfp39 */
++					sfp39_gpio00_loss {
++						reg-map = <0x44 (1 << 6)>;
++						gpio-num = <114>;
++					};
++					sfp39_gpio01_pres {
++						reg-map = <0x3e (1 << 6)>;
++						gpio-num = <115>;
++					};
++					sfp39_gpio02_tx_dis {
++						reg-map = <0x35 (1 << 6)>;
++						gpio-num = <116>;
++					};
++					/* sfp40 */
++					sfp40_gpio00_loss {
++						reg-map = <0x44 (1 << 7)>;
++						gpio-num = <117>;
++					};
++					sfp40_gpio01_sfp_pres {
++						reg-map = <0x3e (1 << 7)>;
++						gpio-num = <118>;
++					};
++					sfp40_gpio02_tx_dis {
++						reg-map = <0x35 (1 << 7)>;
++						gpio-num = <119>;
++					};
++					/* sfp41 */
++					sfp41_gpio00_loss {
++						reg-map = <0x45 (1 << 0)>;
++						gpio-num = <120>;
++					};
++					sfp41_gpio01_pres {
++						reg-map = <0x3f (1 << 0)>;
++						gpio-num = <121>;
++					};
++					sfp41_gpio02_tx_dis {
++						reg-map = <0x36 (1 << 0)>;
++						gpio-num = <122>;
++					};
++					/* sfp42 */
++					sfp42_gpio00_sfp_loss {
++						reg-map = <0x45 (1 << 1)>;
++						gpio-num = <123>;
++					};
++					sfp42_gpio01_sfp_pres {
++						reg-map = <0x3f (1 << 1)>;
++						gpio-num = <124>;
++					};
++					sfp42_gpio02_tx_dis {
++						reg-map = <0x36 (1 << 1)>;
++						gpio-num = <125>;
++					};
++					/* sfp43 */
++					sfp43_gpio00_loss {
++						reg-map = <0x45 (1 << 2)>;
++						gpio-num = <126>;
++					};
++					sfp43_gpio01_pres {
++						reg-map = <0x3f (1 << 2)>;
++						gpio-num = <127>;
++					};
++					sfp43_gpio02_tx_dis {
++						reg-map = <0x36 (1 << 2)>;
++						gpio-num = <128>;
++					};
++					/* sfp44 */
++					sfp44_gpio00_loss {
++						reg-map = <0x45 (1 << 3)>;
++						gpio-num = <129>;
++					};
++					sfp44_gpio01_sfp_pres {
++						reg-map = <0x3f (1 << 3)>;
++						gpio-num = <130>;
++					};
++					sfp44_gpio02_tx_dis {
++						reg-map = <0x36 (1 << 3)>;
++						gpio-num = <131>;
++					};
++					/* sfp45 */
++					sfp45_gpio00_loss {
++						reg-map = <0x45 (1 << 4)>;
++						gpio-num = <132>;
++					};
++					sfp45_gpio01_pres {
++						reg-map = <0x3f (1 << 4)>;
++						gpio-num = <133>;
++					};
++					sfp45_gpio02_tx_dis {
++						reg-map = <0x36 (1 << 4)>;
++						gpio-num = <134>;
++					};
++					/* sfp46 */
++					sfp46_gpio00_sfp_loss {
++						reg-map = <0x45 (1 << 5)>;
++						gpio-num = <135>;
++					};
++					sfp46_gpio01_sfp_pres {
++						reg-map = <0x3f (1 << 5)>;
++						gpio-num = <136>;
++					};
++					sfp46_gpio02_tx_dis {
++						reg-map = <0x36 (1 << 5)>;
++						gpio-num = <137>;
++					};
++					/* sfp47 */
++					sfp47_gpio00_loss {
++						reg-map = <0x45 (1 << 6)>;
++						gpio-num = <138>;
++					};
++					sfp47_gpio01_pres {
++						reg-map = <0x3f (1 << 6)>;
++						gpio-num = <139>;
++					};
++					sfp47_gpio02_tx_dis {
++						reg-map = <0x36 (1 << 6)>;
++						gpio-num = <140>;
++					};
++					/* sfp48 */
++					sfp48_gpio00_loss {
++						reg-map = <0x45 (1 << 7)>;
++						gpio-num = <141>;
++					};
++					sfp48_gpio01_sfp_pres {
++						reg-map = <0x3f (1 << 7)>;
++						gpio-num = <142>;
++					};
++					sfp48_gpio02_tx_dis {
++						reg-map = <0x36 (1 << 7)>;
++						gpio-num = <143>;
++					};
++				};
++			};
++		};
++		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++		};
+ 	};
+ };
+ 
+@@ -131,42 +1328,42 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		i2c@0 {
++		i2c1_sfp1: i2c@0 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <0>;
+ 		};
+-		i2c@1 {
++		i2c1_sfp2: i2c@1 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <1>;
+ 		};
+-		i2c@2 {
++		i2c1_sfp3: i2c@2 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <2>;
+ 		};
+-		i2c@3 {
++		i2c1_sfp4: i2c@3 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <3>;
+ 		};
+-		i2c@4 {
++		i2c1_sfp5: i2c@4 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <4>;
+ 		};
+-		i2c@5 {
++		i2c1_sfp6: i2c@5 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <5>;
+ 		};
+-		i2c@6 {
++		i2c1_sfp7: i2c@6 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <6>;
+ 		};
+-		i2c@7 {
++		i2c1_sfp8: i2c@7 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <7>;
+@@ -178,42 +1375,42 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		i2c@0 {
++		i2c1_sfp9: i2c@0 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <0>;
+ 		};
+-		i2c@1 {
++		i2c1_sfp10: i2c@1 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <1>;
+ 		};
+-		i2c@2 {
++		i2c1_sfp11: i2c@2 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <2>;
+ 		};
+-		i2c@3 {
++		i2c1_sfp12: i2c@3 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <3>;
+ 		};
+-		i2c@4 {
++		i2c1_sfp13: i2c@4 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <4>;
+ 		};
+-		i2c@5 {
++		i2c1_sfp14: i2c@5 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <5>;
+ 		};
+-		i2c@6 {
++		i2c1_sfp15: i2c@6 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <6>;
+ 		};
+-		i2c@7 {
++		i2c1_sfp16: i2c@7 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <7>;
+@@ -225,42 +1422,42 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		i2c@0 {
++		i2c1_sfp17: i2c@0 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <0>;
+ 		};
+-		i2c@1 {
++		i2c1_sfp18: i2c@1 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <1>;
+ 		};
+-		i2c@2 {
++		i2c1_sfp19: i2c@2 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <2>;
+ 		};
+-		i2c@3 {
++		i2c1_sfp20: i2c@3 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <3>;
+ 		};
+-		i2c@4 {
++		i2c1_sfp21: i2c@4 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <4>;
+ 		};
+-		i2c@5 {
++		i2c1_sfp22: i2c@5 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <5>;
+ 		};
+-		i2c@6 {
++		i2c1_sfp23: i2c@6 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <6>;
+ 		};
+-		i2c@7 {
++		i2c1_sfp24: i2c@7 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <7>;
+@@ -272,42 +1469,42 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		i2c@0 {
++		i2c1_sfp25: i2c@0 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <0>;
+ 		};
+-		i2c@1 {
++		i2c1_sfp26: i2c@1 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <1>;
+ 		};
+-		i2c@2 {
++		i2c1_sfp27: i2c@2 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <2>;
+ 		};
+-		i2c@3 {
++		i2c1_sfp28: i2c@3 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <3>;
+ 		};
+-		i2c@4 {
++		i2c1_sfp29: i2c@4 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <4>;
+ 		};
+-		i2c@5 {
++		i2c1_sfp30: i2c@5 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <5>;
+ 		};
+-		i2c@6 {
++		i2c1_sfp31: i2c@6 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <6>;
+ 		};
+-		i2c@7 {
++		i2c1_sfp32: i2c@7 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <7>;
+@@ -319,42 +1516,42 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		i2c@0 {
++		i2c1_sfp33: i2c@0 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <0>;
+ 		};
+-		i2c@1 {
++		i2c1_sfp34: i2c@1 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <1>;
+ 		};
+-		i2c@2 {
++		i2c1_sfp35: i2c@2 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <2>;
+ 		};
+-		i2c@3 {
++		i2c1_sfp36: i2c@3 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <3>;
+ 		};
+-		i2c@4 {
++		i2c1_sfp37: i2c@4 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <4>;
+ 		};
+-		i2c@5 {
++		i2c1_sfp38: i2c@5 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <5>;
+ 		};
+-		i2c@6 {
++		i2c1_sfp39: i2c@6 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <6>;
+ 		};
+-		i2c@7 {
++		i2c1_sfp40: i2c@7 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <7>;
+@@ -366,42 +1563,42 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
+-		i2c@0 {
++		i2c1_sfp41: i2c@0 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <0>;
+ 		};
+-		i2c@1 {
++		i2c1_sfp42: i2c@1 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <1>;
+ 		};
+-		i2c@2 {
++		i2c1_sfp43: i2c@2 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <2>;
+ 		};
+-		i2c@3 {
++		i2c1_sfp44: i2c@3 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <3>;
+ 		};
+-		i2c@4 {
++		i2c1_sfp45: i2c@4 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <4>;
+ 		};
+-		i2c@5 {
++		i2c1_sfp46: i2c@5 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <5>;
+ 		};
+-		i2c@6 {
++		i2c1_sfp47: i2c@6 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <6>;
+ 		};
+-		i2c@7 {
++		i2c1_sfp48: i2c@7 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <7>;
+@@ -422,20 +1619,20 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 
+-                        partition@0 {
+-                                label = "uboot";
+-                                reg = <0x0 0x3f0000>;
+-                        };
+-
+-                        partition@3f0000 {
+-                                label = "uboot-env";
+-                                reg = <0x3f0000 0x010000>;
+-                        };
+-
+-                        partition@400000 {
+-                                label = "ONIE";
+-                                reg = <0x400000 0xc00000>;
+-                        };
++			partition@0 {
++				label = "uboot";
++				reg = <0x0 0x3f0000>;
++			};
++
++			partition@3f0000 {
++				label = "uboot-env";
++				reg = <0x3f0000 0x010000>;
++			};
++
++			partition@400000 {
++				label = "ONIE";
++				reg = <0x400000 0xc00000>;
++			};
+ 		};
+ 	};
+ };
+@@ -471,8 +1668,7 @@
+ 
+ 	OOB_E1512_PHY: ethernet-phy@1 {
+ 		reg = <0x0>;
+- 	};
+-
++	};
+ };
+ 
+ &cp0_ethernet {
+@@ -500,11 +1696,10 @@
+ };
+ 
+ &cp0_pcie0 {
+-	status = "okay";
+-
+-	phys = <&cp0_comphy0 0>;
+ 	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
+ 		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
+ 		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
++	phys = <&cp0_comphy0 0>;
++	status = "okay";
+ };
+ 
+--- a/arch/arm64/boot/dts/marvell/delta-tn48m.dts
++++ b/arch/arm64/boot/dts/marvell/delta-tn48m.dts
+@@ -46,103 +46,196 @@
+ #include "armada-7040.dtsi"
+ 
+ / {
+-        model = "delta,tn48m";
+-        compatible = "delta,tn48m";
++	model = "delta,tn48m";
++	compatible = "delta,tn48m";
+ 
+-        chosen {
+-                stdout-path = "serial0:115200n8";
+-        };
+-
+-        memory@0 {
+-                device_type = "memory";
+-                reg = <0x0 0x0 0x0 0x80000000>;
+-        };
+-
+-        aliases {
+-                ethernet0 = &cp0_eth0;
+-                ethernet1 = &cp0_eth1;
+-                ethernet2 = &cp0_eth2;
+-        };
+-
+-        switch-cpu {
+-                compatible = "marvell,prestera-switch-rxtx-sdma";
+-                status = "okay";
+-        };
+-
+-        onie_eeprom: onie-eeprom {
+-                compatible = "onie-nvmem-cells";
+-                status = "okay";
+-
+-                nvmem = <&eeprom_at24>;
+-        };
+-
+-        prestera {
+-                compatible = "marvell,prestera";
+-                status = "okay";
+-
+-                base-mac-provider = <&onie_eeprom>;
+-        };
+-
+-        i2cmux {
+-                compatible = "i2c-mux-gpio";
+-                #address-cells = <1>;
+-                #size-cells = <0>;
+-                mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
+-                i2c-parent = <&cp0_i2c1>;
+-
+-                i2c@0 {
+-                        reg = <0>;
+-                        #address-cells = <1>;
+-                        #size-cells = <0>;
+-
+-                        optoe@50 {
+-                                compatible = "optoe2";
+-                                reg = <0x50>;
+-                                label = "port49";
+-                        };
+-                };
+-
+-                i2c@1 {
+-                        reg = <1>;
+-                        #address-cells = <1>;
+-                        #size-cells = <0>;
+-
+-                        optoe@50 {
+-                                compatible = "optoe2";
+-                                reg = <0x50>;
+-                                label = "port50";
+-                        };
+-                };
+-
+-                i2c@2 {
+-                        reg = <2>;
+-                        #address-cells = <1>;
+-                        #size-cells = <0>;
+-
+-                        optoe@50 {
+-                                compatible = "optoe2";
+-                                reg = <0x50>;
+-                                label = "port51";
+-                        };
+-                };
+-
+-                i2c@3 {
+-                        reg = <3>;
+-                        #address-cells = <1>;
+-                        #size-cells = <0>;
+-
+-                        optoe@50 {
+-                                compatible = "optoe2";
+-                                reg = <0x50>;
+-                                label = "port52";
+-                        };
+-                };
+-        };
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++
++	aliases {
++		ethernet0 = &cp0_eth0;
++		ethernet1 = &cp0_eth1;
++		ethernet2 = &cp0_eth2;
++	};
++
++	switch-cpu {
++		compatible = "marvell,prestera-switch-rxtx-sdma";
++		status = "okay";
++	};
++
++	sfp49: sfp-49 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp1>;
++		los-gpio = <&tn48xxm_cpld 0 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 1 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 2 GPIO_ACTIVE_HIGH>;
++	};
++	sfp50: sfp-50 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp2>;
++		los-gpio = <&tn48xxm_cpld 3 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 4 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 5 GPIO_ACTIVE_HIGH>;
++	};
++	sfp51: sfp-51 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp3>;
++		los-gpio = <&tn48xxm_cpld 6 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 7 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 8 GPIO_ACTIVE_HIGH>;
++	};
++	sfp52: sfp-52 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c1_sfp4>;
++		los-gpio = <&tn48xxm_cpld 9 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_cpld 10 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_cpld 11 GPIO_ACTIVE_HIGH>;
++	};
++
++	i2cmux {
++		compatible = "i2c-mux-gpio";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
++		i2c-parent = <&cp0_i2c1>;
++
++		i2c1_sfp1: i2c@0 {
++			reg = <0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c1_sfp2: i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c1_sfp3: i2c@2 {
++			reg = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c1_sfp4: i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
++
++	prestera {
++		compatible = "marvell,prestera";
++		status = "okay";
++
++		ports {
++			port49 {
++				prestera,port-num = <49>;
++				sfp = <&sfp49>;
++			};
++			port50 {
++				prestera,port-num = <50>;
++				sfp = <&sfp50>;
++			};
++			port51 {
++				prestera,port-num = <51>;
++				sfp = <&sfp51>;
++			};
++			port52 {
++				prestera,port-num = <52>;
++				sfp = <&sfp52>;
++			};
++		};
++	};
++
++	onie_eeprom: onie-eeprom {
++		compatible = "onie-nvmem-cells";
++		status = "okay";
++
++		nvmem = <&eeprom_at24>;
++	};
++
++	prestera {
++		compatible = "marvell,prestera";
++		status = "okay";
++
++		base-mac-provider = <&onie_eeprom>;
++	};
+ };
+ 
+ &i2c0 {
+-        status = "okay";
+-        clock-frequency = <100000>;
++	status = "okay";
++	clock-frequency = <100000>;
++
++	tn48xxm_cpld: tn48xxm-cpld@41 {
++		compatible = "dni,tn48m_cpld";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		gpio-controller;
++		#gpio-cells = <2>;
++		reg = <0x41>;  /* CPLD/MUX I2C address */
++
++		gpio-map {
++			/* sfp1 */
++			sfp01_gpio00_loss {
++				reg-map = <0x40 (1 << 0)>; /* 0x40=register in the CPLD, (1 << 0)=Selected bit */
++				gpio-num = <0>;  /* Logical number used by: los-gpio, mod-def0-gpio and tx-disable-gpio */
++			};
++			sfp01_gpio01_pres {
++				reg-map = <0x3a (1 << 0)>; /* reg mask */
++				gpio-num = <1>;
++			};
++			sfp01_gpio02_tx_dis {
++				reg-map = <0x31 (1 << 0)>; /* reg mask */
++				gpio-num = <2>;
++			};
++			/* sfp2 */
++			sfp02_gpio00_sfp_loss {
++				reg-map = <0x40 (1 << 1)>; /* reg mask */
++				gpio-num = <3>;
++			};
++			sfp02_gpio01_sfp_pres {
++				reg-map = <0x3a (1 << 1)>; /* reg mask */
++				gpio-num = <4>;
++			};
++			sfp02_gpio02_tx_dis {
++				reg-map = <0x31 (1 << 1)>; /* reg mask */
++				gpio-num = <5>;
++			};
++			/* sfp3 */
++			sfp03_gpio00_loss {
++				reg-map = <0x40 (1 << 2)>; /* reg mask */
++				gpio-num = <6>;
++			};
++			sfp03_gpio01_pres {
++				reg-map = <0x3a (1 << 2)>; /* reg mask */
++				gpio-num = <7>;
++			};
++			sfp03_gpio02_tx_dis {
++				reg-map = <0x31 (1 << 2)>; /* reg mask */
++				gpio-num = <8>;
++			};
++			/* sfp4 */
++			sfp04_gpio00_loss {
++				reg-map = <0x40 (1 << 3)>; /* reg mask */
++				gpio-num = <9>;
++			};
++			sfp04_gpio01_sfp_pres {
++				reg-map = <0x3a (1 << 3)>; /* reg mask */
++				gpio-num = <10>;
++			};
++			sfp04_gpio02_tx_dis {
++				reg-map = <0x31 (1 << 3)>; /* reg mask */
++				gpio-num = <11>;
++			};
++		};
++	};
+ };
+ 
+ &spi0 {
+@@ -153,97 +246,95 @@
+ 		reg = <0>;
+ 		spi-max-frequency = <38000000>;
+ 		status = "okay";
+-    };
++	};
+ };
+ 
+ &uart0 {
+-        status = "okay";
++	status = "okay";
+ };
+ 
+ &cp0_i2c0 {
+-        status = "okay";
+-        clock-frequency = <100000>;
++	status = "okay";
++	clock-frequency = <100000>;
+ 
+-        eeprom_at24: at24@56 {
+-                compatible = "atmel,24c64";
+-                reg = <0x56>;
+-        };
++	eeprom_at24: at24@56 {
++		compatible = "atmel,24c64";
++		reg = <0x56>;
++	};
+ };
+ 
+ &cp0_i2c1 {
+-        status = "okay";
+-        clock-frequency = <100000>;
++	status = "okay";
++	clock-frequency = <100000>;
+ };
+ 
+ &cp0_spi0 {
+-        status = "okay";
++	status = "okay";
+ 
+-        spi-flash@0 {
+-                compatible = "jedec,spi-nor";
+-                reg = <0x0>;
+-                spi-max-frequency = <20000000>;
+-
+-                partitions {
+-                        compatible = "fixed-partitions";
+-                        #address-cells = <1>;
+-                        #size-cells = <1>;
+-
+-                        partition@0 {
+-                                label = "uboot";
+-                                reg = <0x0 0x3f0000>;
+-                        };
+-
+-                        partition@3f0000 {
+-                                label = "uboot-env";
+-                                reg = <0x3f0000 0x010000>;
+-                        };
+-
+-                        partition@400000 {
+-                                label = "ONIE";
+-                                reg = <0x400000 0xc00000>;
+-                        };
+-                };
+-        };
++	spi-flash@0 {
++		compatible = "jedec,spi-nor";
++		reg = <0x0>;
++		spi-max-frequency = <20000000>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "uboot";
++				reg = <0x0 0x3f0000>;
++			};
++
++			partition@3f0000 {
++				label = "uboot-env";
++				reg = <0x3f0000 0x010000>;
++			};
++
++			partition@400000 {
++				label = "ONIE";
++				reg = <0x400000 0xc00000>;
++			};
++		};
++	};
+ };
+ 
+ &cp0_sata0 {
+-        status = "okay";
++	status = "okay";
+ };
+ 
+ &cp0_usb3_0 {
+-        status = "okay";
++	status = "okay";
+ };
+ 
+-
+ &cp0_usb3_1 {
+-        status = "okay";
++	status = "okay";
+ };
+ 
+ &ap_sdhci0 {
+-        status = "okay";
+-        bus-width = <4>;
+-        no-1-8-v;
+-        non-removable;
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
+ };
+ 
+ &cp0_sdhci0 {
+-        status = "okay";
+-        bus-width = <4>;
+-        no-1-8-v;
+-        non-removable;
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
+ };
+ 
+ &cp0_mdio {
+-        status = "okay";
+-
+-        OOB_E1512_PHY: ethernet-phy@1 {
+-                reg = <0x0>;
+-        };
++	status = "okay";
+ 
++	OOB_E1512_PHY: ethernet-phy@1 {
++		reg = <0x0>;
++	};
+ };
+ 
+ &cp0_ethernet {
+-        status = "okay";
++	status = "okay";
+ };
+ 
+ &cp0_eth0 {
+@@ -263,14 +354,14 @@
+ };
+ 
+ &cp0_crypto {
+-        status = "disabled";
++	status = "disabled";
+ };
+ 
+ &cp0_pcie0 {
+-        status = "okay";
+-
+-        phys = <&cp0_comphy0 0>;
+-        ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
+-                0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
+-                0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
++	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
++	phys = <&cp0_comphy0 0>;
++	status = "okay";
+ };
++
