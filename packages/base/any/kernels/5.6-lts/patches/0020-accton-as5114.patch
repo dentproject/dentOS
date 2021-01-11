@@ -1,9 +1,19 @@
+From db0e7b703397c9a028b12b7efddd0f2c01fc4b3f Mon Sep 17 00:00:00 2001
+From: Richard Lee <richard_lee@edge-core.com>
+Date: Fri, 8 Jan 2021 14:36:17 +0000
+Subject: [PATCH] init
+
+---
+ arch/arm64/boot/dts/marvell/accton-as5114.dts | 1912 +++++++++++++++++
+ 1 file changed, 1912 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/marvell/accton-as5114.dts
+
 diff --git a/arch/arm64/boot/dts/marvell/accton-as5114.dts b/arch/arm64/boot/dts/marvell/accton-as5114.dts
 new file mode 100644
-index 000000000..67326ff44
+index 0000000..741318f
 --- /dev/null
 +++ b/arch/arm64/boot/dts/marvell/accton-as5114.dts
-@@ -0,0 +1,1864 @@
+@@ -0,0 +1,1912 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright (C) 2016 Marvell Technology Group Ltd.
@@ -257,385 +267,433 @@ index 000000000..67326ff44
 +			It is currently not required for Amazon 'ethtool -m' support but it is intended for future use.
 +			Can be skipped in this stage.
 +		*/
-+		los-gpio = <&gpio_i2c 0 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 0 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 1 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 2 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp2: sfp-2 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp1>;
 +
-+		los-gpio = <&gpio_i2c 3 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 3 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 4 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 5 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp3: sfp-3 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp2>;
 +
-+		los-gpio = <&gpio_i2c 6 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 6 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 7 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 8 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp4: sfp-4 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp3>;
 +
-+		los-gpio = <&gpio_i2c 9 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 9 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 10 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 11 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp5: sfp-5 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp4>;
 +
-+		los-gpio = <&gpio_i2c 12 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 12 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 13 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 14 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp6: sfp-6 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp5>;
 +
-+		los-gpio = <&gpio_i2c 15 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 15 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 16 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 17 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp7: sfp-7 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp6>;
 +
-+		los-gpio = <&gpio_i2c 18 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 18 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 19 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 20 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp8: sfp-8 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp7>;
 +
-+		los-gpio = <&gpio_i2c 21 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 21 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 22 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 23 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp9: sfp-9 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp8>;
 +
-+		los-gpio = <&gpio_i2c 24 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 24 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 25 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 26 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp10: sfp-10 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp9>;
 +
-+		los-gpio = <&gpio_i2c 27 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 27 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 28 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 29 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp11: sfp-11 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp10>;
 +
-+		los-gpio = <&gpio_i2c 30 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 30 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 31 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 32 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp12: sfp-12 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp11>;
 +
-+		los-gpio = <&gpio_i2c 33 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 33 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 34 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 35 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp13: sfp-13 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp12>;
 +
-+		los-gpio = <&gpio_i2c 36 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 36 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 37 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 38 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp14: sfp-14 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp13>;
 +
-+		los-gpio = <&gpio_i2c 39 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 39 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 40 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 41 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp15: sfp-15 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp14>;
 +
-+		los-gpio = <&gpio_i2c 42 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 42 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 43 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 44 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp16: sfp-16 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp15>;
 +
-+		los-gpio = <&gpio_i2c 45 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 45 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 46 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 47 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp17: sfp-17 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp16>;
 +
-+		los-gpio = <&gpio_i2c 48 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 48 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 49 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 50 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp18: sfp-18 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp17>;
 +
-+		los-gpio = <&gpio_i2c 51 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 51 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 52 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 53 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp19: sfp-19 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp18>;
 +
-+		los-gpio = <&gpio_i2c 54 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 54 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 55 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 56 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp20: sfp-20 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp19>;
 +
-+		los-gpio = <&gpio_i2c 57 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 57 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 58 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 59 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp21: sfp-21 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp20>;
 +
-+		los-gpio = <&gpio_i2c 60 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 60 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 61 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 62 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp22: sfp-22 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp21>;
 +
-+		los-gpio = <&gpio_i2c 63 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 63 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 64 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 65 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp23: sfp-23 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp22>;
 +
-+		los-gpio = <&gpio_i2c 66 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 66 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 67 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 68 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp24: sfp-24 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp23>;
 +
-+		los-gpio = <&gpio_i2c 69 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 69 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 70 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 71 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp25: sfp-25 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp24>;
 +
-+		los-gpio = <&gpio_i2c 72 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 72 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 73 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 74 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp26: sfp-26 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp25>;
 +
-+		los-gpio = <&gpio_i2c 75 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 75 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 76 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 77 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp27: sfp-27 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp26>;
 +
-+		los-gpio = <&gpio_i2c 78 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 78 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 79 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 80 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp28: sfp-28 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp27>;
 +
-+		los-gpio = <&gpio_i2c 81 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 81 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 82 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 83 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp29: sfp-29 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp28>;
 +
-+		los-gpio = <&gpio_i2c 84 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 84 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 85 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 86 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp30: sfp-30 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp29>;
 +
-+		los-gpio = <&gpio_i2c 87 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 87 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 88 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 89 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp31: sfp-31 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp30>;
 +
-+		los-gpio = <&gpio_i2c 90 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 90 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 91 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 92 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp32: sfp-32 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp31>;
 +
-+		los-gpio = <&gpio_i2c 93 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 93 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 94 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 95 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp33: sfp-33 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp32>;
 +
-+		los-gpio = <&gpio_i2c 96 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 96 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 97 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 98 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp34: sfp-34 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp33>;
 +
-+		los-gpio = <&gpio_i2c 99 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 99 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 100 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 101 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp35: sfp-35 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp34>;
 +
-+		los-gpio = <&gpio_i2c 102 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 102 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 103 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 104 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp36: sfp-36 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp35>;
 +
-+		los-gpio = <&gpio_i2c 105 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 105 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 106 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 107 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp37: sfp-37 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp36>;
 +
-+		los-gpio = <&gpio_i2c 108 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 108 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 109 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 110 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp38: sfp-38 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp37>;
 +
-+		los-gpio = <&gpio_i2c 111 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 111 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 112 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 113 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp39: sfp-39 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp38>;
 +
-+		los-gpio = <&gpio_i2c 114 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 114 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 115 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 116 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp40: sfp-40 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp39>;
 +
-+		los-gpio = <&gpio_i2c 117 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 117 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 118 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 119 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp41: sfp-41 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp40>;
 +
-+		los-gpio = <&gpio_i2c 120 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 120 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 121 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 122 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp42: sfp-42 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp41>;
 +
-+		los-gpio = <&gpio_i2c 123 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 123 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 124 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 125 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp43: sfp-43 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp42>;
 +
-+		los-gpio = <&gpio_i2c 126 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 126 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 127 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 128 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp44: sfp-44 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp43>;
 +
-+		los-gpio = <&gpio_i2c 129 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 129 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 130 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 131 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp45: sfp-45 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp44>;
 +
-+		los-gpio = <&gpio_i2c 132 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 132 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 133 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 134 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp46: sfp-46 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp45>;
 +
-+		los-gpio = <&gpio_i2c 135 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 135 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 136 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 137 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp47: sfp-47 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp46>;
 +
-+		los-gpio = <&gpio_i2c 138 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 138 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 139 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 140 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp48: sfp-48 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp47>;
 +
-+		los-gpio = <&gpio_i2c 141 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 141 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 142 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 143 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +
 +	/*
@@ -1868,3 +1926,6 @@ index 000000000..67326ff44
 +&cp0_crypto {
 +	status = "okay";
 +};
+-- 
+2.17.1
+
