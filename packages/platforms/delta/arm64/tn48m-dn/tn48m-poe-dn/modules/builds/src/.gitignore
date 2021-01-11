@@ -1,0 +1,5 @@
+*.ko
+*.mod*
+*.o
+*.a
+*odules*
