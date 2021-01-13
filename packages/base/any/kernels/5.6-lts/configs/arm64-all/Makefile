@@ -15,7 +15,7 @@ K_PATCH_SERIES=series.arm64
 
 include ../../kconfig.mk
 K_CONFIG := arm64-all.config
-K_BUILD_TARGET := Image Image.gz freescale/fsl-ls1043a-rdb.dtb  freescale/fsl-ls1046a-rdb-sdk.dtb freescale/fsl-ls2080a-rdb.dtb freescale/fsl-ls2088a-rdb.dtb freescale/fsl-ls1088a-rdb.dtb marvell/delta-tx4810.dtb marvell/delta-tn48m.dtb marvell/delta-tn4810m.dtb marvell/wnc-qsd61-aom-a-48.dtb marvell/wnc-qsa72-aom-a-48p.dtb marvell/accton-as4224.dtb marvell/accton-as5114.dtb
+K_BUILD_TARGET := Image Image.gz freescale/fsl-ls1043a-rdb.dtb  freescale/fsl-ls1046a-rdb-sdk.dtb freescale/fsl-ls2080a-rdb.dtb freescale/fsl-ls2088a-rdb.dtb freescale/fsl-ls1088a-rdb.dtb marvell/delta-tx4810.dtb marvell/delta-tn48m.dtb marvell/delta-tn4810m.dtb marvell/delta-tn48m-dn.dtb marvell/delta-tn4810m-dn.dtb marvell/wnc-qsd61-aom-a-48.dtb marvell/wnc-qsa72-aom-a-48p.dtb marvell/accton-as4224.dtb marvell/accton-as5114.dtb
 K_COPY_SRC := arch/arm64/boot/Image
 K_COPY_GZIP := 1
 ifndef K_COPY_DST
