@@ -5,7 +5,7 @@
  *
  * Chenglin Tsai <chenglin.tsai@deltaww.com>
  *
- * Base on:
+ * Based on:
  * accton_as4610_leds.c
  * Copyright (C) 2016 Accton Technology Corporation.
  * Brandon Chuang <brandon_chuang@accton.com.tw>

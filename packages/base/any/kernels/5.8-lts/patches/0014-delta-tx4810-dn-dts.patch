@@ -1,4 +1,4 @@
---- a/arch/arm64/boot/dts/marvell/delta-tx4810-dn.dts
+--- /dev/null
 +++ b/arch/arm64/boot/dts/marvell/delta-tx4810-dn.dts
 @@ -0,0 +1,168 @@
 +/*
