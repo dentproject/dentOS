@@ -1,9 +1,9 @@
 diff --git a/arch/arm64/boot/dts/marvell/accton-as4224.dts b/arch/arm64/boot/dts/marvell/accton-as4224.dts
 new file mode 100644
-index 000000000..d38b19668
+index 0000000..ee49b07
 --- /dev/null
 +++ b/arch/arm64/boot/dts/marvell/accton-as4224.dts
-@@ -0,0 +1,455 @@
+@@ -0,0 +1,459 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright (C) 2016 Marvell Technology Group Ltd.
@@ -81,33 +81,37 @@ index 000000000..d38b19668
 +			It is currently not required for Amazon 'ethtool -m' support but it is intended for future use.
 +			Can be skipped in this stage.
 +		*/
-+		los-gpio = <&gpio_i2c 0 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 0 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 1 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 2 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp50: sfp-50 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp1>;
 +
-+		los-gpio = <&gpio_i2c 3 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 3 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 4 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 5 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp51: sfp-51 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp2>;
 +
-+		los-gpio = <&gpio_i2c 6 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 6 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 7 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 8 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +	sfp52: sfp-52 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp3>;
 +
-+		los-gpio = <&gpio_i2c 9 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&gpio_i2c 9 GPIO_ACTIVE_LOW>;
 +		mod-def0-gpio = <&gpio_i2c 10 GPIO_ACTIVE_LOW>;
 +		tx-disable-gpio = <&gpio_i2c 11 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
 +	};
 +
 +	/*
