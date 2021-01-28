@@ -754,7 +754,7 @@
 +					};
 +					/* sfp8 */
 +					sfp08_gpio00_loss {
-+						reg-map = <0x41 (1 << 7)>;
++						reg-map = <0x40 (1 << 7)>;
 +						gpio-num = <21>;
 +					};
 +					sfp08_gpio01_sfp_pres {
