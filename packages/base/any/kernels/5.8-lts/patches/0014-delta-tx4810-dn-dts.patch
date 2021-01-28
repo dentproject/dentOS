@@ -1,0 +1,171 @@
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/delta-tx4810-dn.dts
+@@ -0,0 +1,168 @@
++/*
++ * Copyright (C) 2016 Marvell Technology Group Ltd.
++ *
++ * Device Tree file for Marvell Armada 7040 Development board platform
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-7040.dtsi"
++
++/ {
++	model = "delta,tx4810-dn";
++	compatible = "delta,tx4810-dn";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	aliases {
++		ethernet0 = &cp0_eth2;
++	};
++};
++
++AP_UART: &uart0 {
++	status = "okay";
++};
++
++AP_I2C: &i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++
++	i2c-mux@70 {
++		compatible = "nxp,pca9546";
++		reg = <0x70>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
++};
++
++AP_SPI: &spi0 {
++	status = "okay";
++	tpm0: slb9670@0 {
++		compatible = "infineon,slb9670";
++		reg = <0>;
++		spi-max-frequency = <38000000>;
++		status = "okay";
++	};
++};
++
++/******************************************************************/
++
++&cp0_pinctrl {
++        cp0_ge_mdio_pins: ge-mdio-pins {
++                marvell,pins = "mpp0", "mpp1";
++                marvell,function = "ge";
++        };
++        cp0_sata0_prsnt_pin: sata0-prsnt-pins {
++                marvell,pins = "mpp29";
++                marvell,function = "sata0";
++        };
++        cp0_i2c0_pins: i2c0-pins {
++                marvell,pins = "mpp37", "mpp38";
++                marvell,function = "i2c0";
++        };
++        cp0_i2c1_pins: i2c1-pins {
++                marvell,pins = "mpp35", "mpp36";
++                marvell,function = "i2c1";
++        };
++        cp0_spi0_pins: spi0-pins {
++                marvell,pins = "mpp56", "mpp57", "mpp58", "mpp59";
++                marvell,function = "spi0";
++        };
++};
++
++&cp0_spi0 {
++	status = "okay";
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp0_spi0_pins>;
++
++        spi-flash@0 {
++                #address-cells = <0x1>;
++                #size-cells = <0x1>;
++                compatible = "jedec,spi-nor";
++                reg = <0x0>;
++                spi-max-frequency = <20000000>;
++
++                partitions {
++                        compatible = "fixed-partitions";
++                        #address-cells = <1>;
++                        #size-cells = <1>;
++
++                        partition@0 {
++                                label = "uboot";
++                                reg = <0x0 0x3f0000>;
++                        };
++
++                        partition@3f0000 {
++                                label = "uboot-env";
++                                reg = <0x3f0000 0x010000>;
++                        };
++
++                        partition@400000 {
++                                label = "ONIE";
++                                reg = <0x400000 0xc00000>;
++                        };
++                };
++        };
++
++};
++
++&cp0_i2c0 {
++	status = "okay";
++
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp0_i2c0_pins>;
++};
++
++&cp0_sata0 {
++	status = "okay";
++
++	sata-port@1 {
++		status = "okay";
++		phys = <&cp0_comphy3 1>;
++	};
++};
++
++&cp0_usb3_0 {  /* usb3_0 is USB2 only (UTMI) */
++	status = "okay";
++};
++
++&cp0_mdio {
++	status = "okay";
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp0_ge_mdio_pins>;
++	OOB_E1512_PHY: ethernet-phy@1 {
++		reg = <0x0>;
++	};
++};
++
++&cp0_ethernet {
++	status = "okay";
++};
++
++&cp0_eth2 {
++	status = "okay";
++
++	phy-mode = "sgmii";
++	phy = <&OOB_E1512_PHY>;
++	phys = <&cp0_comphy5 2>;
++};
++
++&cp0_crypto {
++	status = "disabled";
++};
++
++&cp0_pcie0 {
++	status = "okay";
++	num-lanes = <2>;
++	phys = <&cp0_comphy0 0>, <&cp0_comphy1 0>;
++	phy-names = "cp0-pcie0-x4-lane0-phy", "cp0-pcie0-x4-lane1-phy";
++	ranges = /* downstream I/O */
++		<0x81000000 0 0xf9020000 0  0xf9020000 0 0x10000
++		/* non-prefetchable memory */
++		0x82000000 0 0xc0000000 0  0xc0000000 0 0x400000>;
++};
++
