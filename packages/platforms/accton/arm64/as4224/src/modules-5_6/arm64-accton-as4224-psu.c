@@ -47,7 +47,7 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da, char
 extern int as4224_cpld_read(unsigned short cpld_addr, u8 reg);
 extern int as4224_cpld_write(unsigned short cpld_addr, u8 reg, u8 value);
 
-enum as4224_platform_id {
+enum Platform_Id {
     AS5114_48X,
     AS4224_52P,
     AS4224_52T,
@@ -62,7 +62,7 @@ struct as4224_psu_data {
     struct mutex       update_lock;
     char               valid;        /* !=0 if registers are valid */
     unsigned long       last_updated; /* In jiffies */
-    enum as4224_platform_id platform_id;
+    enum Platform_Id platform_id;
     u8  status;          /* power_good status read from CPLD */
     u8  psu_count;
 };
@@ -135,20 +135,22 @@ static struct as4224_psu_data *as4224_psu_update_device(struct device *dev)
         reg = as4224_psu_get_status_mask_reg();
         status = as4224_psu_read_value(reg);
         if (unlikely(status < 0)) {
-            goto exit;
+            dev_dbg(dev, "cpld read reg (0x%x) err %d\n", reg, status);
+            return data;
         }
 
         /* Enable the interrupt to CPU */
         status = as4224_psu_write_value(reg, status & (~reg_mask));
         if (unlikely(status < 0)) {
-            goto exit;
+            dev_dbg(dev, "cpld write reg (0x%x) err %d\n", reg, status);
+            return data;
         }
 
         status = as4224_psu_read_value(PSU_STATUS_I2C_REG_OFFSET);
 
         if (status < 0) {
-            dev_dbg(dev, "cpld reg (0x%x) err %d\n", PSU_STATUS_I2C_REG_OFFSET, status);
-            goto exit;
+            dev_dbg(dev, "cpld read reg (0x%x) err %d\n", PSU_STATUS_I2C_REG_OFFSET, status);
+            return data;
         }
         else {
             data->status = status;
@@ -158,7 +160,6 @@ static struct as4224_psu_data *as4224_psu_update_device(struct device *dev)
         data->valid = 1;
     }
 
-exit:
     return data;
 }
 
@@ -207,12 +208,16 @@ static int get_platform_id(void)
     if (status < 0)
         return status;
 
+    status &= 0xF0;
+
     if (status & 0x10)
         return AS4224_52T;
     else if (status & 0x20)
         return AS4224_52T_DAC;
     else if (status & 0x80)
         return AS5114_48X;
+    else if (status & 0x40)
+        return -ENODEV;
     else
         return AS4224_52P;
 }
