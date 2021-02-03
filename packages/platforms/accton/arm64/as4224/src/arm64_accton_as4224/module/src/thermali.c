@@ -78,6 +78,22 @@ onlp_thermali_init(void)
     return ONLP_STATUS_OK;
 }
 
+onlp_oid_hdr_t hdr_as4224[] = {
+    { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_MAIN_BROAD), "Thermal 1 - U51_MGMT (0x48)", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_MAIN_BROAD), "Thermal 2 - U25_MAC0 (0x49)", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_MAIN_BROAD), "Thermal 3 - U33_CPLD (0x4B)", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_4_ON_MAIN_BROAD), "Thermal 4 - U5_A7K (0x4C)", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_CPU_CORE), "CPU Core (A7K)", 0, {0} },
+};
+
+onlp_oid_hdr_t hdr_as5114[] = {
+    { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_MAIN_BROAD), "Thermal 1 - U28_A385 (0x48)", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_MAIN_BROAD), "Thermal 2 - U39_MGMT (0x49)", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_MAIN_BROAD), "Thermal 3 - U29_MAC (0x4B)", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_4_ON_MAIN_BROAD), "Thermal 4 - U1_A7K (0x4C)", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_CPU_CORE), "CPU Core (A7K)", 0, {0} },
+};
+
 /*
  * Retrieve the information structure for the given thermal OID.
  *
@@ -98,6 +114,7 @@ onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
 
     /* Set the onlp_oid_hdr_t and capabilities */
     *info = linfo[tid];
-
+    info->hdr = (get_platform_id() == AS4224_48X) ? hdr_as5114[tid-1] :
+                                                    hdr_as4224[tid-1] ;
     return onlp_file_read_int(&info->mcelsius, devfiles__[tid]);
 }
