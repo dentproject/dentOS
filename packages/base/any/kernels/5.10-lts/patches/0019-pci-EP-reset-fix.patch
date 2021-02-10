@@ -1,15 +1,18 @@
-From 432cb2cf3d7e1f571d3387649427a2769f2a05d4 Mon Sep 17 00:00:00 2001
-From: Gil Tabibian <gilt@marvell.com>
-Date: Tue, 7 Jul 2020 14:16:32 +0300
-Subject: [PATCH] pci EP reset fix
+From bbecd8c0c890ada22214e95321de407dbdf4194b Mon Sep 17 00:00:00 2001
+From: Taras Chornyi <taras.chornyi@plvision.eu>
+Date: Wed, 10 Feb 2021 11:12:37 +0200
+Subject: [PATCH] Align PCIe reset patch with kernel 5.10
 
-Provided by Marvell IPBU team, ported from LK4.14 branch.
+Patch is provided by Marvell IPBU team, ported from LK4.14 branch.
 Resolves disconnect/connect of CPU PCI interface in RC mode.
 
+Signed-off-by: Gil Tabibian <gilt@marvell.com>
+Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
+Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
 ---
  arch/arm64/boot/dts/marvell/armada-cp11x.dtsi |   9 +
- drivers/pci/controller/dwc/pcie-armada8k.c    | 357 +++++++++++++-----
- 2 files changed, 269 insertions(+), 97 deletions(-)
+ drivers/pci/controller/dwc/pcie-armada8k.c    | 355 +++++++++++++-----
+ 2 files changed, 268 insertions(+), 96 deletions(-)
  mode change 100644 => 100755 arch/arm64/boot/dts/marvell/armada-cp11x.dtsi
  mode change 100644 => 100755 drivers/pci/controller/dwc/pcie-armada8k.c
 
@@ -59,7 +62,7 @@ index 9dcf16bea..819ccf56b
 diff --git a/drivers/pci/controller/dwc/pcie-armada8k.c b/drivers/pci/controller/dwc/pcie-armada8k.c
 old mode 100644
 new mode 100755
-index 49596547e..bf39821f5
+index 13901f359..0d50856a9
 --- a/drivers/pci/controller/dwc/pcie-armada8k.c
 +++ b/drivers/pci/controller/dwc/pcie-armada8k.c
 @@ -22,17 +22,23 @@
@@ -245,7 +248,7 @@ index 49596547e..bf39821f5
 +{
 +	struct armada8k_pcie *pcie = container_of(ws, struct armada8k_pcie,
 +						  recover_link_work);
-+	struct pci_bus *bus = pcie->pci->pp.root_bus;
++	struct pci_bus *bus = pcie->pci->pp.bridge->bus;
 +	struct pcie_port *pp = &pcie->pci->pp;
 +	struct regmap *sysctrl_base = pcie->sysctrl_base;
 +	struct pci_dev *root_port;
@@ -332,15 +335,7 @@ index 49596547e..bf39821f5
  	return IRQ_HANDLED;
  }
  
-@@ -245,6 +305,7 @@ static int armada8k_add_pcie_port(struct armada8k_pcie *pcie,
- 	struct device *dev = &pdev->dev;
- 	int ret;
- 
-+	pp->root_bus_nr = -1;
- 	pp->ops = &armada8k_pcie_host_ops;
- 
- 	pp->irq = platform_get_irq(pdev, 0);
-@@ -273,12 +334,82 @@ static const struct dw_pcie_ops dw_pcie_ops = {
+@@ -271,12 +331,82 @@ static const struct dw_pcie_ops dw_pcie_ops = {
  	.link_up = armada8k_pcie_link_up,
  };
  
@@ -423,7 +418,7 @@ index 49596547e..bf39821f5
  	int ret;
  
  	pcie = devm_kzalloc(dev, sizeof(*pcie), GFP_KERNEL);
-@@ -291,9 +422,10 @@ static int armada8k_pcie_probe(struct platform_device *pdev)
+@@ -289,9 +419,10 @@ static int armada8k_pcie_probe(struct platform_device *pdev)
  
  	pci->dev = dev;
  	pci->ops = &dw_pcie_ops;
@@ -435,7 +430,7 @@ index 49596547e..bf39821f5
  	pcie->clk = devm_clk_get(dev, NULL);
  	if (IS_ERR(pcie->clk))
  		return PTR_ERR(pcie->clk);
-@@ -302,48 +434,79 @@ static int armada8k_pcie_probe(struct platform_device *pdev)
+@@ -300,47 +431,79 @@ static int armada8k_pcie_probe(struct platform_device *pdev)
  	if (ret)
  		return ret;
  
@@ -454,7 +449,6 @@ index 49596547e..bf39821f5
  	base = platform_get_resource_byname(pdev, IORESOURCE_MEM, "ctrl");
  	pci->dbi_base = devm_pci_remap_cfg_resource(dev, base);
  	if (IS_ERR(pci->dbi_base)) {
- 		dev_err(dev, "couldn't remap regs base %p\n", base);
  		ret = PTR_ERR(pci->dbi_base);
 -		goto fail_clkreg;
 +		goto fail;
@@ -506,7 +500,7 @@ index 49596547e..bf39821f5
 +fail_phy:
 +	armada8k_phy_deconfig(pcie);
  fail:
--	clk_disable_unprepare(pcie->clk);
+ 	clk_disable_unprepare(pcie->clk);
 +	if (!IS_ERR(pcie->clk))
 +		clk_disable_unprepare(pcie->clk);
  
@@ -536,7 +530,7 @@ index 49596547e..bf39821f5
  static const struct of_device_id armada8k_pcie_of_match[] = {
  	{ .compatible = "marvell,armada8k-pcie", },
  	{},
-@@ -351,10 +514,10 @@ static const struct of_device_id armada8k_pcie_of_match[] = {
+@@ -348,10 +511,10 @@ static const struct of_device_id armada8k_pcie_of_match[] = {
  
  static struct platform_driver armada8k_pcie_driver = {
  	.probe		= armada8k_pcie_probe,
