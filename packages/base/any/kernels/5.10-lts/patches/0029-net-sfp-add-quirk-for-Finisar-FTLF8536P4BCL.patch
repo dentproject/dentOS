@@ -1,0 +1,50 @@
+From 4ce85d2887eb8e3a0af50539edd0b76a608833dc Mon Sep 17 00:00:00 2001
+From: Taras Chornyi <taras.chornyi@plvision.eu>
+Date: Wed, 10 Feb 2021 16:55:01 +0200
+Subject: [PATCH] net: sfp: add quirk for Finisar FTLF8536P4BCL
+
+Finisar FTLF8536P4BCL can operate at 1000base-X and 10000base-SR, but
+reports 25G & 100GBd SR in it's EEPROM.
+
+Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
+Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
+---
+ drivers/net/phy/sfp-bus.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+index 58014feed..6b76632f1 100644
+--- a/drivers/net/phy/sfp-bus.c
++++ b/drivers/net/phy/sfp-bus.c
+@@ -44,6 +44,13 @@ static void sfp_quirk_2500basex(const struct sfp_eeprom_id *id,
+ 	phylink_set(modes, 2500baseX_Full);
+ }
+ 
++static void sfp_quirk_finisar_25g(const struct sfp_eeprom_id *id,
++				  unsigned long *modes)
++{
++	phylink_set(modes, 1000baseX_Full);
++	phylink_set(modes, 10000baseSR_Full);
++}
++
+ static const struct sfp_quirk sfp_quirks[] = {
+ 	{
+ 		// Alcatel Lucent G-010S-P can operate at 2500base-X, but
+@@ -63,7 +70,13 @@ static const struct sfp_quirk sfp_quirks[] = {
+ 		.vendor = "HUAWEI",
+ 		.part = "MA5671A",
+ 		.modes = sfp_quirk_2500basex,
+-	},
++	}, {
++		// Finisar FTLF8536P4BCL can operate at 1000base-X and 10000base-SR,
++		// but reports 25G & 100GBd SR in it's EEPROM
++		.vendor = "FINISAR CORP.",
++		.part = "FTLF8536P4BCL",
++		.modes = sfp_quirk_finisar_25g,
++	}
+ };
+ 
+ static size_t sfp_strlen(const char *str, size_t maxlen)
+-- 
+2.17.1
+
