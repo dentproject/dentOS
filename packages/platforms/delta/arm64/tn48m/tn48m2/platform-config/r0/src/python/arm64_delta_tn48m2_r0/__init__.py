@@ -30,4 +30,9 @@ class OnlPlatform_arm64_delta_tn48m2_r0(OnlPlatformDelta,
         # Suggested by Taras Chornyi
         self.modprobe('prestera_pci')
 
+        # setup systemctl rules
+        for swp in range(1, 53):
+           cmd = "systemctl enable switchdev-online@swp%d" % swp
+        subprocess.check_call(cmd, shell=True)
+
         return True
