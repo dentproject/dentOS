@@ -7,7 +7,7 @@
 0011-wnc-qsa72-aom-a-48p.patch
 0012-accton-as4224.patch
 0013-delta-tn48m-series.patch
-#0014-prestera-switchdev-driver.patch
+0014-prestera-switchdev-driver.patch
 0015-Add-port-ranges-structures.patch
 0016-nvmem-core-allow-to-register-cells-for-existing-device.patch
 0017-nvmem-add-ONIE-NVMEM-cells-support.patch
