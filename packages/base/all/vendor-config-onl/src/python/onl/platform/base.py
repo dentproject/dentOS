@@ -193,6 +193,10 @@ class OnlPlatformBase(object):
         return True
 
     def insmod(self, module, required=True, params={}):
+        cmd = "modprobe %s" % module
+        subprocess.check_call(cmd, shell=True)
+
+    def insmod(self, module, required=True, params={}):
         #
         # Search for modules in this order:
         #
