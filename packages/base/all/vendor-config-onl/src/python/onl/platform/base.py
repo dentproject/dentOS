@@ -192,7 +192,7 @@ class OnlPlatformBase(object):
     def baseconfig(self):
         return True
 
-    def insmod(self, module, required=True, params={}):
+    def modprobe(self, module, required=True, params={}):
         cmd = "modprobe %s" % module
         subprocess.check_call(cmd, shell=True)
 

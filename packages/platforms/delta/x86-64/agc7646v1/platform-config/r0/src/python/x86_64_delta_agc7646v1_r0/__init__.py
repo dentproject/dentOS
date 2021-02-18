@@ -20,7 +20,7 @@ class OnlPlatform_x86_64_delta_agc7646v1_r0(OnlPlatformDelta, OnlPlatformPortCon
         os.system("echo 1 > /sys/bus/pci/rescan")
 
         #Insert tmp401(tmp431/tmp432) module
-        os.system('modprobe tmp401')
+        self.modprobe('modprobe tmp401')
 
         #Insert platform module
         self.insmod('delta_agc7646v1_platform')

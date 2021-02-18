@@ -9,10 +9,10 @@ class OnlPlatform_x86_64_wnc_rseb_w1_32_r0(OnlPlatformWNC,
 
     def baseconfig(self):
 
-        os.system("modprobe pmbus")
-        os.system("modprobe jc42")
-        os.system("modprobe ads7828")
-        os.system("modprobe ucd9000")
+        self.modprobe("pmbus")
+        self.modprobe("jc42")
+        self.modprobe("ads7828")
+        self.modprobe("ucd9000")
         self.insmod("rseb-w1-32-system_cpld")
         self.insmod("tps53681")
         self.insmod("rseb-w1-32_psu")
