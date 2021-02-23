@@ -16,3 +16,4 @@
 0020-accton-as5114.patch
 0021-tn48m-add-sfp-eeprom-support-to-ethtool.patch
 #0022-marvell-wa-tx-disable.patch
+0023-delta-tn48m-dn-series-dts.patch
