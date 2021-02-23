@@ -124,6 +124,7 @@ typedef enum plat_fan_state {
 
 typedef struct plat_fan {
     char *name;
+    char *model;
 
     hook_present present;
     void *present_data;
