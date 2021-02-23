@@ -39,7 +39,7 @@ class OnlPlatform_arm64_delta_tn48m_poe_r0(OnlPlatformDelta,
         self.insmod("prestera_sw.ko")
         self.insmod("prestera_pci.ko")
 
-        # setup systemctl rules
+        # set up systemctl rules
         for swp in range(1, 53):
            cmd = "systemctl enable switchdev-online@swp%d" % swp
         subprocess.check_call(cmd, shell=True)
