@@ -33,6 +33,7 @@ static int _psu_event(void *e, int ev);
 static plat_psu_t plat_tn48m_dn_psus[] = {
     [PLAT_PSU_ID_1] = {
         .name = "PSU",
+        .type = PLAT_PSU_TYPE_AC,
         .power_status_path = "/sys/bus/i2c/devices/0-0041/psu2_powergood",
         .state = PLAT_PSU_STATE_PRESENT,
     },
@@ -41,6 +42,7 @@ static plat_psu_t plat_tn48m_dn_psus[] = {
 static plat_psu_t plat_tn48m_poe_dn_psus[] = {
     [PLAT_PSU_ID_1] = {
         .name = "PSU1",
+        .type = PLAT_PSU_TYPE_AC,
         .present = _psu_present,
         .present_path = "/sys/bus/i2c/devices/0-0041/psu1_present",
 
@@ -67,6 +69,7 @@ static plat_psu_t plat_tn48m_poe_dn_psus[] = {
     },
     [PLAT_PSU_ID_2] = {
         .name = "PSU2",
+        .type = PLAT_PSU_TYPE_AC,
         .present = _psu_present,
         .present_path = "/sys/bus/i2c/devices/0-0041/psu2_present",
 
@@ -98,6 +101,7 @@ static plat_psu_t plat_tn48m_poe_dn_psus[] = {
 static plat_psu_t plat_tn4810m_dn_psus[] = {
     [PLAT_PSU_ID_1] = {
         .name = "PSU1",
+        .type = PLAT_PSU_TYPE_AC,
         .present = _psu_present,
         .present_path = "/sys/bus/i2c/devices/5-0041/psu1_present",
 
@@ -111,6 +115,7 @@ static plat_psu_t plat_tn4810m_dn_psus[] = {
     },
     [PLAT_PSU_ID_2] = {
         .name = "PSU2",
+        .type = PLAT_PSU_TYPE_AC,
         .present = _psu_present,
         .present_path = "/sys/bus/i2c/devices/5-0041/psu2_present",
 
@@ -365,9 +370,20 @@ onlp_psui_info_get(onlp_oid_t id, onlp_psu_info_t* info)
                 info->status |= ONLP_PSU_STATUS_FAILED;
         }
 
-        // TODO : auto detect AC / DC type
-        // Just do a guess
+        // Auto detect AC / DC type
+        // The PSU capability is decided by Vin value
         info->caps |= _psu_vin_type_guess(info->mvin);
+    } else {
+        // The PSU capability is decided by configuration
+        if (psu->type == PLAT_PSU_TYPE_AC) {
+            info->caps |= ONLP_PSU_CAPS_AC;
+        } else if (psu->type == PLAT_PSU_TYPE_DC12) {
+            info->caps |= ONLP_PSU_CAPS_DC12;
+        } else if (psu->type == PLAT_PSU_TYPE_DC48) {
+            info->caps |= ONLP_PSU_CAPS_DC48;
+        } else {
+            info->status |= ONLP_PSU_STATUS_FAILED;
+        }
     }
 
     //// If VIN is not ok, skip other

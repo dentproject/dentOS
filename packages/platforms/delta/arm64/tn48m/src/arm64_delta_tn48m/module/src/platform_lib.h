@@ -159,6 +159,13 @@ typedef enum plat_psu_id {
     PLAT_PSU_ID_MAX
 } plat_psu_id_t;
 
+typedef enum plat_psu_type {
+    PLAT_PSU_TYPE_AC = 0,
+    PLAT_PSU_TYPE_DC12,
+    PLAT_PSU_TYPE_DC48,
+    PLAT_PSU_TYPE_MAX
+} plat_psu_type_t;
+
 typedef enum plat_psu_state {
     PLAT_PSU_STATE_PRESENT = 0,
     PLAT_PSU_STATE_UNPRESENT,
@@ -176,6 +183,8 @@ typedef enum plat_psu_event {
 
 typedef struct plat_psu {
     char *name;
+
+    plat_psu_type_t type;
 
     hook_present present;
     char *present_path;
