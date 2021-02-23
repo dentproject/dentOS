@@ -78,7 +78,7 @@ int eeprom_info_get(uint8_t *eeprom, int len, char *type, char *v)
     char model[PSU_MODEL_LEN+1]    = {'\0'};
     const char psu_model_key[]     = "DPS";
     const char psu_200_series_key[]= "GQHD";
-    const char psu_920_series_key[]= "XXXD";
+    const char psu_920_series_key[]= "JRYD";
 
     if (!eeprom || !type || !v)
         return -1;
