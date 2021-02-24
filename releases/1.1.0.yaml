@@ -1,0 +1,10 @@
+---
+distribution_type: 'artifact'
+version: '1.1.0'
+project: 'dentOS'
+ref: '158296b91099dfc94d49e6b259d01ecc2275f66e'
+artifacts:
+    - name: 'DENTOS-HEAD_ONL-OS9_2020-12-11.2149-5ae38d5_AMD64_INSTALLED_INSTALLER.md5sum'
+      path: 'https://nexus.dent.dev/content/repositories/snapshots/org/dent/dentos/'
+    - name: 'DENTOS-HEAD_ONL-OS9_2020-12-12.0201-5ae38d5_AMD64_INSTALLED_INSTALLER.md5sum'
+      path: 'https://nexus.dent.dev/content/repositories/snapshots/org/dent/dentos/'
