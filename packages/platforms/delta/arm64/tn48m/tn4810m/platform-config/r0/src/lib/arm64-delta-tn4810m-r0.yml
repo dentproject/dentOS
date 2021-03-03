@@ -9,10 +9,10 @@
 arm64-delta-tn4810m-r0:
   flat_image_tree:
     kernel:
-      <<: *arm64-kernel-5-6
+      <<: *arm64-kernel-5-10
     dtb:
       =: delta-tn4810m.dtb
-      <<: *arm64-kernel-5-6-package
+      <<: *arm64-kernel-5-10-package
     itb:
       <<: *arm64-itb
 
