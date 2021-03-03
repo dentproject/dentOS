@@ -26,7 +26,8 @@ class OnlPlatform_arm64_delta_tn48m2_r0(OnlPlatformDelta,
             ]
         )
 
-        # Insert prestera kernel module
-        self.insmod("prestera_sw.ko")
-        self.insmod("prestera_pci.ko")
+        # Insert Marvell prestera modules by only probing prestera_pci module
+        # Suggested by Taras Chornyi
+        self.modprobe('prestera_pci')
+
         return True
