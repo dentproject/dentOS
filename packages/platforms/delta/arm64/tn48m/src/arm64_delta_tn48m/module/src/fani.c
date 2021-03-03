@@ -38,6 +38,7 @@ static int _psu_fan_present(void *e);
 static plat_fan_t plat_fans[] = {
     [PLAT_FAN_ID_1] = {
         .name = "Chassis Fan 1",
+        .model = "ADT7473",
         .present = _fan_present,
         .present_data = NULL,
         .rpm_get_path = "/sys/bus/i2c/devices/1-002e/hwmon/*/fan1_input",
@@ -51,6 +52,7 @@ static plat_fan_t plat_fans[] = {
     },
     [PLAT_FAN_ID_2] = {
         .name = "Chassis Fan 2",
+        .model = "ADT7473",
         .present = _fan_present,
         .present_data = NULL,
         .rpm_get_path = "/sys/bus/i2c/devices/1-002e/hwmon/*/fan2_input",
@@ -64,6 +66,7 @@ static plat_fan_t plat_fans[] = {
     },
     [PLAT_FAN_ID_3] = {
         .name = "Chassis Fan 3",
+        .model = "ADT7473",
         .present = _fan_present,
         .present_data = NULL,
         .rpm_get_path = "/sys/bus/i2c/devices/1-002e/hwmon/*/fan3_input",
@@ -170,6 +173,8 @@ int onlp_fani_info_get(onlp_oid_t id, onlp_fan_info_t* info)
     if (fan->name)
         snprintf(info->hdr.description, sizeof(info->hdr.description),
                  "%s", fan->name);
+    if (fan->model)
+        snprintf(info->model, sizeof(info->model), "%s", fan->model);
 
     info->caps = fan->caps;
     if (fan->rpm_get_path) info->caps |= ONLP_FAN_CAPS_GET_RPM;

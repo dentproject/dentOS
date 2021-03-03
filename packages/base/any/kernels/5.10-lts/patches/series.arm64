@@ -15,4 +15,4 @@
 #0019-pci-EP-reset-fix.patch
 0020-accton-as5114.patch
 0021-tn48m-add-sfp-eeprom-support-to-ethtool.patch
-#0022-marvell-wa-tx-disable.patch
+0022-delta-tn48m-dn-series-dts.patch
