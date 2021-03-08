@@ -9,10 +9,10 @@
 arm64-accton-as4224-52t-r0:
   flat_image_tree:
     kernel:
-      <<: *arm64-kernel-5-6
+      <<: *arm64-kernel-5-10
     dtb:
       =: accton-as4224.dtb
-      <<: *arm64-kernel-5-6-package
+      <<: *arm64-kernel-5-10-package
     itb:
       <<: *arm64-itb
 

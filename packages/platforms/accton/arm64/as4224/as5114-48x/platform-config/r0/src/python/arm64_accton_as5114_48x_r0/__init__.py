@@ -49,8 +49,7 @@ class OnlPlatform_arm64_accton_as5114_48x_r0(OnlPlatformAccton,
             self.insmod("arm64-accton-as4224-%s" % m)
 
         # Insert prestera kernel modules
-        self.insmod("prestera_sw.ko")
-        self.insmod("prestera_pci.ko")
+        self.modprobe('prestera_pci')
 
 
         return True
