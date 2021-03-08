@@ -49,8 +49,7 @@ class OnlPlatform_arm64_accton_as4224_52p_r0(OnlPlatformAccton,
         #subprocess.call('echo 1 > ./sys/devices/platform/cp0/cp0:config-space/f2500000.usb3/usb1/1-1/1-1.1/bConfigurationValue', shell=True)
 
         # Insert prestera kernel module
-        self.insmod("prestera_sw.ko")
-        self.insmod("prestera_pci.ko")
+        self.modprobe('prestera_pci')
 
         # set up systemctl rules
         for swp in range(1, 53):
