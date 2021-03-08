@@ -1,344 +1,412 @@
---- a/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
-+++ b/arch/arm64/boot/dts/marvell/delta-tn4810m.dts
-@@ -69,6 +69,546 @@
- 		status = "okay";
- 	};
- 
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/delta-tn4810m-dn.dts
+@@ -0,0 +1,1705 @@
++/*
++ * Delta TN4810M-DN Device Tree Source
++ *
++ * Copyright (C) 2016 Marvell Technology Group Ltd.
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPLv2 or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This library is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This library is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-7040.dtsi"
++
++/ {
++	model = "delta,tn4810m-dn";
++	compatible = "delta,tn4810m-dn";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++
++	aliases {
++		ethernet0 = &cp0_eth0;
++		ethernet1 = &cp0_eth1;
++		ethernet2 = &cp0_eth2;
++	};
++
++	switch-cpu {
++		compatible = "marvell,prestera-switch-rxtx-sdma";
++		status = "okay";
++	};
++
 +	sfp1: sfp-1 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp1>;
-+		los-gpio = <&tn48xxm_cpld 0 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 1 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 2 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 0 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 1 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 2 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp2: sfp-2 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp2>;
-+		los-gpio = <&tn48xxm_cpld 3 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 4 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 5 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 3 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 4 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 5 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp3: sfp-3 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp3>;
-+		los-gpio = <&tn48xxm_cpld 6 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 7 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 8 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 6 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 7 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 8 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp4: sfp-4 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp4>;
-+		los-gpio = <&tn48xxm_cpld 9 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 10 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 11 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 9 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 10 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 11 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp5: sfp-5 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp5>;
-+		los-gpio = <&tn48xxm_cpld 12 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 13 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 14 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 12 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 13 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 14 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp6: sfp-6 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp6>;
-+		los-gpio = <&tn48xxm_cpld 15 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 16 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 17 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 15 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 16 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 17 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp7: sfp-7 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp7>;
-+		los-gpio = <&tn48xxm_cpld 18 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 19 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 20 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 18 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 19 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 20 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp8: sfp-8 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp8>;
-+		los-gpio = <&tn48xxm_cpld 21 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 22 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 23 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 21 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 22 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 23 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp9: sfp-9 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp9>;
-+		los-gpio = <&tn48xxm_cpld 24 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 25 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 26 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 24 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 25 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 26 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp10: sfp-10 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp10>;
-+		los-gpio = <&tn48xxm_cpld 27 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 28 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 29 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 27 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 28 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 29 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp11: sfp-11 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp11>;
-+		los-gpio = <&tn48xxm_cpld 30 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 31 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 32 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 30 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 31 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 32 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp12: sfp-12 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp12>;
-+		los-gpio = <&tn48xxm_cpld 33 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 34 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 35 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 33 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 34 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 35 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp13: sfp-13 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp13>;
-+		los-gpio = <&tn48xxm_cpld 36 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 37 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 38 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 36 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 37 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 38 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp14: sfp-14 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp14>;
-+		los-gpio = <&tn48xxm_cpld 39 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 40 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 41 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 39 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 40 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 41 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp15: sfp-15 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp15>;
-+		los-gpio = <&tn48xxm_cpld 42 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 43 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 44 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 42 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 43 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 44 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp16: sfp-16 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp16>;
-+		los-gpio = <&tn48xxm_cpld 45 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 46 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 47 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 45 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 46 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 47 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp17: sfp-17 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp17>;
-+		los-gpio = <&tn48xxm_cpld 48 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 49 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 50 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 48 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 49 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 50 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp18: sfp-18 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp18>;
-+		los-gpio = <&tn48xxm_cpld 51 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 52 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 53 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 51 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 52 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 53 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp19: sfp-19 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp19>;
-+		los-gpio = <&tn48xxm_cpld 54 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 55 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 56 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 54 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 55 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 56 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp20: sfp-20 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp20>;
-+		los-gpio = <&tn48xxm_cpld 57 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 58 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 59 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 57 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 58 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 59 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp21: sfp-21 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp21>;
-+		los-gpio = <&tn48xxm_cpld 60 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 61 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 62 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 60 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 61 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 62 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp22: sfp-22 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp22>;
-+		los-gpio = <&tn48xxm_cpld 63 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 64 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 65 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 63 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 64 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 65 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp23: sfp-23 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp23>;
-+		los-gpio = <&tn48xxm_cpld 66 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 67 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 68 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 66 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 67 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 68 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp24: sfp-24 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp24>;
-+		los-gpio = <&tn48xxm_cpld 69 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 70 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 71 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 69 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 70 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 71 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp25: sfp-25 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp25>;
-+		los-gpio = <&tn48xxm_cpld 72 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 73 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 74 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 72 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 73 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 74 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp26: sfp-26 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp26>;
-+		los-gpio = <&tn48xxm_cpld 75 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 76 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 77 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 75 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 76 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 77 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp27: sfp-27 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp27>;
-+		los-gpio = <&tn48xxm_cpld 78 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 79 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 80 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 78 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 79 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 80 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp28: sfp-28 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp28>;
-+		los-gpio = <&tn48xxm_cpld 81 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 82 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 83 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 81 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 82 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 83 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp29: sfp-29 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp29>;
-+		los-gpio = <&tn48xxm_cpld 84 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 85 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 86 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 84 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 85 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 86 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp30: sfp-30 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp30>;
-+		los-gpio = <&tn48xxm_cpld 87 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 88 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 89 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 87 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 88 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 89 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp31: sfp-31 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp31>;
-+		los-gpio = <&tn48xxm_cpld 90 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 91 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 92 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 90 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 91 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 92 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp32: sfp-32 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp32>;
-+		los-gpio = <&tn48xxm_cpld 93 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 94 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 95 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 93 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 94 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 95 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp33: sfp-33 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp33>;
-+		los-gpio = <&tn48xxm_cpld 96 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 97 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 98 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 96 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 97 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 98 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp34: sfp-34 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp34>;
-+		los-gpio = <&tn48xxm_cpld 99 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 100 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 101 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 99 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 100 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 101 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp35: sfp-35 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp35>;
-+		los-gpio = <&tn48xxm_cpld 102 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 103 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 104 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 102 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 103 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 104 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp36: sfp-36 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp36>;
-+		los-gpio = <&tn48xxm_cpld 105 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 106 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 107 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 105 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 106 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 107 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp37: sfp-37 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp37>;
-+		los-gpio = <&tn48xxm_cpld 108 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 109 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 110 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 108 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 109 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 110 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp38: sfp-38 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp38>;
-+		los-gpio = <&tn48xxm_cpld 111 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 112 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 113 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 111 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 112 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 113 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp39: sfp-39 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp39>;
-+		los-gpio = <&tn48xxm_cpld 114 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 115 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 116 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 114 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 115 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 116 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp40: sfp-40 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp40>;
-+		los-gpio = <&tn48xxm_cpld 117 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 118 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 119 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 117 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 118 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 119 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp41: sfp-41 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp41>;
-+		los-gpio = <&tn48xxm_cpld 120 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 121 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 122 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 120 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 121 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 122 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp42: sfp-42 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp42>;
-+		los-gpio = <&tn48xxm_cpld 123 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 124 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 125 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 123 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 124 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 125 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp43: sfp-43 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp43>;
-+		los-gpio = <&tn48xxm_cpld 126 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 127 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 128 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 126 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 127 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 128 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp44: sfp-44 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp44>;
-+		los-gpio = <&tn48xxm_cpld 129 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 130 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 131 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 129 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 130 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 131 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp45: sfp-45 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp45>;
-+		los-gpio = <&tn48xxm_cpld 132 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 133 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 134 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 132 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 133 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 134 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp46: sfp-46 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp46>;
-+		los-gpio = <&tn48xxm_cpld 135 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 136 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 137 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 135 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 136 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 137 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp47: sfp-47 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp47>;
-+		los-gpio = <&tn48xxm_cpld 138 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 139 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 140 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 138 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 139 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 140 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp48: sfp-48 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp48>;
-+		los-gpio = <&tn48xxm_cpld 141 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 142 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 143 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 141 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 142 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 143 GPIO_ACTIVE_HIGH>;
 +	};
 +
 +	prestera {
@@ -544,13 +612,30 @@
 +		};
 +	};
 +
- 	onie_eeprom: onie-eeprom {
- 		compatible = "onie-nvmem-cells";
- 		status = "okay";
-@@ -93,6 +633,663 @@
- 		reg = <0x77>;
- 		#address-cells = <1>;
- 		#size-cells = <0>;
++	onie_eeprom: onie-eeprom {
++		compatible = "onie-nvmem-cells";
++		status = "okay";
++
++		nvmem = <&eeprom_at24>;
++	};
++
++	prestera {
++		compatible = "marvell,prestera";
++		status = "okay";
++
++		base-mac-provider = <&onie_eeprom>;
++	};
++};
++
++&i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++
++	i2c-mux@77 {
++		compatible = "nxp,pca9546";
++		reg = <0x77>;
++		#address-cells = <1>;
++		#size-cells = <0>;
 +
 +		i2c@0 {
 +			#address-cells = <1>;
@@ -567,8 +652,8 @@
 +			#size-cells = <0>;
 +			reg = <2>;
 +
-+			tn48xxm_cpld: tn48xxm-cpld@41 {
-+				compatible = "dni,tn4810m_cpld";
++			tn48xxm_dn_cpld: tn48xxm-dn-cpld@41 {
++				compatible = "dni,tn4810m_dn_cpld";
 +				#address-cells = <1>;
 +				#size-cells = <0>;
 +				gpio-controller;
@@ -1208,333 +1293,335 @@
 +			#size-cells = <0>;
 +			reg = <3>;
 +		};
- 	};
- };
- 
-@@ -131,42 +1328,42 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		i2c@0 {
++	};
++};
++
++&spi0 {
++	status = "okay";
++
++	tpm0: slb9670@0 {
++		compatible = "infineon,slb9670";
++		reg = <0>;
++		spi-max-frequency = <38000000>;
++		status = "okay";
++	};
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&cp0_i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++
++	eeprom_at24: at24@56 {
++		compatible = "atmel,24c64";
++		reg = <0x56>;
++	};
++};
++
++&cp0_i2c1 {
++	status = "okay";
++	clock-frequency = <100000>;
++
++	i2c-mux@70 {
++		compatible = "nxp,pca9548";
++		reg = <0x70>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
 +		i2c1_sfp1: i2c@0 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0>;
- 		};
--		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
 +		i2c1_sfp2: i2c@1 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <1>;
- 		};
--		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++		};
 +		i2c1_sfp3: i2c@2 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <2>;
- 		};
--		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++		};
 +		i2c1_sfp4: i2c@3 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <3>;
- 		};
--		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++		};
 +		i2c1_sfp5: i2c@4 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <4>;
- 		};
--		i2c@5 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++		};
 +		i2c1_sfp6: i2c@5 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <5>;
- 		};
--		i2c@6 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <5>;
++		};
 +		i2c1_sfp7: i2c@6 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <6>;
- 		};
--		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <6>;
++		};
 +		i2c1_sfp8: i2c@7 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <7>;
-@@ -178,42 +1375,42 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++		};
++	};
++	i2c-mux@71 {
++		compatible = "nxp,pca9548";
++		reg = <0x71>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
 +		i2c1_sfp9: i2c@0 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0>;
- 		};
--		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
 +		i2c1_sfp10: i2c@1 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <1>;
- 		};
--		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++		};
 +		i2c1_sfp11: i2c@2 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <2>;
- 		};
--		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++		};
 +		i2c1_sfp12: i2c@3 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <3>;
- 		};
--		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++		};
 +		i2c1_sfp13: i2c@4 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <4>;
- 		};
--		i2c@5 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++		};
 +		i2c1_sfp14: i2c@5 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <5>;
- 		};
--		i2c@6 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <5>;
++		};
 +		i2c1_sfp15: i2c@6 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <6>;
- 		};
--		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <6>;
++		};
 +		i2c1_sfp16: i2c@7 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <7>;
-@@ -225,42 +1422,42 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++		};
++	};
++	i2c-mux@72 {
++		compatible = "nxp,pca9548";
++		reg = <0x72>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
 +		i2c1_sfp17: i2c@0 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0>;
- 		};
--		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
 +		i2c1_sfp18: i2c@1 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <1>;
- 		};
--		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++		};
 +		i2c1_sfp19: i2c@2 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <2>;
- 		};
--		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++		};
 +		i2c1_sfp20: i2c@3 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <3>;
- 		};
--		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++		};
 +		i2c1_sfp21: i2c@4 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <4>;
- 		};
--		i2c@5 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++		};
 +		i2c1_sfp22: i2c@5 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <5>;
- 		};
--		i2c@6 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <5>;
++		};
 +		i2c1_sfp23: i2c@6 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <6>;
- 		};
--		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <6>;
++		};
 +		i2c1_sfp24: i2c@7 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <7>;
-@@ -272,42 +1469,42 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++		};
++	};
++	i2c-mux@73 {
++		compatible = "nxp,pca9548";
++		reg = <0x73>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
 +		i2c1_sfp25: i2c@0 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0>;
- 		};
--		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
 +		i2c1_sfp26: i2c@1 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <1>;
- 		};
--		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++		};
 +		i2c1_sfp27: i2c@2 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <2>;
- 		};
--		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++		};
 +		i2c1_sfp28: i2c@3 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <3>;
- 		};
--		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++		};
 +		i2c1_sfp29: i2c@4 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <4>;
- 		};
--		i2c@5 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++		};
 +		i2c1_sfp30: i2c@5 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <5>;
- 		};
--		i2c@6 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <5>;
++		};
 +		i2c1_sfp31: i2c@6 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <6>;
- 		};
--		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <6>;
++		};
 +		i2c1_sfp32: i2c@7 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <7>;
-@@ -319,42 +1516,42 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++		};
++	};
++	i2c-mux@74 {
++		compatible = "nxp,pca9548";
++		reg = <0x74>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
 +		i2c1_sfp33: i2c@0 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0>;
- 		};
--		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
 +		i2c1_sfp34: i2c@1 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <1>;
- 		};
--		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++		};
 +		i2c1_sfp35: i2c@2 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <2>;
- 		};
--		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++		};
 +		i2c1_sfp36: i2c@3 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <3>;
- 		};
--		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++		};
 +		i2c1_sfp37: i2c@4 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <4>;
- 		};
--		i2c@5 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++		};
 +		i2c1_sfp38: i2c@5 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <5>;
- 		};
--		i2c@6 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <5>;
++		};
 +		i2c1_sfp39: i2c@6 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <6>;
- 		};
--		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <6>;
++		};
 +		i2c1_sfp40: i2c@7 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <7>;
-@@ -366,42 +1563,42 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++		};
++	};
++	i2c-mux@75 {
++		compatible = "nxp,pca9548";
++		reg = <0x75>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
 +		i2c1_sfp41: i2c@0 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0>;
- 		};
--		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
 +		i2c1_sfp42: i2c@1 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <1>;
- 		};
--		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++		};
 +		i2c1_sfp43: i2c@2 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <2>;
- 		};
--		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++		};
 +		i2c1_sfp44: i2c@3 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <3>;
- 		};
--		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++		};
 +		i2c1_sfp45: i2c@4 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <4>;
- 		};
--		i2c@5 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++		};
 +		i2c1_sfp46: i2c@5 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <5>;
- 		};
--		i2c@6 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <5>;
++		};
 +		i2c1_sfp47: i2c@6 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <6>;
- 		};
--		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <6>;
++		};
 +		i2c1_sfp48: i2c@7 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <7>;
-@@ -422,20 +1619,20 @@
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 
--                        partition@0 {
--                                label = "uboot";
--                                reg = <0x0 0x3f0000>;
--                        };
--
--                        partition@3f0000 {
--                                label = "uboot-env";
--                                reg = <0x3f0000 0x010000>;
--                        };
--
--                        partition@400000 {
--                                label = "ONIE";
--                                reg = <0x400000 0xc00000>;
--                        };
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++		};
++	};
++};
++
++&cp0_spi0 {
++	status = "okay";
++
++	spi-flash@0 {
++		compatible = "jedec,spi-nor";
++		reg = <0x0>;
++		spi-max-frequency = <20000000>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
 +			partition@0 {
 +				label = "uboot";
 +				reg = <0x0 0x3f0000>;
@@ -1549,133 +1636,130 @@
 +				label = "ONIE";
 +				reg = <0x400000 0xc00000>;
 +			};
- 		};
- 	};
- };
-@@ -471,8 +1668,7 @@
- 
- 	OOB_E1512_PHY: ethernet-phy@1 {
- 		reg = <0x0>;
-- 	};
--
++		};
 +	};
- };
- 
- &cp0_ethernet {
-@@ -500,11 +1696,10 @@
- };
- 
- &cp0_pcie0 {
--	status = "okay";
--
--	phys = <&cp0_comphy0 0>;
- 	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
- 		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
- 		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
++};
++
++&cp0_sata0 {
++	status = "okay";
++};
++
++&cp0_usb3_0 {
++	status = "okay";
++};
++
++&cp0_usb3_1 {
++	status = "okay";
++};
++
++&ap_sdhci0 {
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
++};
++
++&cp0_sdhci0 {
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
++};
++
++&cp0_mdio {
++	status = "okay";
++
++	OOB_E1512_PHY: ethernet-phy@1 {
++		reg = <0x0>;
++	};
++};
++
++&cp0_ethernet {
++	status = "okay";
++};
++
++&cp0_eth0 {
++	status = "disabled";
++};
++
++&cp0_eth1 {
++	status = "disabled";
++};
++
++&cp0_eth2 {
++	status = "okay";
++
++	phy-mode = "sgmii";
++	phy = <&OOB_E1512_PHY>;
++	phys = <&cp0_comphy5 2>;
++};
++
++&cp0_crypto {
++	status = "disabled";
++};
++
++&cp0_pcie0 {
++	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
 +	phys = <&cp0_comphy0 0>;
 +	status = "okay";
- };
- 
---- a/arch/arm64/boot/dts/marvell/delta-tn48m.dts
-+++ b/arch/arm64/boot/dts/marvell/delta-tn48m.dts
-@@ -46,103 +46,196 @@
- #include "armada-7040.dtsi"
- 
- / {
--        model = "delta,tn48m";
--        compatible = "delta,tn48m";
-+	model = "delta,tn48m";
-+	compatible = "delta,tn48m";
- 
--        chosen {
--                stdout-path = "serial0:115200n8";
--        };
--
--        memory@0 {
--                device_type = "memory";
--                reg = <0x0 0x0 0x0 0x80000000>;
--        };
--
--        aliases {
--                ethernet0 = &cp0_eth0;
--                ethernet1 = &cp0_eth1;
--                ethernet2 = &cp0_eth2;
--        };
--
--        switch-cpu {
--                compatible = "marvell,prestera-switch-rxtx-sdma";
--                status = "okay";
--        };
--
--        onie_eeprom: onie-eeprom {
--                compatible = "onie-nvmem-cells";
--                status = "okay";
--
--                nvmem = <&eeprom_at24>;
--        };
--
--        prestera {
--                compatible = "marvell,prestera";
--                status = "okay";
--
--                base-mac-provider = <&onie_eeprom>;
--        };
--
--        i2cmux {
--                compatible = "i2c-mux-gpio";
--                #address-cells = <1>;
--                #size-cells = <0>;
--                mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
--                i2c-parent = <&cp0_i2c1>;
--
--                i2c@0 {
--                        reg = <0>;
--                        #address-cells = <1>;
--                        #size-cells = <0>;
--
--                        optoe@50 {
--                                compatible = "optoe2";
--                                reg = <0x50>;
--                                label = "port49";
--                        };
--                };
--
--                i2c@1 {
--                        reg = <1>;
--                        #address-cells = <1>;
--                        #size-cells = <0>;
--
--                        optoe@50 {
--                                compatible = "optoe2";
--                                reg = <0x50>;
--                                label = "port50";
--                        };
--                };
--
--                i2c@2 {
--                        reg = <2>;
--                        #address-cells = <1>;
--                        #size-cells = <0>;
--
--                        optoe@50 {
--                                compatible = "optoe2";
--                                reg = <0x50>;
--                                label = "port51";
--                        };
--                };
--
--                i2c@3 {
--                        reg = <3>;
--                        #address-cells = <1>;
--                        #size-cells = <0>;
--
--                        optoe@50 {
--                                compatible = "optoe2";
--                                reg = <0x50>;
--                                label = "port52";
--                        };
--                };
--        };
++};
++
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/delta-tn48m-dn.dts
+@@ -0,0 +1,367 @@
++/*
++ * Delta TN48M-DN/TN48M-POE-DN Device Tree Source
++ *
++ * Copyright (C) 2016 Marvell Technology Group Ltd.
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPLv2 or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This library is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This library is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ * Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-7040.dtsi"
++
++/ {
++	model = "delta,tn48m-dn";
++	compatible = "delta,tn48m-dn";
++
 +	chosen {
 +		stdout-path = "serial0:115200n8";
 +	};
@@ -1699,30 +1783,30 @@
 +	sfp49: sfp-49 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp1>;
-+		los-gpio = <&tn48xxm_cpld 0 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 1 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 2 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 0 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 1 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 2 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp50: sfp-50 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp2>;
-+		los-gpio = <&tn48xxm_cpld 3 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 4 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 5 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 3 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 4 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 5 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp51: sfp-51 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp3>;
-+		los-gpio = <&tn48xxm_cpld 6 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 7 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 8 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 6 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 7 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 8 GPIO_ACTIVE_HIGH>;
 +	};
 +	sfp52: sfp-52 {
 +		compatible = "sff,sfp";
 +		i2c-bus = <&i2c1_sfp4>;
-+		los-gpio = <&tn48xxm_cpld 9 GPIO_ACTIVE_HIGH>;
-+		mod-def0-gpio = <&tn48xxm_cpld 10 GPIO_ACTIVE_LOW>;
-+		tx-disable-gpio = <&tn48xxm_cpld 11 GPIO_ACTIVE_HIGH>;
++		los-gpio = <&tn48xxm_dn_cpld 9 GPIO_ACTIVE_HIGH>;
++		mod-def0-gpio = <&tn48xxm_dn_cpld 10 GPIO_ACTIVE_LOW>;
++		tx-disable-gpio = <&tn48xxm_dn_cpld 11 GPIO_ACTIVE_HIGH>;
 +	};
 +
 +	i2cmux {
@@ -1794,16 +1878,14 @@
 +
 +		base-mac-provider = <&onie_eeprom>;
 +	};
- };
- 
- &i2c0 {
--        status = "okay";
--        clock-frequency = <100000>;
++};
++
++&i2c0 {
 +	status = "okay";
 +	clock-frequency = <100000>;
 +
-+	tn48xxm_cpld: tn48xxm-cpld@41 {
-+		compatible = "dni,tn48m_cpld";
++	tn48xxm_dn_cpld: tn48xxm-dn-cpld@41 {
++		compatible = "dni,tn48m_dn_cpld";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
 +		gpio-controller;
@@ -1865,75 +1947,41 @@
 +			};
 +		};
 +	};
- };
- 
- &spi0 {
-@@ -153,97 +246,95 @@
- 		reg = <0>;
- 		spi-max-frequency = <38000000>;
- 		status = "okay";
--    };
-+	};
- };
- 
- &uart0 {
--        status = "okay";
++};
++
++&spi0 {
 +	status = "okay";
- };
- 
- &cp0_i2c0 {
--        status = "okay";
--        clock-frequency = <100000>;
++
++	tpm0: slb9670@0 {
++		compatible = "infineon,slb9670";
++		reg = <0>;
++		spi-max-frequency = <38000000>;
++		status = "okay";
++	};
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&cp0_i2c0 {
 +	status = "okay";
 +	clock-frequency = <100000>;
- 
--        eeprom_at24: at24@56 {
--                compatible = "atmel,24c64";
--                reg = <0x56>;
--        };
++
 +	eeprom_at24: at24@56 {
 +		compatible = "atmel,24c64";
 +		reg = <0x56>;
 +	};
- };
- 
- &cp0_i2c1 {
--        status = "okay";
--        clock-frequency = <100000>;
++};
++
++&cp0_i2c1 {
 +	status = "okay";
 +	clock-frequency = <100000>;
- };
- 
- &cp0_spi0 {
--        status = "okay";
++};
++
++&cp0_spi0 {
 +	status = "okay";
- 
--        spi-flash@0 {
--                compatible = "jedec,spi-nor";
--                reg = <0x0>;
--                spi-max-frequency = <20000000>;
--
--                partitions {
--                        compatible = "fixed-partitions";
--                        #address-cells = <1>;
--                        #size-cells = <1>;
--
--                        partition@0 {
--                                label = "uboot";
--                                reg = <0x0 0x3f0000>;
--                        };
--
--                        partition@3f0000 {
--                                label = "uboot-env";
--                                reg = <0x3f0000 0x010000>;
--                        };
--
--                        partition@400000 {
--                                label = "ONIE";
--                                reg = <0x400000 0xc00000>;
--                        };
--                };
--        };
++
 +	spi-flash@0 {
 +		compatible = "jedec,spi-nor";
 +		reg = <0x0>;
@@ -1960,84 +2008,71 @@
 +			};
 +		};
 +	};
- };
- 
- &cp0_sata0 {
--        status = "okay";
++};
++
++&cp0_sata0 {
 +	status = "okay";
- };
- 
- &cp0_usb3_0 {
--        status = "okay";
++};
++
++&cp0_usb3_0 {
 +	status = "okay";
- };
- 
--
- &cp0_usb3_1 {
--        status = "okay";
++};
++
++&cp0_usb3_1 {
 +	status = "okay";
- };
- 
- &ap_sdhci0 {
--        status = "okay";
--        bus-width = <4>;
--        no-1-8-v;
--        non-removable;
++};
++
++&ap_sdhci0 {
 +	status = "okay";
 +	bus-width = <4>;
 +	no-1-8-v;
 +	non-removable;
- };
- 
- &cp0_sdhci0 {
--        status = "okay";
--        bus-width = <4>;
--        no-1-8-v;
--        non-removable;
++};
++
++&cp0_sdhci0 {
 +	status = "okay";
 +	bus-width = <4>;
 +	no-1-8-v;
 +	non-removable;
- };
- 
- &cp0_mdio {
--        status = "okay";
--
--        OOB_E1512_PHY: ethernet-phy@1 {
--                reg = <0x0>;
--        };
++};
++
++&cp0_mdio {
 +	status = "okay";
- 
++
 +	OOB_E1512_PHY: ethernet-phy@1 {
 +		reg = <0x0>;
 +	};
- };
- 
- &cp0_ethernet {
--        status = "okay";
++};
++
++&cp0_ethernet {
 +	status = "okay";
- };
- 
- &cp0_eth0 {
-@@ -263,14 +354,14 @@
- };
- 
- &cp0_crypto {
--        status = "disabled";
++};
++
++&cp0_eth0 {
 +	status = "disabled";
- };
- 
- &cp0_pcie0 {
--        status = "okay";
--
--        phys = <&cp0_comphy0 0>;
--        ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
--                0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
--                0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
++};
++
++&cp0_eth1 {
++	status = "disabled";
++};
++
++&cp0_eth2 {
++	status = "okay";
++
++	phy-mode = "sgmii";
++	phy = <&OOB_E1512_PHY>;
++	phys = <&cp0_comphy5 2>;
++};
++
++&cp0_crypto {
++	status = "disabled";
++};
++
++&cp0_pcie0 {
 +	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
 +		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
 +		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
 +	phys = <&cp0_comphy0 0>;
 +	status = "okay";
- };
++};
 +

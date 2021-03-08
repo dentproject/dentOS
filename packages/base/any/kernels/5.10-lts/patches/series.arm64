@@ -7,7 +7,7 @@
 0011-wnc-qsa72-aom-a-48p.patch
 0012-accton-as4224.patch
 0013-delta-tn48m-series.patch
-#0014-prestera-switchdev-driver.patch
+0014-prestera-switchdev-driver.patch
 0015-Add-port-ranges-structures.patch
 0016-nvmem-core-allow-to-register-cells-for-existing-device.patch
 0017-nvmem-add-ONIE-NVMEM-cells-support.patch
@@ -15,4 +15,4 @@
 #0019-pci-EP-reset-fix.patch
 0020-accton-as5114.patch
 0021-tn48m-add-sfp-eeprom-support-to-ethtool.patch
-#0022-marvell-wa-tx-disable.patch
+0022-delta-tn48m-dn-series-dts.patch
