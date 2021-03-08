@@ -45,6 +45,14 @@
 static ssize_t show_count(struct device *dev, struct device_attribute *da, char *buf);
 static ssize_t show_status(struct device *dev, struct device_attribute *da, char *buf);
 extern int as4224_cpld_read(unsigned short cpld_addr, u8 reg);
+extern int as4224_cpld_write(unsigned short cpld_addr, u8 reg, u8 value);
+
+enum Platform_Id {
+    AS5114_48X,
+    AS4224_52P,
+    AS4224_52T,
+    AS4224_52T_DAC
+};
 
 /* Each client has this additional data
  */
@@ -54,6 +62,7 @@ struct as4224_psu_data {
     struct mutex       update_lock;
     char               valid;        /* !=0 if registers are valid */
     unsigned long       last_updated; /* In jiffies */
+    enum Platform_Id platform_id;
     u8  status;          /* power_good status read from CPLD */
     u8  psu_count;
 };
@@ -101,21 +110,47 @@ static int as4224_psu_read_value(u8 reg)
     return as4224_cpld_read(PSU_STATUS_I2C_ADDR, reg);
 }
 
+static int as4224_psu_write_value(u8 reg, u8 value)
+{
+    return as4224_cpld_write(PSU_STATUS_I2C_ADDR, reg, value);
+}
+
+static int as4224_psu_get_status_mask_reg(void)
+{
+    return (data->platform_id == AS5114_48X) ? 0x32 : 0x34;
+}
+
 static struct as4224_psu_data *as4224_psu_update_device(struct device *dev)
 {
     if (time_after(jiffies, data->last_updated + HZ + HZ / 2)
         || !data->valid) {
         int status;
+        int reg;
+        int reg_mask = 0x6;
 
         dev_dbg(dev, "Starting as4224 update\n");
         data->valid = 0;
 
         /* Read psu status */
+        reg = as4224_psu_get_status_mask_reg();
+        status = as4224_psu_read_value(reg);
+        if (unlikely(status < 0)) {
+            dev_dbg(dev, "cpld read reg (0x%x) err %d\n", reg, status);
+            return data;
+        }
+
+        /* Enable the interrupt to CPU */
+        status = as4224_psu_write_value(reg, status & (~reg_mask));
+        if (unlikely(status < 0)) {
+            dev_dbg(dev, "cpld write reg (0x%x) err %d\n", reg, status);
+            return data;
+        }
+
         status = as4224_psu_read_value(PSU_STATUS_I2C_REG_OFFSET);
 
         if (status < 0) {
-            dev_dbg(dev, "cpld reg (0x%x) err %d\n", PSU_STATUS_I2C_REG_OFFSET, status);
-            goto exit;
+            dev_dbg(dev, "cpld read reg (0x%x) err %d\n", PSU_STATUS_I2C_REG_OFFSET, status);
+            return data;
         }
         else {
             data->status = status;
@@ -125,7 +160,6 @@ static struct as4224_psu_data *as4224_psu_update_device(struct device *dev)
         data->valid = 1;
     }
 
-exit:
     return data;
 }
 
@@ -164,6 +198,28 @@ static int as4224_psu_get_psu_count(void)
     }
 
     return (status & 0x10) ? 1 : 2;
+}
+
+static int get_platform_id(void)
+{
+    int status;
+
+    status = as4224_psu_read_value(BOARD_INFO_REG_OFFSET);
+    if (status < 0)
+        return status;
+
+    status &= 0xF0;
+
+    if (status & 0x10)
+        return AS4224_52T;
+    else if (status & 0x20)
+        return AS4224_52T_DAC;
+    else if (status & 0x80)
+        return AS5114_48X;
+    else if (status & 0x40)
+        return -ENODEV;
+    else
+        return AS4224_52P;
 }
 
 static int as4224_psu_probe(struct platform_device *pdev)
@@ -228,6 +284,12 @@ static int __init as4224_psu_init(void)
     if (!data->psu_count) {
         return -EIO;
     }
+
+    ret = get_platform_id();
+    if (ret < 0)
+        return ret;
+
+    data->platform_id = ret;
 
     ret = platform_driver_register(&as4224_psu_driver);
     if (ret < 0) {
