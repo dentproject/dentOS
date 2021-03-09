@@ -1,0 +1,20 @@
+[Unit]
+Description=Online state for switchdev device %i
+ 
+# See e.g.
+# https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
+Wants=network-pre.target
+Before=network-pre.target
+ 
+# this is the naming scheme currently used for network devices
+Wants=sys-subsystem-net-devices-%i.device
+After=sys-subsystem-net-devices-%i.device
+ 
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/bin/true
+TimeoutStartSec=30
+ 
+[Install]
+WantedBy=network.target
