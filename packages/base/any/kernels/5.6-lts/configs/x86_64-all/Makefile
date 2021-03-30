@@ -31,7 +31,7 @@ K_CONFIG := x86_64-all.config
 K_BUILD_TARGET := bzImage
 K_COPY_SRC := arch/x86/boot/bzImage
 ifndef K_COPY_DST
-K_COPY_DST := kernel-5.6-rc-x86_64-all
+K_COPY_DST := kernel-5.6-lts-x86_64-all
 endif
 
 include $(ONL)/make/kbuild.mk
