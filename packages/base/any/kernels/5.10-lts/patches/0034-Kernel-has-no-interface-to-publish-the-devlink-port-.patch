@@ -1,0 +1,85 @@
+From 3e074d8e7eceb966f0cb56a3a66bf522a359c54d Mon Sep 17 00:00:00 2001
+From: Taras Chornyi <taras.chornyi@plvision.eu>
+Date: Mon, 12 Apr 2021 19:23:55 +0300
+Subject: [PATCH 3/3] Kernel has no interface to publish the devlink port
+ parameters. This is required for exporting the port params to the user space,
+ so that user can read or update the port params. This patch adds devlink
+ interfaces (for drivers) to publish/unpublish the devlink port parameters.
+
+Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
+---
+ include/net/devlink.h |  2 ++
+ net/core/devlink.c    | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
+
+diff --git a/include/net/devlink.h b/include/net/devlink.h
+index 8216e0235..78e37afb6 100644
+--- a/include/net/devlink.h
++++ b/include/net/devlink.h
+@@ -1474,6 +1474,8 @@ int devlink_port_params_register(struct devlink_port *devlink_port,
+ void devlink_port_params_unregister(struct devlink_port *devlink_port,
+ 				    const struct devlink_param *params,
+ 				    size_t params_count);
++void devlink_port_params_publish(struct devlink_port *devlink_port);
++void devlink_port_params_unpublish(struct devlink_port *ddevlink_port);
+ int devlink_param_driverinit_value_get(struct devlink *devlink, u32 param_id,
+ 				       union devlink_param_value *init_val);
+ int devlink_param_driverinit_value_set(struct devlink *devlink, u32 param_id,
+diff --git a/net/core/devlink.c b/net/core/devlink.c
+index 61f7ba097..ad4826e31 100644
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -9042,6 +9042,48 @@ void devlink_port_params_unregister(struct devlink_port *devlink_port,
+ }
+ EXPORT_SYMBOL_GPL(devlink_port_params_unregister);
+ 
++/**
++ *	devlink_port_params_publish - publish port configuration parameters
++ *
++ *	@devlink_port: devlink port
++ *
++ *	Publish previously registered port configuration parameters.
++ */
++void devlink_port_params_publish(struct devlink_port *devlink_port)
++{
++	struct devlink_param_item *param_item;
++
++	list_for_each_entry(param_item, &devlink_port->param_list, list) {
++		if (param_item->published)
++			continue;
++		param_item->published = true;
++		devlink_param_notify(devlink_port->devlink, devlink_port->index,
++				     param_item, DEVLINK_CMD_PORT_PARAM_NEW);
++	}
++}
++EXPORT_SYMBOL_GPL(devlink_port_params_publish);
++
++/**
++ *	devlink_port_params_unpublish - unpublish port configuration parameters
++ *
++ *	@devlink_port: devlink port
++ *
++ *	Unpublish previously registered port configuration parameters.
++ */
++void devlink_port_params_unpublish(struct devlink_port *devlink_port)
++{
++	struct devlink_param_item *param_item;
++
++	list_for_each_entry(param_item, &devlink_port->param_list, list) {
++		if (!param_item->published)
++			continue;
++		param_item->published = false;
++		devlink_param_notify(devlink_port->devlink, devlink_port->index,
++				     param_item, DEVLINK_CMD_PORT_PARAM_DEL);
++	}
++}
++EXPORT_SYMBOL_GPL(devlink_port_params_unpublish);
++
+ static int
+ __devlink_param_driverinit_value_get(struct list_head *param_list, u32 param_id,
+ 				     union devlink_param_value *init_val)
+-- 
+2.17.1
+
