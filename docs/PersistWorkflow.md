@@ -18,7 +18,7 @@ It has the following properties:
 
 * Any file that is edited/removed/etc is transparently copied into a RAM disk via overlayfs
 * Thus, any changes to files appear as you would expect, until a reboot
-* Any file that is unedited remains backed by the `/mnt/onl/data` file system, so you 
+* Any file that is unedited remains backed by the `/mnt/onl/data` file system, so you
     do not need to have enough RAM to store the entire rootfs.  This is important with
     switches that do not have much RAM to begin with.
 
