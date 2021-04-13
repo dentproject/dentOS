@@ -9,7 +9,7 @@ This is particularly nice when you have a switch that may be headless
 
 ONL accomplishes this with [OverlayFS]
 (https://www.kernel.org/doc/html/latest/filesystems/overlayfs.html).
-As described at http://opennetlinux.org/docs/bootprocess, the ONL
+As described at https://github.com/dentproject/dentOS/blob/main/docs/BootProcess.md, the ONL
 switch image (.SWI file) contains a read-only root file system image.
 The default ONL root file system is then a copy-on-write (using overlayfs)
 view into that file system image.
