@@ -1,7 +1,7 @@
 # Rationale
 
 By default, the ONL file system is NOT persistent, meaning that if you
-reboot, your changes will dissapear (!!).  While this may sound suboptimal
+reboot, your changes will disappear (!!).  While this may sound suboptimal
 at first, it does have the incredibly nice property of ensuring that many
 classes of configuration and other problems can go away with a reboot.
 This is particularly nice when you have a switch that may be headless
@@ -14,11 +14,11 @@ switch image (.SWI file) contains a read-only root file system image.
 The default ONL root file system is then a copy-on-write (using overlayfs)
 view into that file system image.
 
-It has the following properites:
+It has the following properties:
 
-* Any file that is editted/removed/etc is transparently copied into a RAM disk via overlayfs
+* Any file that is edited/removed/etc is transparently copied into a RAM disk via overlayfs
 * Thus, any changes to files appear as you would expect, until a reboot
-* Any file that is uneditted remains backed by the /mnt/onl/data file system, so you 
+* Any file that is unedited remains backed by the /mnt/onl/data file system, so you 
     do not need to have enough RAM to store the entire rootfs.  This is important with
     switches that do not have much RAM to begin with.
 
