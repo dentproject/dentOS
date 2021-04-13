@@ -8,7 +8,7 @@ This is particularly nice when you have a switch that may be headless
 (no permanently connected console cable or keyboard).
 
 ONL accomplishes this with [OverlayFS]
-(https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
+(https://www.kernel.org/doc/html/latest/filesystems/overlayfs.html).
 As described at http://opennetlinux.org/docs/bootprocess, the ONL
 switch image (.SWI file) contains a read-only root file system image.
 The default ONL root file system is then a copy-on-write (using overlayfs)
