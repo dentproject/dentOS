@@ -1,6 +1,23 @@
+From 49f1f89df5afe392eb2f475b09811bb9093a295d Mon Sep 17 00:00:00 2001
+From: Clement Chu <Clement.Chu@wnc.com.tw>
+Date: Mon, 3 May 2021 11:22:19 +0800
+Subject: [PATCH] Add QSA72_AOM_A_48P device tree
+
+1. Add prestera driver related description for support ethtool.
+Include driver, onie_eeprom and pcie mapping information.
+2. Add gpio-i2c driver and SFP cage interface description.
+3. Disable eth0 and eth1 interface to avoid the security issues.
+---
+ .../boot/dts/marvell/wnc-qsa72-aom-a-48p.dts  | 435 ++++++++++++++++++
+ 1 file changed, 435 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/marvell/wnc-qsa72-aom-a-48p.dts
+
+diff --git a/arch/arm64/boot/dts/marvell/wnc-qsa72-aom-a-48p.dts b/arch/arm64/boot/dts/marvell/wnc-qsa72-aom-a-48p.dts
+new file mode 100644
+index 0000000..b7dfa9d
 --- /dev/null
 +++ b/arch/arm64/boot/dts/marvell/wnc-qsa72-aom-a-48p.dts
-@@ -0,0 +1,212 @@
+@@ -0,0 +1,435 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright (C) 2016 Marvell Technology Group Ltd.
@@ -24,12 +41,12 @@
 +	aliases {
 +                serial0 = &uart0;
 +                serial1 = &cp0_uart1;
-+		ethernet0 = &cp0_eth0;
-+		ethernet1 = &cp0_eth1;
-+		ethernet2 = &cp0_eth2;
-+		i2c0 = &cp0_i2c0;
-+		i2c1 = &cp0_i2c1;
-+		i2c2 = &i2c0;
++                ethernet0 = &cp0_eth0;
++                ethernet1 = &cp0_eth1;
++                ethernet2 = &cp0_eth2;
++                i2c0 = &i2c0;
++                i2c1 = &cp0_i2c1;
++                i2c2 = &cp0_i2c0;
 +	};
 +
 +	cp0_utmi: utmi@580000 {
@@ -46,6 +63,238 @@
 +			status = "disabled";
 +		};
 +    };
++
++    switch-cpu {
++		compatible = "marvell,prestera-switch-rxtx-sdma";
++		status = "okay";
++	};
++
++	onie_eeprom: onie-eeprom {
++		compatible = "onie-nvmem-cells";
++		status = "okay";
++
++		nvmem = <&eeprom_at24>;
++	};
++
++	prestera {
++		compatible = "marvell,prestera";
++		status = "okay";
++
++		base-mac-provider = <&onie_eeprom>;
++		ports {
++			port49 {
++        		prestera,port-num = <49>;
++        		sfp = <&sfp49>;
++			};
++			port50 {
++        		prestera,port-num = <50>;
++        		sfp = <&sfp50>;
++			};
++			port51 {
++        		prestera,port-num = <51>;
++        		sfp = <&sfp51>;
++			};
++			port52 {
++        		prestera,port-num = <52>;
++        		sfp = <&sfp52>;
++			};
++		};
++	};
++
++	sfp49: sfp-49 {
++    	compatible = "sff,sfp";
++    	i2c-bus = <&i2c1_sfp0>;
++
++    	los-gpio = <&gpio_i2c 0 GPIO_ACTIVE_HIGH>;
++    	mod-def0-gpio = <&gpio_i2c 1 GPIO_ACTIVE_LOW>;
++    	tx-disable-gpio = <&gpio_i2c 2 GPIO_ACTIVE_HIGH>;
++	};
++	sfp50: sfp-50 {
++    	compatible = "sff,sfp";
++    	i2c-bus = <&i2c1_sfp1>;
++
++    	los-gpio = <&gpio_i2c 3 GPIO_ACTIVE_HIGH>;
++    	mod-def0-gpio = <&gpio_i2c 4 GPIO_ACTIVE_LOW>;
++    	tx-disable-gpio = <&gpio_i2c 5 GPIO_ACTIVE_HIGH>;
++	};
++	sfp51: sfp-51 {
++    	compatible = "sff,sfp";
++    	i2c-bus = <&i2c1_sfp2>;
++
++    	los-gpio = <&gpio_i2c 6 GPIO_ACTIVE_HIGH>;
++    	mod-def0-gpio = <&gpio_i2c 7 GPIO_ACTIVE_LOW>;
++    	tx-disable-gpio = <&gpio_i2c 8 GPIO_ACTIVE_HIGH>;
++	};
++	sfp52: sfp-52 {
++    	compatible = "sff,sfp";
++    	i2c-bus = <&i2c1_sfp3>;
++
++    	los-gpio = <&gpio_i2c 9 GPIO_ACTIVE_HIGH>;
++    	mod-def0-gpio = <&gpio_i2c 10 GPIO_ACTIVE_LOW>;
++    	tx-disable-gpio = <&gpio_i2c 11 GPIO_ACTIVE_HIGH>;
++	};
++
++	gpio_i2c: gpio-i2c {
++    	compatible = "qsa72_48p_gpio_i2c";
++    	#address-cells = <1>;
++    	#size-cells = <0>;
++    	gpio-controller;
++    	#gpio-cells = <2>;
++
++		gpio-map {
++			/* sfp0 */
++			sfp00_gpio00_loss {
++        		reg-map = <0x0 (1 << 2)>;
++        		gpio-num = <0>;
++			};
++			sfp00_gpio01_pres {
++        		reg-map = <0x0 (1 << 1)>; /* reg mask */
++        		gpio-num = <1>;
++			};
++			sfp00_gpio02_tx_dis {
++        		reg-map = <0x2 (1 << 0)>; /* reg mask */
++        		gpio-num = <2>;
++			};
++
++			/* sfp1 */
++			sfp01_gpio00_sfp_loss {
++        		reg-map = <0x0 (1 << 5)>; /* reg mask */
++        		gpio-num = <3>;
++			};
++			sfp01_gpio01_sfp_pres {
++        		reg-map = <0x0 (1 << 4)>; /* reg mask */
++        		gpio-num = <4>;
++			};
++			sfp01_gpio02_tx_dis {
++        		reg-map = <0x2 (1 << 3)>; /* reg mask */
++        		gpio-num = <5>;
++			};
++
++			/* sfp2 */
++			sfp02_gpio00_loss {
++        		reg-map = <0x1 (1 << 0)>; /* reg mask */
++        		gpio-num = <6>;
++			};
++			sfp02_gpio01_pres {
++        		reg-map = <0x0 (1 << 7)>; /* reg mask */
++        		gpio-num = <7>;
++			};
++			sfp02_gpio02_tx_dis {
++        		reg-map = <0x2 (1 << 6)>; /* reg mask */
++        		gpio-num = <8>;
++			};
++
++			/* sfp3 */
++			sfp03_gpio00_loss {
++        		reg-map = <0x1 (1 << 3)>; /* reg mask */
++        		gpio-num = <9>;
++			};
++			sfp03_gpio01_sfp_pres {
++        		reg-map = <0x1 (1 << 2)>; /* reg mask */
++        		gpio-num = <10>;
++			};
++			sfp03_gpio02_tx_dis {
++        		reg-map = <0x3 (1 << 1)>; /* reg mask */
++        		gpio-num = <11>;
++			};
++		};
++	};
++};
++
++&cp0_i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++
++	i2cmux@70 {
++    	compatible = "nxp,pca9548";
++    	reg = <0x70>;
++    	#address-cells = <1>;
++    	#size-cells = <0>;
++    	i2c-mux-idle-disconnect;
++
++    	cp0_i2c3: i2c@0 {
++			reg = <0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			status = "okay";
++			clock-frequency = <100000>;
++
++			eeprom_at24: at24@54 {
++        		compatible = "atmel,24c02";
++        		reg = <0x54>;
++			};
++    	};
++    	cp0_i2c4: i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++    	};
++    	cp0_i2c5: i2c@2 {
++			reg = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++    	};
++    	cp0_i2c6: i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++    	};
++    	cp0_i2c7: i2c@4 {
++			reg = <4>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++    	};
++    	cp0_i2c8: i2c@5 {
++			reg = <5>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++    	};
++    	cp0_i2c9: i2c@6 {
++			reg = <6>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++    	};
++    	cp0_i2c10: i2c@7 {
++			reg = <7>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++    	};
++	};
++};
++
++&cp0_i2c1 {
++	status = "okay";
++	clock-frequency = <100000>;
++
++	i2cmux@70 {
++		compatible = "nxp,pca9548";
++		reg = <0x70>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		i2c-mux-idle-disconnect;
++
++		i2c1_sfp0: i2c@0 {
++			reg = <0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++		i2c1_sfp1: i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++		i2c1_sfp2: i2c@2 {
++			reg = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++		i2c1_sfp3: i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
 +};
 +
 +&i2c0 {
@@ -78,8 +327,8 @@
 +&cp0_spi0 {
 +           pinctrl-names = "default";
 +           reg = <0x700600 0x50>;          /* control */
-+	   status = "okay";
-+	   spi-flash@0 {
++           status = "okay";
++           spi-flash@0 {
 +                     #address-cells = <0x1>;
 +                     #size-cells = <0x1>;
 +                     compatible = "jedec,spi-nor";
@@ -113,10 +362,11 @@
 +};
 +
 +&cp0_pcie0 {
-+	ranges = <0x81000000 0x0 0xf9020000 0x0 0xf9020000 0x0 0x10000
-+		  0x82000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x30000000>;
-+	status = "okay";
++	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
++		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
++		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
 +	phys = <&cp0_comphy0 0>;
++	status = "okay";
 +};
 +
 +&cp0_pcie1 {
@@ -126,16 +376,6 @@
 +
 +&cp0_pcie2 {
 +	status = "disabled";
-+};
-+
-+&cp0_i2c0 {
-+	status = "okay";
-+	clock-frequency = <100000>;
-+};
-+
-+&cp0_i2c1 {
-+	status = "okay";
-+	clock-frequency = <100000>;
 +};
 +
 +&cp0_sata0 {
@@ -176,7 +416,7 @@
 +};
 +
 +&cp0_eth0 {
-+	status = "okay";
++	status = "disabled";
 +	/* Network PHY */
 +	/*phy-mode = "sgmii";*/
 +	phy-mode = "2500base-x";
@@ -190,7 +430,7 @@
 +};
 +
 +&cp0_eth1 {
-+	status = "okay";
++	status = "disabled";
 +	/* Network PHY */
 +	/*phy = <&phy0>;*/
 +	phy-mode = "sgmii";
@@ -213,3 +453,6 @@
 +&cp0_crypto {
 +	status = "okay";
 +};
+-- 
+2.17.1
+
