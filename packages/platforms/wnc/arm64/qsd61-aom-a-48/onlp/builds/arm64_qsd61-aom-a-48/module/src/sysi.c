@@ -59,13 +59,13 @@ static int manage_fans_status = MANAGE_FANS_STA_INIT;
 
 static char arr_cpldcap_name[NUM_OF_CPLD][64] =
 {
-   "2-0077/cpld1_rev_cap",
-   "2-0076/cpld2_rev_cap"
+   "0-0077/cpld1_rev_cap",
+   "0-0076/cpld2_rev_cap"
 };
 static char arr_cpldsub_name[NUM_OF_CPLD][64] =
 {
-   "2-0077/cpld1_rev_sub",
-   "2-0076/cpld2_rev_sub"
+   "0-0077/cpld1_rev_sub",
+   "0-0076/cpld2_rev_sub"
 };
 
 const char*

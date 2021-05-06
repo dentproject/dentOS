@@ -380,6 +380,4 @@ FLD_RAW_RW_DEF(         module_absence_f_proc_reg,  p41_mod_abs_proc,           
 FLD_RAW_RO_DEF(         cpld_version_reg,           cpld2_rev_cap,              6,      2)
 FLD_RAW_RO_DEF(         cpld_version_reg,           cpld2_rev_sub,              0,      6)
 
-
-
 #endif /* __qsd61_aom_a_48_sfp_plus_cpld_reg_H__ */

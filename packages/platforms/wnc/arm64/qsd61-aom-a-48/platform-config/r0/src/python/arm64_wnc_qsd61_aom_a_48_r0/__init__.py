@@ -13,34 +13,21 @@ class OnlPlatform_arm64_wnc_qsd61_aom_a_48_r0(OnlPlatformWNC,
 
         self.insmod("qsd61-aom-a-48-sys_cpld")
         self.insmod("qsd61-aom-a-48-sfp_plus_cpld")
+        self.insmod("qsd61-aom-a-48-gpio_i2c")
         self.insmod("optoe")
 
         self.new_i2c_devices([
-                ('pca9548', 0x70, 0),
-                ('pca9548', 0x70, 1),
-                ('24c02', 0x54, 3),
                 ('lm75', 0x48, 6),
                 ('lm75', 0x49, 7),
                 ('lm75', 0x4A, 8),
-                ('pca9548', 0x71, 11),
-                ('pca9548', 0x72, 12),
-                ('pca9548', 0x73, 13),
-                ('pca9548', 0x74, 14),
-                ('pca9548', 0x75, 15),
-                ('pca9548', 0x76, 16),
                 ])
 
-        port_num = [19, 20, 21, 22, 23, 24, 25, 26, \
-                27, 28, 29, 30, 31, 32, 33, 34,\
-                35, 36, 37, 38, 39, 40, 41, 42,\
-                43, 44, 45, 46, 47, 48, 49, 50,\
-                51, 52, 53, 54, 55, 56, 57, 58,\
-                59, 60, 61, 62, 63, 64, 65, 66]
-
-        for port in port_num:
-            self.new_i2c_devices([
-                ('optoe2', 0x50, port),
-                ])
+        port_num = [12, 13, 14, 15, 16, 17, 18, 19, \
+                21, 22, 23, 24, 25, 26, 27, 28,\
+                30, 31, 32, 33, 34, 35, 36, 37,\
+                39, 40, 41, 42, 43, 44, 45, 46,\
+                48, 49, 50, 51, 52, 53, 54, 55,\
+                57, 58, 59, 60, 61, 62, 63, 64]
 
         #CP_MPP 6 CPLD1 interrupt
         subprocess.call('echo 38 > /sys/class/gpio/export', shell=True)
@@ -80,8 +67,21 @@ class OnlPlatform_arm64_wnc_qsd61_aom_a_48_r0(OnlPlatformWNC,
 
 
         self.new_i2c_devices([
-                        ('qsd61_48_sys_cpld1', 0x77, 2),
-                        ('qsd61_48_sfp_cpld2', 0x76, 2),
+                        ('qsd61_48_sys_cpld1', 0x77, 0),
+                        ('qsd61_48_sfp_cpld2', 0x76, 0),
                         ])
+
+        # Insert Marvell prestera modules by only probing prestera_pci module
+        self.modprobe('prestera_pci')
+
+        # set up systemctl rules
+        for swp in range(1, 49):
+           cmd = "systemctl enable switchdev-online@swp%d" % swp
+        subprocess.check_call(cmd, shell=True)
+
+        for port in port_num:
+            self.new_i2c_devices([
+                ('optoe2', 0x50, port),
+                ])
 
         return True
