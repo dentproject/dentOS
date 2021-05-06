@@ -9,10 +9,10 @@
 arm64-wnc-qsd61-aom-a-48-r0:
   flat_image_tree:
     kernel:
-      <<: *arm64-kernel-5-6
+      <<: *arm64-kernel-5-10
     dtb:
       =: wnc-qsd61-aom-a-48.dtb
-      <<: *arm64-kernel-5-6-package
+      <<: *arm64-kernel-5-10-package
     itb:
       <<: *arm64-itb
 
@@ -50,5 +50,5 @@ arm64-wnc-qsd61-aom-a-48-r0:
   network:
     interfaces:
       ma1:
-        name: eth2
+        name: eth0
 

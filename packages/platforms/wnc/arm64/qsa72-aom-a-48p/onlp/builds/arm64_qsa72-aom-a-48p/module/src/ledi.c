@@ -33,7 +33,7 @@
 #include "platform_lib.h"
 
 #define sfp_led_path "/sys/class/gpio/gpio%d/value"
-#define prefix_path "/sys/bus/i2c/devices/2-0077/"
+#define prefix_path "/sys/bus/i2c/devices/0-0077/"
 #define filename    "brightness"
 #define NUM_OF_SFP_PORT 4
 

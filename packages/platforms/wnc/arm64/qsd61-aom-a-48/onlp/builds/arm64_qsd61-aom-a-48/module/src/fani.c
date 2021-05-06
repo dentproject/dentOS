@@ -28,7 +28,7 @@
 #include <fcntl.h>
 #include "platform_lib.h"
 
-#define PREFIX_PATH_ON_MAIN_BOARD   "/sys/bus/i2c/devices/2-0077/"
+#define PREFIX_PATH_ON_MAIN_BOARD   "/sys/bus/i2c/devices/0-0077/"
 
 #define MAX_FAN_SPEED     17600
 #define FAN_MIN_PERCENTAGE 50
