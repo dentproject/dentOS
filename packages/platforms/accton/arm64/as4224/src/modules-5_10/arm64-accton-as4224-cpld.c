@@ -610,7 +610,7 @@ static ssize_t show_rxlos_all(struct device *dev, struct device_attribute *da,
 		if (status < 0)
 			goto exit;
 
-		values[i] = (u8)~status;
+		values[i] = (u8)status;
 	}
 
 	mutex_unlock(&data->update_lock);
@@ -695,32 +695,26 @@ static ssize_t show_module_48x(struct device *dev, struct device_attribute *da,
 		mask = 0x1 << (attr->index - MODULE_TXDISABLE_41);
 		break;
 	case MODULE_RXLOS_1 ... MODULE_RXLOS_8:
-		invert = 1;
 		reg  = 0xA6;
 		mask = 0x1 << (attr->index - MODULE_RXLOS_1);
 		break;
 	case MODULE_RXLOS_9 ... MODULE_RXLOS_16:
-		invert = 1;
 		reg  = 0xA7;
 		mask = 0x1 << (attr->index - MODULE_RXLOS_9);
 		break;
 	case MODULE_RXLOS_17 ... MODULE_RXLOS_24:
-		invert = 1;
 		reg  = 0xA8;
 		mask = 0x1 << (attr->index - MODULE_RXLOS_17);
 		break;
 	case MODULE_RXLOS_25 ... MODULE_RXLOS_32:
-		invert = 1;
 		reg  = 0xA9;
 		mask = 0x1 << (attr->index - MODULE_RXLOS_25);
 		break;
 	case MODULE_RXLOS_33 ... MODULE_RXLOS_40:
-		invert = 1;
 		reg  = 0xAA;
 		mask = 0x1 << (attr->index - MODULE_RXLOS_33);
 		break;
 	case MODULE_RXLOS_41 ... MODULE_RXLOS_48:
-		invert = 1;
 		reg  = 0xAB;
 		mask = 0x1 << (attr->index - MODULE_RXLOS_41);
 		break;
@@ -812,7 +806,6 @@ static ssize_t show_module_52x(struct device *dev, struct device_attribute *da,
 		mask = 0x1 << (attr->index - MODULE_PRESENT_49);
 		break;
 	case MODULE_RXLOS_49 ... MODULE_RXLOS_52:
-		invert = 1;
 		reg  = 0x40;
 		mask = 0x1 << (attr->index - MODULE_RXLOS_49);
 		break;
