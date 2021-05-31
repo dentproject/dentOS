@@ -29,3 +29,4 @@
 0033-net-core-devlink-use-right-genl-user_ptr-when-handli.patch
 0034-Kernel-has-no-interface-to-publish-the-devlink-port-.patch
 0035-bridge_isolated_ports_allow_offloading.patch
+0036-Allow-TC-NAT-to-handle-offloaded-statistics.patch
