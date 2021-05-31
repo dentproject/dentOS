@@ -30,3 +30,4 @@
 0034-Kernel-has-no-interface-to-publish-the-devlink-port-.patch
 0035-bridge_isolated_ports_allow_offloading.patch
 0036-Allow-TC-NAT-to-handle-offloaded-statistics.patch
+0037-Change-HW-OFFLOAD-timeout-to-60-sec.patch
