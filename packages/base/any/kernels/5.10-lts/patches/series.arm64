@@ -28,3 +28,4 @@
 0032-upstream-net-core-devlink-add-dropped-stats-field-fo.patch
 0033-net-core-devlink-use-right-genl-user_ptr-when-handli.patch
 0034-Kernel-has-no-interface-to-publish-the-devlink-port-.patch
+0035-bridge_isolated_ports_allow_offloading.patch
