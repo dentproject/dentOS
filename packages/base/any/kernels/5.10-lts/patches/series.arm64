@@ -16,3 +16,5 @@
 0020-accton-as5114.patch
 0021-tn48m-add-sfp-eeprom-support-to-ethtool.patch
 0022-delta-tn48m-dn-series-dts.patch
+0023-kernel-5-10-4-comphy-support-2500-BaseT.patch
+0024-kernel-5-10-4-marvell10G-support-2500-BaseT.patch
