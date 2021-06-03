@@ -1,0 +1,58 @@
+From b7dc1d4800a9d2445cb53426839541363398d20a Mon Sep 17 00:00:00 2001
+From: paulchen040968 <paul.chen@wtmec.com>
+Date: Tue, 25 May 2021 23:12:06 +0800
+Subject: [PATCH 4/4] kernel 5.10.4 marvell10G support 2500_BaseT
+
+
+diff --git a/drivers/net/phy/marvell10g.c b/drivers/net/phy/marvell10g.c
+old mode 100644
+new mode 100755
+index 1901ba2..7c6112c
+--- a/drivers/net/phy/marvell10g.c
++++ b/drivers/net/phy/marvell10g.c
+@@ -263,10 +263,10 @@ static int mv3310_power_up(struct phy_device *phydev)
+ 	ret = phy_clear_bits_mmd(phydev, MDIO_MMD_VEND2, MV_V2_PORT_CTRL,
+ 				 MV_V2_PORT_CTRL_PWRDOWN);
+ 
+-	if (phydev->drv->phy_id != MARVELL_PHY_ID_88X3310 ||
++	/*if (phydev->drv->phy_id != MARVELL_PHY_ID_88X3310 ||
+ 	    priv->firmware_ver < 0x00030000)
+ 		return ret;
+-
++	*/
+ 	return phy_set_bits_mmd(phydev, MDIO_MMD_VEND2, MV_V2_PORT_CTRL,
+ 				MV_V2_PORT_CTRL_SWRST);
+ }
+@@ -462,9 +462,10 @@ static int mv3310_config_init(struct phy_device *phydev)
+ 	/* Check that the PHY interface type is compatible */
+ 	if (phydev->interface != PHY_INTERFACE_MODE_SGMII &&
+ 	    phydev->interface != PHY_INTERFACE_MODE_2500BASEX &&
++		phydev->interface != PHY_INTERFACE_MODE_2500BASET &&
+ 	    phydev->interface != PHY_INTERFACE_MODE_XAUI &&
+ 	    phydev->interface != PHY_INTERFACE_MODE_RXAUI &&
+-	    phydev->interface != PHY_INTERFACE_MODE_10GBASER)
++	    phydev->interface != PHY_INTERFACE_MODE_10GKR)
+ 		return -ENODEV;
+ 
+ 	phydev->mdix_ctrl = ETH_TP_MDI_AUTO;
+@@ -598,7 +599,7 @@ static void mv3310_update_interface(struct phy_device *phydev)
+ 	}
+ 
+ 	if ((phydev->interface == PHY_INTERFACE_MODE_SGMII ||
+-	     phydev->interface == PHY_INTERFACE_MODE_2500BASEX ||
++	     phydev->interface == PHY_INTERFACE_MODE_2500BASET ||
+ 	     phydev->interface == PHY_INTERFACE_MODE_10GBASER) &&
+ 	    phydev->link) {
+ 		/* The PHY automatically switches its serdes interface (and
+@@ -612,7 +613,7 @@ static void mv3310_update_interface(struct phy_device *phydev)
+ 			phydev->interface = PHY_INTERFACE_MODE_10GBASER;
+ 			break;
+ 		case SPEED_2500:
+-			phydev->interface = PHY_INTERFACE_MODE_2500BASEX;
++			phydev->interface = PHY_INTERFACE_MODE_2500BASET;
+ 			break;
+ 		case SPEED_1000:
+ 		case SPEED_100:
+-- 
+2.7.4
+
