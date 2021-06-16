@@ -50,17 +50,18 @@
 
 #include "driver_common.h"
 #include "mst_pciconf.h"
-#define  INIT           PCICONF_INIT
-#define  STOP           PCICONF_STOP
-#define  READ4          PCICONF_READ4
-#define  READ4_NEW      PCICONF_READ4_NEW
-#define  WRITE4         PCICONF_WRITE4
-#define  WRITE4_NEW     PCICONF_WRITE4_NEW
-#define  MODIFY         PCICONF_MODIFY
-#define  READ4_BUFFER   PCICONF_READ4_BUFFER
-#define  WRITE4_BUFFER  PCICONF_WRITE4_BUFFER
-#define  MST_PARAMS     PCICONF_MST_PARAMS
-#define  MST_META_DATA  PCICONF_MST_META_DATA
+#define  INIT               PCICONF_INIT
+#define  STOP               PCICONF_STOP
+#define  READ4              PCICONF_READ4
+#define  READ4_NEW          PCICONF_READ4_NEW
+#define  WRITE4             PCICONF_WRITE4
+#define  WRITE4_NEW         PCICONF_WRITE4_NEW
+#define  MODIFY             PCICONF_MODIFY
+#define  READ4_BUFFER       PCICONF_READ4_BUFFER
+#define  READ4_BUFFER_EX    PCICONF_READ4_BUFFER_EX
+#define  WRITE4_BUFFER      PCICONF_WRITE4_BUFFER
+#define  MST_PARAMS         PCICONF_MST_PARAMS
+#define  MST_META_DATA      PCICONF_MST_META_DATA
 
 /* Versions */
 #define MST_HDR_VERSION 1
@@ -800,6 +801,7 @@ static int ioctl (struct inode *inode, struct file *file, unsigned int opcode, u
             ret=put_user(d,&(m_udata->old_data))?-EFAULT:0;
             goto fin;
         }
+    case READ4_BUFFER_EX:
     case READ4_BUFFER:
     {
         struct mst_read4_buffer_st read4_buf;

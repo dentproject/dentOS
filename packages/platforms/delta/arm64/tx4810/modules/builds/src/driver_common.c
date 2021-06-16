@@ -36,7 +36,6 @@
 #include <linux/fs.h>
 
 #include <linux/netdevice.h>
-#include <linux/version.h>
 
 #include <linux/init.h>
 #include <linux/moduleparam.h>
@@ -161,20 +160,7 @@ static ssize_t write (struct file *file, const char * buf, size_t count, loff_t 
 	return count;
 }
 
-#if HAVE_COMPAT_IOCTL
-static long compat_ioctl (struct file *f, unsigned int o, unsigned long d)
-{
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,18,0)
-    struct inode *n = f->f_dentry->d_inode;
-#else
-    struct inode *n = f->f_path.dentry->d_inode;
-#endif
-	return ioctl(n, f, o, d);
-}
-#endif
-
-#ifdef HAVE_UNLOCKED_IOCTL
-static long unlocked_ioctl (struct file *f, unsigned int o, unsigned long d)
+static long new_ioctl (struct file *f, unsigned int o, unsigned long d)
 {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,18,0)
     struct inode *n = f->f_dentry->d_inode;
@@ -184,21 +170,16 @@ static long unlocked_ioctl (struct file *f, unsigned int o, unsigned long d)
 
 	return ioctl(n, f, o, d);
 }
-#endif
-
-/* implement lseek ? */
 
 static struct file_operations fops = {
 	/*llseek:  scull_llseek,*/
 	read:  read,
 	write:  write,
 
-#ifdef HAVE_UNLOCKED_IOCTL
-	unlocked_ioctl: unlocked_ioctl,
-#endif
-
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35)
 	ioctl:  ioctl,
+#else
+	unlocked_ioctl: new_ioctl,
 #endif
 
 	open:  open,
@@ -208,7 +189,7 @@ static struct file_operations fops = {
 #endif
 	owner: THIS_MODULE,
 #if HAVE_COMPAT_IOCTL
-	compat_ioctl: compat_ioctl,
+	compat_ioctl: new_ioctl
 #endif
 };
 

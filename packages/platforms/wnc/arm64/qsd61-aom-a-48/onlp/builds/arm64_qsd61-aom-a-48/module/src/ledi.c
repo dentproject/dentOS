@@ -32,7 +32,7 @@
 
 #include "platform_lib.h"
 
-#define prefix_path "/sys/bus/i2c/devices/2-0077/"
+#define prefix_path "/sys/bus/i2c/devices/0-0077/"
 #define filename    "brightness"
 
 #define SYSFS_NODE_PATH_MAX_LEN  128

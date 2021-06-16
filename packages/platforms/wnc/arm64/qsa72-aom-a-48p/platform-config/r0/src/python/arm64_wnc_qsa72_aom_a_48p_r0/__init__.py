@@ -12,13 +12,12 @@ class OnlPlatform_arm64_wnc_qsa72_aom_a_48p_r0(OnlPlatformWNC,
     def baseconfig(self):
 
         self.insmod("qsa72-aom-a-48p-sys_cpld")
+        self.insmod("qsa72-aom-a-48p-sfp_plus_cpld")
+        self.insmod("qsa72-aom-a-48p-gpio_i2c")
         self.insmod("optoe")
 
         self.new_i2c_devices([
-                ('pca9548', 0x70, 0),
-                ('pca9548', 0x70, 1),
-                ('pca9539', 0x74, 2),
-                ('24c02', 0x54, 3),
+                ('qsa72_48p_sfp_cpld2', 0x74, 0),
                 ('lm75', 0x48, 6),
                 ('lm75', 0x49, 7),
                 ('lm75', 0x4A, 8),
@@ -26,59 +25,14 @@ class OnlPlatform_arm64_wnc_qsa72_aom_a_48p_r0(OnlPlatformWNC,
 
         port_num = [11, 12, 13, 14]
 
-        for port in port_num:
-            self.new_i2c_devices([
-                ('optoe2', 0x50, port),
-                ])
-
         #CP_MPP 6 CPLD1 interrupt
         subprocess.call('echo 38 > /sys/class/gpio/export', shell=True)
         subprocess.call('echo in > /sys/class/gpio/gpio38/direction', shell=True)
         subprocess.call('echo falling > /sys/class/gpio/gpio38/edge', shell=True)
 
-        #txDis out, nPresent in, LOS in
-        subprocess.call('echo 496 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 497 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 498 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 499 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 500 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 501 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 502 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 503 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 504 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 505 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 506 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 507 > /sys/class/gpio/export', shell=True)
-
-	    #48P LED, not used for 48T
-        subprocess.call('echo 508 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 509 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 510 > /sys/class/gpio/export', shell=True)
-        subprocess.call('echo 511 > /sys/class/gpio/export', shell=True)
-
-	    #txDis out, nPresent in, LOS in
-        subprocess.call('echo out > /sys/class/gpio/gpio496/direction', shell=True)
-        subprocess.call('echo in > /sys/class/gpio/gpio497/direction', shell=True)
-        subprocess.call('echo in > /sys/class/gpio/gpio498/direction', shell=True)
-        subprocess.call('echo out > /sys/class/gpio/gpio499/direction', shell=True)
-        subprocess.call('echo in > /sys/class/gpio/gpio500/direction', shell=True)
-        subprocess.call('echo in > /sys/class/gpio/gpio501/direction', shell=True)
-        subprocess.call('echo out > /sys/class/gpio/gpio502/direction', shell=True)
-        subprocess.call('echo in > /sys/class/gpio/gpio503/direction', shell=True)
-        subprocess.call('echo in > /sys/class/gpio/gpio504/direction', shell=True)
-        subprocess.call('echo out > /sys/class/gpio/gpio505/direction', shell=True)
-        subprocess.call('echo in > /sys/class/gpio/gpio506/direction', shell=True)
-        subprocess.call('echo in > /sys/class/gpio/gpio507/direction', shell=True)
-
-        #48P, LED control, 48T not used
-        subprocess.call('echo out > /sys/class/gpio/gpio508/direction', shell=True)
-        subprocess.call('echo out > /sys/class/gpio/gpio509/direction', shell=True)
-        subprocess.call('echo out > /sys/class/gpio/gpio510/direction', shell=True)
-        subprocess.call('echo out > /sys/class/gpio/gpio511/direction', shell=True)
-        subprocess.call('echo 0 > /sys/class/gpio/gpio508/value', shell=True)
-        subprocess.call('echo 0 > /sys/class/gpio/gpio509/value', shell=True)
-        subprocess.call('echo 0 > /sys/class/gpio/gpio510/value', shell=True)
-        subprocess.call('echo 0 > /sys/class/gpio/gpio511/value', shell=True)
+        #SFP CPLD defulat direction
+        subprocess.call('echo 0xb6 > /sys/bus/i2c/devices/0-0074/dir_1', shell=True)
+        subprocess.call('echo 0xfd > /sys/bus/i2c/devices/0-0074/dir_2', shell=True)
 
         #CP_MPP 18,19,20,21,22,23 Boot mode
         subprocess.call('echo 50 > /sys/class/gpio/export', shell=True)
@@ -113,7 +67,20 @@ class OnlPlatform_arm64_wnc_qsa72_aom_a_48p_r0(OnlPlatformWNC,
 
 
         self.new_i2c_devices([
-                        ('qsa72_48p_sys_cpld', 0x77, 2),
+                        ('qsa72_48p_sys_cpld', 0x77, 0),
                         ])
+
+        # Insert Marvell prestera modules by only probing prestera_pci module
+        self.modprobe('prestera_pci')
+
+        # set up systemctl rules
+        for swp in range(1, 49):
+           cmd = "systemctl enable switchdev-online@swp%d" % swp
+        subprocess.check_call(cmd, shell=True)
+
+        for port in port_num:
+            self.new_i2c_devices([
+                ('optoe2', 0x50, port),
+                ])
 
         return True

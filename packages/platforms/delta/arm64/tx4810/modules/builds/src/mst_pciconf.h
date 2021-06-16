@@ -91,6 +91,7 @@ struct mst_modify_st {
 };
 
 #define PCICONF_READ4_BUFFER  _IOR (PCICONF_MAGIC,4,struct mst_read4_st)
+#define PCICONF_READ4_BUFFER_EX  _IOR (PCICONF_MAGIC,4,struct mst_read4_buffer_st)
 struct mst_read4_buffer_st {
         unsigned int address_space;
         unsigned int offset;

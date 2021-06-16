@@ -39,19 +39,18 @@
 
 #define NUM_OF_SFP_PORT 4
 
-#define MODULE_PRESENT_FORMAT        "/sys/class/gpio/gpio%d/value"
-#define MODULE_RXLOS_FORMAT          "/sys/class/gpio/gpio%d/value"
+#define MODULE_PRESENT_FORMAT        "/sys/bus/i2c/devices/0-0074/p%.02d_mod_abs"
+#define MODULE_RXLOS_FORMAT          "/sys/bus/i2c/devices/0-0074/p%.02d_rx_los"
 #define PORT_EEPROM_FORMAT           "/sys/bus/i2c/devices/%d-0050/eeprom"
-#define PORT_GPIO_RXLOS_OFFSET   1
 
 int port_mapping_i2c_busl_table[NUM_OF_SFP_PORT] =
 {
     11, 12, 13, 14
 };
 
-int port_mapping_gpio_base_table[NUM_OF_SFP_PORT] =
+int port_mapping_i2c_base_table[NUM_OF_SFP_PORT] =
 {
-    497, 500, 503, 506
+    49, 50, 51, 52
 };
 
 /************************************************************
@@ -91,9 +90,10 @@ onlp_sfpi_is_present(int port)
      * Return < 0 if error.
      */
     int present = -1;
+	char path[64] = {0};
 	
-	if (onlp_file_read_int(&present, MODULE_PRESENT_FORMAT, 
-							port_mapping_gpio_base_table[port]) < 0) {
+	sprintf(path, MODULE_PRESENT_FORMAT, port_mapping_i2c_base_table[port]);
+	if (onlp_file_read_int_hex(&present, path) < 0) {
 		AIM_LOG_ERROR("Unable to read present status from port(%d)\r\n", port);
 		return ONLP_STATUS_E_INTERNAL;
 	}
@@ -116,13 +116,14 @@ onlp_sfpi_presence_bitmap_get(onlp_sfp_bitmap_t* dst)
 	uint32_t bytes[4]={0};
 	int i = 0;
 	uint32_t presence_all = 0;
+	char path[64] = {0};
 
 	for (port=0; port < NUM_OF_SFP_PORT; port++)
 	{
 		byte_offset = port / 8;
 		bit_shift = port % 8;
-		if (onlp_file_read_int(&present, MODULE_PRESENT_FORMAT, 
-								port_mapping_gpio_base_table[port]) < 0) {
+		sprintf(path, MODULE_PRESENT_FORMAT, port_mapping_i2c_base_table[port]);
+		if (onlp_file_read_int_hex(&present, path) < 0) {
 			AIM_LOG_ERROR("Unable to read present status from port(%d)\r\n", port);
 			return ONLP_STATUS_E_INTERNAL;
 		}
@@ -268,19 +269,20 @@ int
 onlp_sfpi_control_set(int port, onlp_sfp_control_t control, int value)
 {
     int rv = ONLP_STATUS_OK;
+    char rx_los_path[64] = {0};
 
     if (port < 0 || port >= NUM_OF_SFP_PORT) {
         AIM_LOG_ERROR("Illegal port (%d) to control set \r\n", port);
         return ONLP_STATUS_E_UNSUPPORTED;
     }
+    sprintf(rx_los_path, MODULE_RXLOS_FORMAT, port_mapping_i2c_base_table[port]);
 
     switch(control)
     {
         case ONLP_SFP_CONTROL_RX_LOS:
-            if (onlp_file_write_int(value, MODULE_RXLOS_FORMAT, 
-                                    port_mapping_gpio_base_table[port]+PORT_GPIO_RXLOS_OFFSET) < 0) {
-                AIM_LOG_ERROR("Unable to set rx_los (value:%d) to port(%d)\r\n", value, port);
-                rv = ONLP_STATUS_E_INTERNAL;
+            if (onlp_file_write_int(value, rx_los_path) < 0) {
+                AIM_LOG_ERROR("Unable to set rx loss status from port(%d)\r\n", port);
+                return ONLP_STATUS_E_INTERNAL;
             } else {
                 rv = ONLP_STATUS_OK;
             }
@@ -297,19 +299,20 @@ int
 onlp_sfpi_control_get(int port, onlp_sfp_control_t control, int* value)
 {
     int rv = ONLP_STATUS_OK;
+    char rx_los_path[64] = {0};
 
     if (port < 0 || port >= NUM_OF_SFP_PORT) {
         AIM_LOG_ERROR("Illegal port (%d) to control get \r\n", port);
         return ONLP_STATUS_E_UNSUPPORTED;
     }
+    sprintf(rx_los_path, MODULE_RXLOS_FORMAT, port_mapping_i2c_base_table[port]);
 
     switch(control)
     {
         case ONLP_SFP_CONTROL_RX_LOS:
-            if (onlp_file_read_int(value, MODULE_RXLOS_FORMAT, 
-                                   port_mapping_gpio_base_table[port]+PORT_GPIO_RXLOS_OFFSET) < 0) {
-                AIM_LOG_ERROR("Unable to read rx_los status from port(%d)\r\n", port);
-                rv = ONLP_STATUS_E_INTERNAL;
+            if (onlp_file_read_int_hex(value, rx_los_path) < 0) {
+                AIM_LOG_ERROR("Unable to read rx loss status from port(%d)\r\n", port);
+                return ONLP_STATUS_E_INTERNAL;
             } else {
                 rv = ONLP_STATUS_OK;
             }

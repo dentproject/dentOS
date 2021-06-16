@@ -39,19 +39,19 @@
 
 #define NUM_OF_SFP_PORT 48
 
-#define MODULE_PRESENT_FORMAT        "/sys/bus/i2c/devices/2-0076/p%.02d_mod_abs"
-#define MODULE_RXLOS_FORMAT          "/sys/bus/i2c/devices/2-0076/p%.02d_rx_los"
+#define MODULE_PRESENT_FORMAT        "/sys/bus/i2c/devices/0-0076/p%.02d_mod_abs"
+#define MODULE_RXLOS_FORMAT          "/sys/bus/i2c/devices/0-0076/p%.02d_rx_los"
 #define PORT_EEPROM_FORMAT           "/sys/bus/i2c/devices/%d-0050/eeprom"
 #define PORT_GPIO_RXLOS_OFFSET   1
 
 int port_mapping_i2c_busl_table[NUM_OF_SFP_PORT] =
 {
-    19, 20, 21, 22, 23, 24, 25, 26,
-	27, 28, 29, 30, 31, 32, 33, 34,
-	35, 36, 37, 38, 39, 40, 41, 42,
-	43, 44, 45, 46, 47, 48, 49, 50,
-	51, 52, 53, 54, 55, 56, 57, 58,
-	59, 60, 61, 62, 63, 64, 65, 66
+    12, 13, 14, 15, 16, 17, 18, 19,
+	21, 22, 23, 24, 25, 26, 27, 28,
+	30, 31, 32, 33, 34, 35, 36, 37,
+	39, 40, 41, 42, 43, 44, 45, 46,
+	48, 49, 50, 51, 52, 53, 54, 55,
+	57, 58, 59, 60, 61, 62, 63, 64
 };
 
 /************************************************************
