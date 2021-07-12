@@ -28,14 +28,14 @@
 
 #include "arm64_accton_as4564_26p_log.h"
 
-#define CHASSIS_THERMAL_COUNT	4
+#define CHASSIS_THERMAL_COUNT	5
 #define CHASSIS_LED_COUNT		0
-#define CHASSIS_FAN_COUNT       0
+#define CHASSIS_FAN_COUNT       2
 #define CHASSIS_PSU_COUNT       1
 
 #define CPLD_SYSFS_ATTR_FMT "/sys/bus/i2c/devices/0-0040/%s"
 #define PSU_SYSFS_PATH "/sys/devices/platform/as4564_26p_psu/"
-#define FAN_SYSFS_PATH "/sys/devices/platform/as4564_26p_fan/"
+#define FAN_SYSFS_PATH "/sys/devices/platform/as4564_fan/"
 #define IDPROM_PATH "/sys/class/i2c-adapter/i2c-1/1-0056/eeprom"
 
 enum onlp_thermal_id
