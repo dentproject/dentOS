@@ -1,0 +1,21 @@
+prerequisites:
+  submodules:
+    - { root : $ONL, path: sm/ethtool }
+
+common:
+  arch: $ARCH
+  epoch: 1
+  version: 5.10.0-1dent
+  maintainer: snnobel@amazon.com
+  changelog:  Change changes changes.,
+
+
+packages:
+  - name: ethtool
+    summary: A set of utilities for Linux networking
+
+    depends: [ libmnl0, libelf1, libcap2, libxtables12, libdb5.3 ]
+
+    files:
+      builds/ethtool/ethtool : /sbin/ethtool
+      builds/ethtool/shell-completion : /usr/share/bash-completion/completions/ethtool
