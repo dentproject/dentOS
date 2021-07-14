@@ -1,0 +1,39 @@
+From: Alexander Wirt <formorer@debian.org>
+Date: Mon, 10 Jun 2013 11:47:00 +0200
+Subject: Add moo feature
+
+---
+ ip/ip.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+--- a/ip/ip.c
++++ b/ip/ip.c
+@@ -69,6 +69,20 @@
+ 	return 0;
+ }
+ 
++static int do_moo(int argc, char **argv)
++{
++	
++fprintf(stderr,
++"\n"
++" _ __ ___   ___   ___\n"
++"| '_ ` _ \\ / _ \\ / _ \\\n"
++"| | | | | | (_) | (_) |\n"
++"|_| |_| |_|\\___/ \\___/\n"
++"\n\n"
++"P.S. no real cows were harmed for this moo\n");
++	exit(1);
++}
++                       
+ static const struct cmd {
+ 	const char *cmd;
+ 	int (*func)(int argc, char **argv);
+@@ -104,6 +118,7 @@
+ 	{ "sr",		do_seg6 },
+ 	{ "nexthop",	do_ipnh },
+ 	{ "help",	do_help },
++	{ "moo",	do_moo }, 
+ 	{ 0 }
+ };
+ 

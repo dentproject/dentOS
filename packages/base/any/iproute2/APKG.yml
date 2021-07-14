@@ -1,0 +1,38 @@
+prerequisites:
+  submodules:
+    - { root : $ONL, path: sm/iproute2 }
+
+common:
+  arch: $ARCH
+  version: 5.10.0-1dent
+  maintainer: rothcar@amazon.com
+  changelog:  Change changes changes.,
+
+
+packages:
+  - name: iproute2
+    summary: A set of utilities for Linux networking
+
+    depends: [ libmnl0, libelf1, libcap2, libxtables12, libdb5.3 ]
+
+    files:
+      builds/iproute2/etc/iproute2: /etc/iproute2
+      builds/iproute2/bridge/bridge : /sbin/
+      builds/iproute2/ip/ifcfg : /bin/
+      builds/iproute2/ip/ip : /bin/
+      builds/iproute2/ip/routef : /usr/bin/
+      builds/iproute2/ip/routel : /usr/bin/
+      builds/iproute2/ip/rtmon : /sbin/
+      builds/iproute2/ip/rtpr : /sbin/
+      builds/iproute2/misc/arpd : /usr/sbin/
+      builds/iproute2/misc/ifstat : /usr/bin/
+      builds/iproute2/misc/lnstat : /usr/bin/
+      builds/iproute2/misc/nstat : /usr/bin/
+      builds/iproute2/misc/rtacct : /sbin/
+      builds/iproute2/misc/ss : /bin/
+      builds/iproute2/tc/m_xt.so : /usr/lib/tc/
+      builds/iproute2/tc/tc : /sbin/
+
+
+    links:
+      /sbin/ip: /bin/ip

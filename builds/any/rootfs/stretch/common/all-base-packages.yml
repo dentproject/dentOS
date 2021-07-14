@@ -17,6 +17,7 @@
 - sudo
 - openssh-server
 - iproute
+- iproute2
 - resolvconf
 - vim-tiny
 - zile

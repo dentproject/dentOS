@@ -1,0 +1,43 @@
+Description: Sync header from iptables
+ The current versions in several suites have the same content:
+  - 1.6.0+snapshot20161117-6 (stretch)
+  - 1.6.1-2 (unstable)
+Bug: https://bugs.debian.og/868059
+Forwarded: not-needed
+Author: Cyril Brulebois <cyril@debamax.com>
+Last-Update: 2017-11-22
+--- a/include/xtables.h
++++ b/include/xtables.h
+@@ -437,6 +437,17 @@ struct xtables_globals
+ 
+ #define XT_GETOPT_TABLEEND {.name = NULL, .has_arg = false}
+ 
++/*
++ * enum op-
++ *
++ * For writing clean nftables translations code
++ */
++enum xt_op {
++	XT_OP_EQ,
++	XT_OP_NEQ,
++	XT_OP_MAX,
++};
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+@@ -548,6 +581,14 @@ extern void xtables_lmap_free(struct xta
+ extern int xtables_lmap_name2id(const struct xtables_lmap *, const char *);
+ extern const char *xtables_lmap_id2name(const struct xtables_lmap *, int);
+ 
++/* xlate infrastructure */
++struct xt_xlate *xt_xlate_alloc(int size);
++void xt_xlate_free(struct xt_xlate *xl);
++void xt_xlate_add(struct xt_xlate *xl, const char *fmt, ...);
++void xt_xlate_add_comment(struct xt_xlate *xl, const char *comment);
++const char *xt_xlate_get_comment(struct xt_xlate *xl);
++const char *xt_xlate_get(struct xt_xlate *xl);
++
+ #ifdef XTABLES_INTERNAL
+ 
+ /* Shipped modules rely on this... */

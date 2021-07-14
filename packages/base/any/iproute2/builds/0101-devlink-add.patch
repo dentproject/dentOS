@@ -1,0 +1,547 @@
+From 12cc9ec01d91e71a7830f379ec9b68a0f6ea0258 Mon Sep 17 00:00:00 2001
+From: Taras Chornyi <taras.chornyi@plvision.eu>
+Date: Wed, 5 May 2021 18:53:03 +0300
+Subject: [PATCH] devlink: add support for port params get/set
+
+Add implementation for the port parameters
+getting/setting.
+Add bash completion for port param.
+Add man description for port param.
+
+Signed-off-by: Oleksandr Mazur <oleksandr.mazur@plvision.eu>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
+---
+ bash-completion/devlink |  55 ++++++++
+ devlink/devlink.c       | 274 +++++++++++++++++++++++++++++++++++++++-
+ man/man8/devlink-port.8 |  65 ++++++++++
+ 3 files changed, 388 insertions(+), 6 deletions(-)
+
+diff --git a/bash-completion/devlink b/bash-completion/devlink
+index 7395b504..361be9fe 100644
+--- a/bash-completion/devlink
++++ b/bash-completion/devlink
+@@ -319,6 +319,57 @@ _devlink_port_split()
+     esac
+ }
+
++# Completion for devlink port param set
++_devlink_port_param_set()
++{
++    case $cword in
++        7)
++            COMPREPLY=( $( compgen -W "value" -- "$cur" ) )
++            return
++            ;;
++        8)
++            # String argument
++            return
++            ;;
++        9)
++            COMPREPLY=( $( compgen -W "cmode" -- "$cur" ) )
++            return
++            ;;
++        10)
++            COMPREPLY=( $( compgen -W "runtime driverinit permanent" -- \
++                "$cur" ) )
++            return
++            ;;
++    esac
++}
++
++# Completion for devlink port param
++_devlink_port_param()
++{
++    case "$cword" in
++        3)
++            COMPREPLY=( $( compgen -W "show set" -- "$cur" ) )
++            return
++            ;;
++        4)
++            _devlink_direct_complete "port"
++            return
++            ;;
++        5)
++            COMPREPLY=( $( compgen -W "name" -- "$cur" ) )
++            return
++            ;;
++        6)
++            _devlink_direct_complete "param_name"
++            return
++            ;;
++    esac
++
++    if [[ "${words[3]}" == "set" ]]; then
++        _devlink_port_param_set
++    fi
++}
++
+ # Completion for devlink port
+ _devlink_port()
+ {
+@@ -331,6 +382,10 @@ _devlink_port()
+             _devlink_port_split
+             return
+             ;;
++        param)
++            _devlink_port_param
++            return
++            ;;
+         show|unsplit)
+             if [[ $cword -eq 3 ]]; then
+                 _devlink_direct_complete "port"
+diff --git a/devlink/devlink.c b/devlink/devlink.c
+index 43549965..568195f1 100644
+--- a/devlink/devlink.c
++++ b/devlink/devlink.c
+@@ -2603,7 +2603,8 @@ static void pr_out_param_value(struct dl *dl, const char *nla_name,
+ 	}
+ }
+
+-static void pr_out_param(struct dl *dl, struct nlattr **tb, bool array)
++static void pr_out_param(struct dl *dl, struct nlattr **tb, bool array,
++			 bool is_port_param)
+ {
+ 	struct nlattr *nla_param[DEVLINK_ATTR_MAX + 1] = {};
+ 	struct nlattr *param_value_attr;
+@@ -2620,9 +2621,15 @@ static void pr_out_param(struct dl *dl, struct nlattr **tb, bool array)
+ 		return;
+
+ 	if (array)
+-		pr_out_handle_start_arr(dl, tb);
++		if (is_port_param)
++			pr_out_port_handle_start_arr(dl, tb, false);
++		else
++			pr_out_handle_start_arr(dl, tb);
+ 	else
+-		__pr_out_handle_start(dl, tb, true, false);
++		if (is_port_param)
++			pr_out_port_handle_start(dl, tb, false);
++		else
++			__pr_out_handle_start(dl, tb, true, false);
+
+ 	nla_type = mnl_attr_get_u8(nla_param[DEVLINK_ATTR_PARAM_TYPE]);
+
+@@ -2642,7 +2649,10 @@ static void pr_out_param(struct dl *dl, struct nlattr **tb, bool array)
+ 		pr_out_entry_end(dl);
+ 	}
+ 	pr_out_array_end(dl);
+-	pr_out_handle_end(dl);
++	if (is_port_param)
++		pr_out_port_handle_end(dl);
++	else
++		pr_out_handle_end(dl);
+ }
+
+ static int cmd_dev_param_show_cb(const struct nlmsghdr *nlh, void *data)
+@@ -2655,7 +2665,7 @@ static int cmd_dev_param_show_cb(const struct nlmsghdr *nlh, void *data)
+ 	if (!tb[DEVLINK_ATTR_BUS_NAME] || !tb[DEVLINK_ATTR_DEV_NAME] ||
+ 	    !tb[DEVLINK_ATTR_PARAM])
+ 		return MNL_CB_ERROR;
+-	pr_out_param(dl, tb, true);
++	pr_out_param(dl, tb, true, false);
+ 	return MNL_CB_OK;
+ }
+
+@@ -2853,6 +2863,21 @@ err_param_value_parse:
+ 	return err;
+ }
+
++static int cmd_port_param_show_cb(const struct nlmsghdr *nlh, void *data)
++{
++	struct genlmsghdr *genl = mnl_nlmsg_get_payload(nlh);
++	struct nlattr *tb[DEVLINK_ATTR_MAX + 1] = {};
++	struct dl *dl = data;
++
++	mnl_attr_parse(nlh, sizeof(*genl), attr_cb, tb);
++	if (!tb[DEVLINK_ATTR_BUS_NAME] || !tb[DEVLINK_ATTR_DEV_NAME] ||
++	    !tb[DEVLINK_ATTR_PORT_INDEX] || !tb[DEVLINK_ATTR_PARAM])
++		return MNL_CB_ERROR;
++
++	pr_out_param(dl, tb, true, true);
++	return MNL_CB_OK;
++}
++
+ static int cmd_dev_param_show(struct dl *dl)
+ {
+ 	uint16_t flags = NLM_F_REQUEST | NLM_F_ACK;
+@@ -3455,6 +3480,8 @@ static void cmd_port_help(void)
+ 	pr_err("       devlink port split DEV/PORT_INDEX count COUNT\n");
+ 	pr_err("       devlink port unsplit DEV/PORT_INDEX\n");
+ 	pr_err("       devlink port function set DEV/PORT_INDEX [ hw_addr ADDR ]\n");
++	pr_err("       devlink port param set DEV/PORT_INDEX name PARAMETER value VALUE cmode { permanent | driverinit | runtime }\n");
++	pr_err("       devlink port param show [DEV/PORT_INDEX name PARAMETER]\n");
+ 	pr_err("       devlink port health show [ DEV/PORT_INDEX reporter REPORTER_NAME ]\n");
+ }
+
+@@ -3689,6 +3716,31 @@ static int cmd_port_unsplit(struct dl *dl)
+ 	return _mnlg_socket_sndrcv(dl->nlg, nlh, NULL, NULL);
+ }
+
++static int cmd_port_param_show(struct dl *dl)
++{
++	uint16_t flags = NLM_F_REQUEST | NLM_F_ACK;
++	struct nlmsghdr *nlh;
++	int err;
++
++	if (dl_argc(dl) == 0)
++		flags |= NLM_F_DUMP;
++
++	nlh = mnlg_msg_prepare(dl->nlg, DEVLINK_CMD_PORT_PARAM_GET, flags);
++
++	if (dl_argc(dl) > 0) {
++		err = dl_argv_parse_put(nlh, dl, DL_OPT_HANDLEP |
++					DL_OPT_PARAM_NAME, 0);
++		if (err)
++			return err;
++	}
++
++	pr_out_section_start(dl, "param");
++	err = _mnlg_socket_sndrcv(dl->nlg, nlh, cmd_port_param_show_cb, dl);
++	pr_out_section_end(dl);
++
++	return err;
++}
++
+ static void cmd_port_function_help(void)
+ {
+ 	pr_err("Usage: devlink port function set DEV/PORT_INDEX [ hw_addr ADDR ]\n");
+@@ -3708,6 +3760,205 @@ static int cmd_port_function_set(struct dl *dl)
+ 	return _mnlg_socket_sndrcv(dl->nlg, nlh, NULL, NULL);
+ }
+
++static int cmd_port_param_set_cb(const struct nlmsghdr *nlh, void *data)
++{
++	struct genlmsghdr *genl = mnl_nlmsg_get_payload(nlh);
++	struct nlattr *nla_param[DEVLINK_ATTR_MAX + 1] = {};
++	struct nlattr *tb[DEVLINK_ATTR_MAX + 1] = {};
++	struct nlattr *param_value_attr;
++	enum devlink_param_cmode cmode;
++	struct param_ctx *ctx = data;
++	struct dl *dl = ctx->dl;
++	int nla_type;
++	int err;
++
++	mnl_attr_parse(nlh, sizeof(*genl), attr_cb, tb);
++	if (!tb[DEVLINK_ATTR_BUS_NAME] || !tb[DEVLINK_ATTR_DEV_NAME] ||
++	    !tb[DEVLINK_ATTR_PORT_INDEX] || !tb[DEVLINK_ATTR_PARAM])
++		return MNL_CB_ERROR;
++
++	err = mnl_attr_parse_nested(tb[DEVLINK_ATTR_PARAM], attr_cb, nla_param);
++	if (err != MNL_CB_OK)
++		return MNL_CB_ERROR;
++
++	if (!nla_param[DEVLINK_ATTR_PARAM_TYPE] ||
++	    !nla_param[DEVLINK_ATTR_PARAM_VALUES_LIST])
++		return MNL_CB_ERROR;
++
++	nla_type = mnl_attr_get_u8(nla_param[DEVLINK_ATTR_PARAM_TYPE]);
++	mnl_attr_for_each_nested(param_value_attr,
++				 nla_param[DEVLINK_ATTR_PARAM_VALUES_LIST]) {
++		struct nlattr *nla_value[DEVLINK_ATTR_MAX + 1] = {};
++		struct nlattr *val_attr;
++
++		err = mnl_attr_parse_nested(param_value_attr,
++					    attr_cb, nla_value);
++		if (err != MNL_CB_OK)
++			return MNL_CB_ERROR;
++
++		if (!nla_value[DEVLINK_ATTR_PARAM_VALUE_CMODE] ||
++		    (nla_type != MNL_TYPE_FLAG &&
++		     !nla_value[DEVLINK_ATTR_PARAM_VALUE_DATA]))
++			return MNL_CB_ERROR;
++
++		cmode = mnl_attr_get_u8(nla_value[DEVLINK_ATTR_PARAM_VALUE_CMODE]);
++		if (cmode == dl->opts.cmode) {
++			val_attr = nla_value[DEVLINK_ATTR_PARAM_VALUE_DATA];
++			switch (nla_type) {
++			case MNL_TYPE_U8:
++				ctx->value.vu8 = mnl_attr_get_u8(val_attr);
++				break;
++			case MNL_TYPE_U16:
++				ctx->value.vu16 = mnl_attr_get_u16(val_attr);
++				break;
++			case MNL_TYPE_U32:
++				ctx->value.vu32 = mnl_attr_get_u32(val_attr);
++				break;
++			case MNL_TYPE_STRING:
++				ctx->value.vstr = mnl_attr_get_str(val_attr);
++				break;
++			case MNL_TYPE_FLAG:
++				ctx->value.vbool = val_attr ? true : false;
++				break;
++			}
++			break;
++		}
++	}
++	ctx->nla_type = nla_type;
++	return MNL_CB_OK;
++}
++
++static int cmd_port_param_set(struct dl *dl)
++{
++	struct param_ctx ctx = {};
++	struct nlmsghdr *nlh;
++	bool conv_exists;
++	uint32_t val_u32 = 0;
++	uint16_t val_u16;
++	uint8_t val_u8;
++	bool val_bool;
++	int err;
++
++	err = dl_argv_parse(dl, DL_OPT_HANDLEP |
++			    DL_OPT_PARAM_NAME |
++			    DL_OPT_PARAM_VALUE |
++			    DL_OPT_PARAM_CMODE, 0);
++	if (err)
++		return err;
++
++	/* Get value type */
++	nlh = mnlg_msg_prepare(dl->nlg, DEVLINK_CMD_PORT_PARAM_GET,
++			       NLM_F_REQUEST | NLM_F_ACK);
++	dl_opts_put(nlh, dl);
++
++	ctx.dl = dl;
++	err = _mnlg_socket_sndrcv(dl->nlg, nlh, cmd_port_param_set_cb, &ctx);
++	if (err)
++		return err;
++
++	nlh = mnlg_msg_prepare(dl->nlg, DEVLINK_CMD_PORT_PARAM_SET,
++			       NLM_F_REQUEST | NLM_F_ACK);
++	dl_opts_put(nlh, dl);
++
++	conv_exists = param_val_conv_exists(param_val_conv, PARAM_VAL_CONV_LEN,
++					    dl->opts.param_name);
++
++	mnl_attr_put_u8(nlh, DEVLINK_ATTR_PARAM_TYPE, ctx.nla_type);
++	switch (ctx.nla_type) {
++	case MNL_TYPE_U8:
++		if (conv_exists) {
++			err = param_val_conv_uint_get(param_val_conv,
++						      PARAM_VAL_CONV_LEN,
++						      dl->opts.param_name,
++						      dl->opts.param_value,
++						      &val_u32);
++			val_u8 = val_u32;
++		} else {
++			err = strtouint8_t(dl->opts.param_value, &val_u8);
++		}
++		if (err)
++			goto err_param_value_parse;
++		if (val_u8 == ctx.value.vu8)
++			return 0;
++		mnl_attr_put_u8(nlh, DEVLINK_ATTR_PARAM_VALUE_DATA, val_u8);
++		break;
++	case MNL_TYPE_U16:
++		if (conv_exists) {
++			err = param_val_conv_uint_get(param_val_conv,
++						      PARAM_VAL_CONV_LEN,
++						      dl->opts.param_name,
++						      dl->opts.param_value,
++						      &val_u32);
++			val_u16 = val_u32;
++		} else {
++			err = strtouint16_t(dl->opts.param_value, &val_u16);
++		}
++		if (err)
++			goto err_param_value_parse;
++		if (val_u16 == ctx.value.vu16)
++			return 0;
++		mnl_attr_put_u16(nlh, DEVLINK_ATTR_PARAM_VALUE_DATA, val_u16);
++		break;
++	case MNL_TYPE_U32:
++		if (conv_exists)
++			err = param_val_conv_uint_get(param_val_conv,
++						      PARAM_VAL_CONV_LEN,
++						      dl->opts.param_name,
++						      dl->opts.param_value,
++						      &val_u32);
++		else
++			err = strtouint32_t(dl->opts.param_value, &val_u32);
++		if (err)
++			goto err_param_value_parse;
++		if (val_u32 == ctx.value.vu32)
++			return 0;
++		mnl_attr_put_u32(nlh, DEVLINK_ATTR_PARAM_VALUE_DATA, val_u32);
++		break;
++	case MNL_TYPE_FLAG:
++		err = strtobool(dl->opts.param_value, &val_bool);
++		if (err)
++			goto err_param_value_parse;
++		if (val_bool == ctx.value.vbool)
++			return 0;
++		if (val_bool)
++			mnl_attr_put(nlh, DEVLINK_ATTR_PARAM_VALUE_DATA,
++				     0, NULL);
++		break;
++	case MNL_TYPE_STRING:
++		mnl_attr_put_strz(nlh, DEVLINK_ATTR_PARAM_VALUE_DATA,
++				  dl->opts.param_value);
++		if (!strcmp(dl->opts.param_value, ctx.value.vstr))
++			return 0;
++		break;
++	default:
++		printf("Value type not supported\n");
++		return -ENOTSUP;
++	}
++	return _mnlg_socket_sndrcv(dl->nlg, nlh, NULL, NULL);
++
++err_param_value_parse:
++	pr_err("Value \"%s\" is not a number or not within range\n",
++	       dl->opts.param_value);
++	return err;
++}
++
++static int cmd_port_param(struct dl *dl)
++{
++	if (dl_argv_match(dl, "help")) {
++		cmd_port_help();
++		return 0;
++	} else if (dl_argv_match(dl, "show") ||
++		   dl_argv_match(dl, "list") || dl_no_arg(dl)) {
++		dl_arg_inc(dl);
++		return cmd_port_param_show(dl);
++	} else if (dl_argv_match(dl, "set")) {
++		dl_arg_inc(dl);
++		return cmd_port_param_set(dl);
++	}
++	pr_err("Command \"%s\" not found\n", dl_argv(dl));
++	return -ENOENT;
++}
++
+ static int cmd_port_function(struct dl *dl)
+ {
+ 	if (dl_argv_match(dl, "help") || dl_no_arg(dl)) {
+@@ -3742,6 +3993,9 @@ static int cmd_port(struct dl *dl)
+ 	} else if (dl_argv_match(dl, "unsplit")) {
+ 		dl_arg_inc(dl);
+ 		return cmd_port_unsplit(dl);
++	} else if (dl_argv_match(dl, "param")) {
++		dl_arg_inc(dl);
++		return cmd_port_param(dl);
+ 	} else if (dl_argv_match(dl, "function")) {
+ 		dl_arg_inc(dl);
+ 		return cmd_port_function(dl);
+@@ -4556,6 +4810,10 @@ static const char *cmd_name(uint8_t cmd)
+ 	case DEVLINK_CMD_REGION_SET: return "set";
+ 	case DEVLINK_CMD_REGION_NEW: return "new";
+ 	case DEVLINK_CMD_REGION_DEL: return "del";
++	case DEVLINK_CMD_PORT_PARAM_GET: return "get";
++	case DEVLINK_CMD_PORT_PARAM_SET: return "set";
++	case DEVLINK_CMD_PORT_PARAM_NEW: return "new";
++	case DEVLINK_CMD_PORT_PARAM_DEL: return "del";
+ 	case DEVLINK_CMD_FLASH_UPDATE: return "begin";
+ 	case DEVLINK_CMD_FLASH_UPDATE_END: return "end";
+ 	case DEVLINK_CMD_FLASH_UPDATE_STATUS: return "status";
+@@ -4594,6 +4852,10 @@ static const char *cmd_obj(uint8_t cmd)
+ 	case DEVLINK_CMD_PARAM_SET:
+ 	case DEVLINK_CMD_PARAM_NEW:
+ 	case DEVLINK_CMD_PARAM_DEL:
++	case DEVLINK_CMD_PORT_PARAM_GET:
++	case DEVLINK_CMD_PORT_PARAM_SET:
++	case DEVLINK_CMD_PORT_PARAM_NEW:
++	case DEVLINK_CMD_PORT_PARAM_DEL:
+ 		return "param";
+ 	case DEVLINK_CMD_REGION_GET:
+ 	case DEVLINK_CMD_REGION_SET:
+@@ -4735,7 +4997,7 @@ static int cmd_mon_show_cb(const struct nlmsghdr *nlh, void *data)
+ 		    !tb[DEVLINK_ATTR_PARAM])
+ 			return MNL_CB_ERROR;
+ 		pr_out_mon_header(genl->cmd);
+-		pr_out_param(dl, tb, false);
++		pr_out_param(dl, tb, false, false);
+ 		pr_out_mon_footer();
+ 		break;
+ 	case DEVLINK_CMD_REGION_GET: /* fall through */
+diff --git a/man/man8/devlink-port.8 b/man/man8/devlink-port.8
+index 966faae6..62d6f063 100644
+--- a/man/man8/devlink-port.8
++++ b/man/man8/devlink-port.8
+@@ -43,6 +43,23 @@ devlink-port \- devlink port configuration
+ .B devlink port health
+ .RI "{ " show " | " recover " | " diagnose " | " dump " | " set " }"
+
++.ti -8
++.B devlink dev param set
++.I DEV/PORT_INDEX
++.B name
++.I PARAMETER
++.B value
++.I VALUE
++.BR cmode " { " runtime " | " driverinit " | " permanent " } "
++
++.ti -8
++.B devlink dev param show
++[
++.I DEV/PORT_INDEX
++.B name
++.I PARAMETER
++]
++
+ .ti -8
+ .B devlink port help
+
+@@ -99,6 +116,44 @@ If this argument is omitted all ports are listed.
+ Is an alias for
+ .BR devlink-health (8).
+
++.ti -8
++.SS devlink port param set  - set new value to devlink port configuration parameter
++.PP
++.B "DEV/PORT_INDEX"
++- specifies the devlink port to operate on.
++
++.TP
++.BI name " PARAMETER"
++Specify parameter name to set.
++
++.TP
++.BI value " VALUE"
++New value to set.
++
++.TP
++.BR cmode " { " runtime " | " driverinit " | " permanent " } "
++Configuration mode in which the new value is set.
++
++.I runtime
++- Set new value while driver is running. This configuration mode doesn't require any reset to apply the new value.
++
++.I driverinit
++- Set new value which will be applied during driver initialization. This configuration mode requires restart driver by devlink reload command to apply the new value.
++
++.I permanent
++- New value is written to device's non-volatile memory. This configuration mode requires hard reset to apply the new value.
++
++.SS devlink port param show - display devlink port supported configuration parameters attributes
++
++.PP
++.B "DEV/PORT_INDEX"
++- specifies the devlink port to operate on.
++
++.B name
++.I PARAMETER
++Specify parameter name to show.
++If this argument, as well as port index, are omitted - all parameters supported by devlink device ports are listed.
++
+ .SH "EXAMPLES"
+ .PP
+ devlink port show
+@@ -135,6 +190,16 @@ devlink port health show pci/0000:01:00.0/1 reporter tx
+ .RS 4
+ Shows status and configuration of tx reporter registered on pci/0000:01:00.0/1 devlink port.
+ .RE
++.PP
++devlink dev param show
++.RS 4
++Shows (dumps) all the port parameters across all the devices registered in the devlink.
++.RE
++.PP
++devlink dev param set pci/0000:01:00.0/1 name internal_error_reset value true cmode runtime
++.RS 4
++Sets the parameter internal_error_reset of specified devlink port (#1) to true.
++.RE
+
+ .SH SEE ALSO
+ .BR devlink (8),
+--
+2.25.1
