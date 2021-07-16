@@ -29,7 +29,7 @@
 #include "arm64_accton_as4564_26p_log.h"
 
 #define CHASSIS_THERMAL_COUNT	5
-#define CHASSIS_LED_COUNT		0
+#define CHASSIS_LED_COUNT       3
 #define CHASSIS_FAN_COUNT       2
 #define CHASSIS_PSU_COUNT       1
 
