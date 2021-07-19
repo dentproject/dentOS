@@ -47,7 +47,7 @@ class OnlPlatform_arm64_accton_as4564_26p_r0(OnlPlatformAccton,
             self.insmod("arm64-accton-as4564-26p-%s" % m)
 
         # Insert prestera kernel module
-        #self.modprobe('prestera_pci')
+        self.modprobe('prestera_pci')
 
         # set up systemctl rules
         #for swp in range(1, 27):
