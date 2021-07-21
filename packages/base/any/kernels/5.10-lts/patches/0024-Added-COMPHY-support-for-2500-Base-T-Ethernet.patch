@@ -1,0 +1,124 @@
+From 82ee941a7b6df5e0b89685845a7f7cf8f04b4405 Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Wed, 21 Jul 2021 17:38:54 +0300
+Subject: [PATCH] Added COMPHY support for 2500 Base-T Ethernet
+
+This patch adds Ethernet 2500 Base-T support to the Marvell COMPHY
+driver.
+Tested on MArvell A7K DB platform.
+
+Signed-off-by: Mickey Rachamim <mickeyr@marvell.com>
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+
+---
+ .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 20 ++++++++++++++-----
+ include/linux/phy.h                           |  3 +++
+ 2 files changed, 18 insertions(+), 5 deletions(-)
+ mode change 100644 => 100755 include/linux/phy.h
+
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index cea886c5bcb5..9e3c55541659 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -1299,6 +1299,7 @@ static int mvpp22_gop_init(struct mvpp2_port *port)
+ 		break;
+ 	case PHY_INTERFACE_MODE_SGMII:
+ 	case PHY_INTERFACE_MODE_1000BASEX:
++	case PHY_INTERFACE_MODE_2500BASET:
+ 	case PHY_INTERFACE_MODE_2500BASEX:
+ 		mvpp22_gop_init_sgmii(port);
+ 		break;
+@@ -1338,7 +1339,8 @@ static void mvpp22_gop_unmask_irq(struct mvpp2_port *port)
+ 
+ 	if (phy_interface_mode_is_rgmii(port->phy_interface) ||
+ 	    phy_interface_mode_is_8023z(port->phy_interface) ||
+-	    port->phy_interface == PHY_INTERFACE_MODE_SGMII) {
++	    port->phy_interface == PHY_INTERFACE_MODE_SGMII ||
++	    port->phy_interface == PHY_INTERFACE_MODE_2500BASET) {
+ 		/* Enable the GMAC link status irq for this port */
+ 		val = readl(port->base + MVPP22_GMAC_INT_SUM_MASK);
+ 		val |= MVPP22_GMAC_INT_SUM_MASK_LINK_STAT;
+@@ -1369,7 +1371,8 @@ static void mvpp22_gop_mask_irq(struct mvpp2_port *port)
+ 
+ 	if (phy_interface_mode_is_rgmii(port->phy_interface) ||
+ 	    phy_interface_mode_is_8023z(port->phy_interface) ||
+-	    port->phy_interface == PHY_INTERFACE_MODE_SGMII) {
++	    port->phy_interface == PHY_INTERFACE_MODE_SGMII ||
++	    port->phy_interface == PHY_INTERFACE_MODE_2500BASET) {
+ 		val = readl(port->base + MVPP22_GMAC_INT_SUM_MASK);
+ 		val &= ~MVPP22_GMAC_INT_SUM_MASK_LINK_STAT;
+ 		writel(val, port->base + MVPP22_GMAC_INT_SUM_MASK);
+@@ -3082,7 +3085,8 @@ static void mvpp2_isr_handle_gmac_internal(struct mvpp2_port *port)
+ 
+ 	if (phy_interface_mode_is_rgmii(port->phy_interface) ||
+ 	    phy_interface_mode_is_8023z(port->phy_interface) ||
+-	    port->phy_interface == PHY_INTERFACE_MODE_SGMII) {
++	    port->phy_interface == PHY_INTERFACE_MODE_SGMII ||
++	    port->phy_interface == PHY_INTERFACE_MODE_2500BASET) {
+ 		val = readl(port->base + MVPP22_GMAC_INT_STAT);
+ 		if (val & MVPP22_GMAC_INT_STAT_LINK) {
+ 			val = readl(port->base + MVPP2_GMAC_STATUS0);
+@@ -5742,6 +5746,7 @@ static void mvpp2_gmac_pcs_get_state(struct phylink_pcs *pcs,
+ 		state->speed = SPEED_1000;
+ 		break;
+ 	case PHY_INTERFACE_MODE_2500BASEX:
++	case PHY_INTERFACE_MODE_2500BASET:
+ 		state->speed = SPEED_2500;
+ 		break;
+ 	default:
+@@ -5907,6 +5912,9 @@ static void mvpp2_phylink_validate(struct phylink_config *config,
+ 			phylink_set(mask, 2500baseX_Full);
+ 		}
+ 		break;
++	case PHY_INTERFACE_MODE_2500BASET:
++		phylink_set(mask, 2500baseT_Full);
++		break;
+ 	default:
+ 		goto empty_set;
+ 	}
+@@ -5963,7 +5971,8 @@ static void mvpp2_gmac_config(struct mvpp2_port *port, unsigned int mode,
+ 		ctrl4 |= MVPP22_CTRL4_SYNC_BYPASS_DIS |
+ 			 MVPP22_CTRL4_DP_CLK_SEL |
+ 			 MVPP22_CTRL4_QSGMII_BYPASS_ACTIVE;
+-	} else if (state->interface == PHY_INTERFACE_MODE_SGMII) {
++	} else if (state->interface == PHY_INTERFACE_MODE_SGMII ||
++		   state->interface == PHY_INTERFACE_MODE_2500BASET) {
+ 		ctrl2 |= MVPP2_GMAC_PCS_ENABLE_MASK | MVPP2_GMAC_INBAND_AN_MASK;
+ 		ctrl4 &= ~MVPP22_CTRL4_EXT_PIN_GMII_SEL;
+ 		ctrl4 |= MVPP22_CTRL4_SYNC_BYPASS_DIS |
+@@ -5984,7 +5993,8 @@ static void mvpp2_gmac_config(struct mvpp2_port *port, unsigned int mode,
+ 	} else if (state->interface == PHY_INTERFACE_MODE_SGMII) {
+ 		/* SGMII in-band mode receives the speed and duplex from
+ 		 * the PHY. Flow control information is not received. */
+-	} else if (phy_interface_mode_is_8023z(state->interface)) {
++	} else if (phy_interface_mode_is_8023z(state->interface) ||
++		   state->interface == PHY_INTERFACE_MODE_2500BASET) {
+ 		/* 1000BaseX and 2500BaseX ports cannot negotiate speed nor can
+ 		 * they negotiate duplex: they are always operating with a fixed
+ 		 * speed of 1000/2500Mbps in full duplex, so force 1000/2500
+diff --git a/include/linux/phy.h b/include/linux/phy.h
+old mode 100644
+new mode 100755
+index 56563e5e0dc7..84dc637e4a66
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -137,6 +137,7 @@ typedef enum {
+ 	PHY_INTERFACE_MODE_TRGMII,
+ 	PHY_INTERFACE_MODE_1000BASEX,
+ 	PHY_INTERFACE_MODE_2500BASEX,
++	PHY_INTERFACE_MODE_2500BASET,
+ 	PHY_INTERFACE_MODE_RXAUI,
+ 	PHY_INTERFACE_MODE_XAUI,
+ 	/* 10GBASE-R, XFI, SFI - single lane 10G Serdes */
+@@ -207,6 +208,8 @@ static inline const char *phy_modes(phy_interface_t interface)
+ 		return "1000base-x";
+ 	case PHY_INTERFACE_MODE_2500BASEX:
+ 		return "2500base-x";
++	case PHY_INTERFACE_MODE_2500BASET:
++		return "2500base-t";
+ 	case PHY_INTERFACE_MODE_RXAUI:
+ 		return "rxaui";
+ 	case PHY_INTERFACE_MODE_XAUI:
+-- 
+2.17.1
+
