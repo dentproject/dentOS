@@ -1,10 +1,11 @@
 From 82ee941a7b6df5e0b89685845a7f7cf8f04b4405 Mon Sep 17 00:00:00 2001
 From: Elad Nachman <enachman@marvell.com>
 Date: Wed, 21 Jul 2021 17:38:54 +0300
-Subject: [PATCH] Added COMPHY support for 2500 Base-T Ethernet
+Subject: [PATCH] net: Added 2500 Base-T Ethernet to Marvell mvpp2
 
-This patch adds Ethernet 2500 Base-T support to the Marvell COMPHY
-driver.
+
+This patch adds Ethernet 2500 Base-T support to the  
+Marvell PPv2 (Packet Processor v2) 1/10 Gbps adapter driver.
 Tested on Marvell A7K DB platform.
 
 Signed-off-by: Mickey Rachamim <mickeyr@marvell.com>

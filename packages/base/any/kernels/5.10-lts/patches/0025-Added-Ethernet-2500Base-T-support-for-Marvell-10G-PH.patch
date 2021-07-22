@@ -1,8 +1,7 @@
 From 557cb4fb2611915cf3e2b99b5d1ff4497f2f226b Mon Sep 17 00:00:00 2001
 From: Elad Nachman <enachman@marvell.com>
 Date: Wed, 21 Jul 2021 17:44:29 +0300
-Subject: [PATCH] Added Ethernet 2500Base-T support for Marvell 10G PHY
- driver
+Subject: [PATCH] net: Added Ethernet 2500Base-T support for Marvell 10G PHY
 
 This patch adds Ethernet 2500 Base-T support to the Marvell 10G PHY
 driver.
