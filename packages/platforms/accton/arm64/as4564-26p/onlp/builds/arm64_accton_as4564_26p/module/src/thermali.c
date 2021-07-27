@@ -41,6 +41,7 @@ static char* devfiles__[] =  /* must map with onlp_thermal_id */
     "/sys/bus/i2c/devices/1-0049*temp1_input",
     "/sys/bus/i2c/devices/1-004b*temp1_input",
     "/sys/bus/i2c/devices/1-004c*temp1_input",
+    "/sys/devices/platform/as4564_thermal/temp1_input",
 };
 
 /* Static values */
@@ -59,6 +60,10 @@ static onlp_thermal_info_t linfo[] = {
             ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
         },
     { { ONLP_THERMAL_ID_CREATE(THERMAL_4_ON_MAIN_BROAD), "Thermal 4 - U29_PSU (0x4C)", 0},
+            ONLP_THERMAL_STATUS_PRESENT,
+            ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
+        },
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_4_ON_MAIN_BROAD), "CPU Core (A7K)", 0},
             ONLP_THERMAL_STATUS_PRESENT,
             ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
         },

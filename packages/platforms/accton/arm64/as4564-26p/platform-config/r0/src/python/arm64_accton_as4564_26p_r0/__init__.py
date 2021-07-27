@@ -43,7 +43,7 @@ class OnlPlatform_arm64_accton_as4564_26p_r0(OnlPlatformAccton,
             subprocess.call('echo port%d > /sys/bus/i2c/devices/%d-0050/port_name' % (port, port-20), shell=True)
 
         # Below platform drivers should be inserted after cpld driver is initiated.
-        for m in [ 'psu' ]:
+        for m in [ 'psu', 'fan', 'thermal' ]:
             self.insmod("arm64-accton-as4564-26p-%s" % m)
 
         # Insert prestera kernel module
