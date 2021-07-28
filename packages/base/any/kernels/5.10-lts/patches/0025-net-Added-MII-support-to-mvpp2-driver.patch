@@ -1,0 +1,132 @@
+From 67cbf15c026cec3887e19d02bd82164ecfdd697a Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Wed, 28 Jul 2021 13:34:39 +0300
+Subject: [PATCH 2/4] net: Added MII support to mvpp2 driver
+
+This patch adds MII support to the Marvell PPv2
+(Packet Processor v2) 1/10 Gbps adapter driver.
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 38 +++++++++++++++++--
+ 1 file changed, 35 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index cea886c5bcb5..ec126ba69109 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -1237,6 +1237,22 @@ static void mvpp22_gop_init_rgmii(struct mvpp2_port *port)
+ 	regmap_write(priv->sysctrl_base, GENCONF_CTRL0, val);
+ }
+ 
++static void mvpp22_gop_init_mii(struct mvpp2_port *port)
++{
++	struct mvpp2 *priv = port->priv;
++	u32 val;
++
++	regmap_read(priv->sysctrl_base, GENCONF_PORT_CTRL0, &val);
++	val |= GENCONF_PORT_CTRL0_BUS_WIDTH_SELECT;
++	regmap_write(priv->sysctrl_base, GENCONF_PORT_CTRL0, val);
++
++	regmap_read(priv->sysctrl_base, GENCONF_CTRL0, &val);
++	val |= GENCONF_CTRL0_PORT1_RGMII_MII;
++	val |= GENCONF_CTRL0_PORT1_RGMII;
++	regmap_write(priv->sysctrl_base, GENCONF_CTRL0, val);
++}
++
++
+ static void mvpp22_gop_init_sgmii(struct mvpp2_port *port)
+ {
+ 	struct mvpp2 *priv = port->priv;
+@@ -1289,6 +1305,11 @@ static int mvpp22_gop_init(struct mvpp2_port *port)
+ 		return 0;
+ 
+ 	switch (port->phy_interface) {
++	case PHY_INTERFACE_MODE_MII:
++		if (port->gop_id == 0 || port->gop_id == 2)
++			goto invalid_conf;
++		mvpp22_gop_init_mii(port);
++		break;
+ 	case PHY_INTERFACE_MODE_RGMII:
+ 	case PHY_INTERFACE_MODE_RGMII_ID:
+ 	case PHY_INTERFACE_MODE_RGMII_RXID:
+@@ -1338,6 +1359,7 @@ static void mvpp22_gop_unmask_irq(struct mvpp2_port *port)
+ 
+ 	if (phy_interface_mode_is_rgmii(port->phy_interface) ||
+ 	    phy_interface_mode_is_8023z(port->phy_interface) ||
++	    port->phy_interface == PHY_INTERFACE_MODE_MII ||
+ 	    port->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+ 		/* Enable the GMAC link status irq for this port */
+ 		val = readl(port->base + MVPP22_GMAC_INT_SUM_MASK);
+@@ -1369,6 +1391,7 @@ static void mvpp22_gop_mask_irq(struct mvpp2_port *port)
+ 
+ 	if (phy_interface_mode_is_rgmii(port->phy_interface) ||
+ 	    phy_interface_mode_is_8023z(port->phy_interface) ||
++	    port->phy_interface == PHY_INTERFACE_MODE_MII ||
+ 	    port->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+ 		val = readl(port->base + MVPP22_GMAC_INT_SUM_MASK);
+ 		val &= ~MVPP22_GMAC_INT_SUM_MASK_LINK_STAT;
+@@ -1387,6 +1410,7 @@ static void mvpp22_gop_setup_irq(struct mvpp2_port *port)
+ 	if (port->phylink ||
+ 	    phy_interface_mode_is_rgmii(port->phy_interface) ||
+ 	    phy_interface_mode_is_8023z(port->phy_interface) ||
++	    port->phy_interface == PHY_INTERFACE_MODE_MII ||
+ 	    port->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+ 		val = readl(port->base + MVPP22_GMAC_INT_MASK);
+ 		val |= MVPP22_GMAC_INT_MASK_LINK_STAT;
+@@ -3082,6 +3106,7 @@ static void mvpp2_isr_handle_gmac_internal(struct mvpp2_port *port)
+ 
+ 	if (phy_interface_mode_is_rgmii(port->phy_interface) ||
+ 	    phy_interface_mode_is_8023z(port->phy_interface) ||
++	    port->phy_interface == PHY_INTERFACE_MODE_MII ||
+ 	    port->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+ 		val = readl(port->base + MVPP22_GMAC_INT_STAT);
+ 		if (val & MVPP22_GMAC_INT_STAT_LINK) {
+@@ -5848,6 +5873,10 @@ static void mvpp2_phylink_validate(struct phylink_config *config,
+ 		if (!mvpp2_port_supports_xlg(port))
+ 			goto empty_set;
+ 		break;
++	case PHY_INTERFACE_MODE_MII:
++		if (port->gop_id == 2)
++			goto empty_set;
++		/* Fall-through */
+ 	case PHY_INTERFACE_MODE_RGMII:
+ 	case PHY_INTERFACE_MODE_RGMII_ID:
+ 	case PHY_INTERFACE_MODE_RGMII_RXID:
+@@ -5885,12 +5914,13 @@ static void mvpp2_phylink_validate(struct phylink_config *config,
+ 	case PHY_INTERFACE_MODE_RGMII_RXID:
+ 	case PHY_INTERFACE_MODE_RGMII_TXID:
+ 	case PHY_INTERFACE_MODE_SGMII:
++		phylink_set(mask, 1000baseT_Full);
++	case PHY_INTERFACE_MODE_MII:
+ 		phylink_set(mask, 10baseT_Half);
+ 		phylink_set(mask, 10baseT_Full);
+ 		phylink_set(mask, 100baseT_Half);
+ 		phylink_set(mask, 100baseT_Full);
+-		phylink_set(mask, 1000baseT_Full);
+-		phylink_set(mask, 1000baseX_Full);
++
+ 		if (state->interface != PHY_INTERFACE_MODE_NA)
+ 			break;
+ 		fallthrough;
+@@ -5969,7 +5999,8 @@ static void mvpp2_gmac_config(struct mvpp2_port *port, unsigned int mode,
+ 		ctrl4 |= MVPP22_CTRL4_SYNC_BYPASS_DIS |
+ 			 MVPP22_CTRL4_DP_CLK_SEL |
+ 			 MVPP22_CTRL4_QSGMII_BYPASS_ACTIVE;
+-	} else if (phy_interface_mode_is_rgmii(state->interface)) {
++	} else if ((phy_interface_mode_is_rgmii(state->interface)) ||
++		   (state->interface == PHY_INTERFACE_MODE_MII)) {
+ 		ctrl4 &= ~MVPP22_CTRL4_DP_CLK_SEL;
+ 		ctrl4 |= MVPP22_CTRL4_EXT_PIN_GMII_SEL |
+ 			 MVPP22_CTRL4_SYNC_BYPASS_DIS |
+@@ -6083,6 +6114,7 @@ static void mvpp2_mac_config(struct phylink_config *config, unsigned int mode,
+ 		mvpp2_xlg_config(port, mode, state);
+ 	else if (phy_interface_mode_is_rgmii(state->interface) ||
+ 		 phy_interface_mode_is_8023z(state->interface) ||
++		 state->interface == PHY_INTERFACE_MODE_MII ||
+ 		 state->interface == PHY_INTERFACE_MODE_SGMII)
+ 		mvpp2_gmac_config(port, mode, state);
+ 
+-- 
+2.17.1
+
