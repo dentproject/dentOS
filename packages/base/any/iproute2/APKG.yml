@@ -32,7 +32,7 @@ packages:
       builds/iproute2/misc/ss : /bin/
       builds/iproute2/tc/m_xt.so : /usr/lib/tc/
       builds/iproute2/tc/tc : /sbin/
-
+      builds/iproute2/devlink/devlink : /sbin/
 
     links:
       /sbin/ip: /bin/ip
