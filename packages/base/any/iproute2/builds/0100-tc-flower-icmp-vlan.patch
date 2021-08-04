@@ -1,0 +1,32 @@
+commit 1d08137862db4f74117241277fd2df00eca167f8
+Author: Carl Roth <rothcar@amazon.com>
+Date:   Sat Oct 24 15:09:42 2020 -0700
+
+    enable ICMP type/code matches within vlan-tagged frames
+
+diff --git a/tc/f_flower.c b/tc/f_flower.c
+index 9d59d71f..063a2bb1 100644
+--- a/tc/f_flower.c
++++ b/tc/f_flower.c
+@@ -1373,7 +1373,9 @@ static int flower_parse_opt(struct filter_util *qu, char *handle,
+ 			}
+ 		} else if (matches(*argv, "type") == 0) {
+ 			NEXT_ARG();
+-			ret = flower_parse_icmp(*argv, eth_type, ip_proto,
++			ret = flower_parse_icmp(*argv, vlan_ethtype ?
++                                                vlan_ethtype : eth_type,
++                                                ip_proto,
+ 						FLOWER_ICMP_FIELD_TYPE, n);
+ 			if (ret < 0) {
+ 				fprintf(stderr, "Illegal \"icmp type\"\n");
+@@ -1381,7 +1383,9 @@ static int flower_parse_opt(struct filter_util *qu, char *handle,
+ 			}
+ 		} else if (matches(*argv, "code") == 0) {
+ 			NEXT_ARG();
+-			ret = flower_parse_icmp(*argv, eth_type, ip_proto,
++			ret = flower_parse_icmp(*argv, vlan_ethtype ?
++                                                vlan_ethtype : eth_type,
++                                                ip_proto,
+ 						FLOWER_ICMP_FIELD_CODE, n);
+ 			if (ret < 0) {
+ 				fprintf(stderr, "Illegal \"icmp code\"\n");

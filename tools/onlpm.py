@@ -299,6 +299,7 @@ class OnlPackage(object):
         self._validate_key('arch', str)
         self._validate_key('copyright', str, False)
         self._validate_key('changelog', str, False)
+        self._validate_key('epoch', str, False)
         self._validate_key('version', str)
         self._validate_key('maintainer', str)
         self._validate_key('depends', list, False)
@@ -484,6 +485,9 @@ class OnlPackage(object):
                 command = command + "--before-remove %s " % OnlPackageBeforeRemoveScript(self.pkg['init'], dir=workdir).name
             if self.pkg.get('init-after-remove', True):
                 command = command + "--after-remove %s " % OnlPackageAfterRemoveScript(self.pkg['init'], dir=workdir).name
+
+        if 'epoch' in self.pkg:
+            command = command + '--epoch ' + self.pkg['epoch']
 
         fpm_file_commands = ['{}-{}'.format(o, a) for o in ['after', 'before'] for a in ['install', 'remove', 'upgrade']]
 
