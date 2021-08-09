@@ -1,0 +1,134 @@
+From 93de5dcc58c25da615cb72c015302f6c240e1bd2 Mon Sep 17 00:00:00 2001
+From: Roi Dayan <roid@nvidia.com>
+Date: Mon, 7 Jun 2021 09:44:08 +0300
+Subject: [PATCH] police: Add support for json output
+
+Change to use the print wrappers instead of fprintf().
+
+This is example output of the options part before this commit:
+
+        "options": {
+            "handle": 1,
+            "in_hw": true,
+            "actions": [ {
+                    "order": 1 police 0x2 ,
+                    "control_action": {
+                        "type": "drop"
+                    },
+                    "control_action": {
+                        "type": "continue"
+                    }overhead 0b linklayer unspec
+        ref 1 bind 1
+,
+                    "used_hw_stats": [ "delayed" ]
+                } ]
+        }
+
+This is the output of the same dump with this commit:
+
+        "options": {
+            "handle": 1,
+            "in_hw": true,
+            "actions": [ {
+                    "order": 1,
+                    "kind": "police",
+                    "index": 2,
+                    "control_action": {
+                        "type": "drop"
+                    },
+                    "control_action": {
+                        "type": "continue"
+                    },
+                    "overhead": 0,
+                    "linklayer": "unspec",
+                    "ref": 1,
+                    "bind": 1,
+                    "used_hw_stats": [ "delayed" ]
+                } ]
+        }
+
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Paul Blakey <paulb@nvidia.com>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+---
+ tc/m_police.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
+
+diff --git a/tc/m_police.c b/tc/m_police.c
+index bb51df6..742bd97 100644
+--- a/tc/m_police.c
++++ b/tc/m_police.c
+@@ -245,18 +245,19 @@ static int print_police(struct action_util *a, FILE *f, struct rtattr *arg)
+ 	unsigned int linklayer;
+ 	__u64 rate64, prate64;
+ 
++	print_string(PRINT_ANY, "kind", "%s", "police");
+ 	if (arg == NULL)
+ 		return 0;
+ 
+ 	parse_rtattr_nested(tb, TCA_POLICE_MAX, arg);
+ 
+ 	if (tb[TCA_POLICE_TBF] == NULL) {
+-		fprintf(f, "[NULL police tbf]");
+-		return 0;
++		fprintf(stderr, "[NULL police tbf]");
++		return -1;
+ 	}
+ #ifndef STOOPID_8BYTE
+ 	if (RTA_PAYLOAD(tb[TCA_POLICE_TBF])  < sizeof(*p)) {
+-		fprintf(f, "[truncated police tbf]");
++		fprintf(stderr, "[truncated police tbf]");
+ 		return -1;
+ 	}
+ #endif
+@@ -267,13 +268,13 @@ static int print_police(struct action_util *a, FILE *f, struct rtattr *arg)
+ 	    RTA_PAYLOAD(tb[TCA_POLICE_RATE64]) >= sizeof(rate64))
+ 		rate64 = rta_getattr_u64(tb[TCA_POLICE_RATE64]);
+ 
+-	fprintf(f, " police 0x%x ", p->index);
++	print_uint(PRINT_ANY, "index", "\t index %u ", p->index);
+ 	tc_print_rate(PRINT_FP, NULL, "rate %s ", rate64);
+ 	buffer = tc_calc_xmitsize(rate64, p->burst);
+ 	print_size(PRINT_FP, NULL, "burst %s ", buffer);
+ 	print_size(PRINT_FP, NULL, "mtu %s ", p->mtu);
+ 	if (show_raw)
+-		fprintf(f, "[%08x] ", p->burst);
++		print_hex(PRINT_FP, NULL, "[%08x] ", p->burst);
+ 
+ 	prate64 = p->peakrate.rate;
+ 	if (tb[TCA_POLICE_PEAKRATE64] &&
+@@ -293,14 +294,17 @@ static int print_police(struct action_util *a, FILE *f, struct rtattr *arg)
+ 		__u32 action = rta_getattr_u32(tb[TCA_POLICE_RESULT]);
+ 
+ 		print_action_control(f, "/", action, " ");
+-	} else
+-		fprintf(f, " ");
++	} else {
++		print_string(PRINT_FP, NULL, " ", NULL);
++	}
+ 
+-	fprintf(f, "overhead %ub ", p->rate.overhead);
++	print_uint(PRINT_ANY, "overhead", "overhead %u ", p->rate.overhead);
+ 	linklayer = (p->rate.linklayer & TC_LINKLAYER_MASK);
+ 	if (linklayer > TC_LINKLAYER_ETHERNET || show_details)
+-		fprintf(f, "linklayer %s ", sprint_linklayer(linklayer, b2));
+-	fprintf(f, "\n\tref %d bind %d", p->refcnt, p->bindcnt);
++		print_string(PRINT_ANY, "linklayer", "linklayer %s ",
++			     sprint_linklayer(linklayer, b2));
++	print_int(PRINT_ANY, "ref", "ref %d ", p->refcnt);
++	print_int(PRINT_ANY, "bind", "bind %d ", p->bindcnt);
+ 	if (show_stats) {
+ 		if (tb[TCA_POLICE_TM]) {
+ 			struct tcf_t *tm = RTA_DATA(tb[TCA_POLICE_TM]);
+@@ -308,7 +312,7 @@ static int print_police(struct action_util *a, FILE *f, struct rtattr *arg)
+ 			print_tm(f, tm);
+ 		}
+ 	}
+-	fprintf(f, "\n");
++	print_nl();
+ 
+ 
+ 	return 0;
+-- 
+2.7.4
+
