@@ -19,4 +19,5 @@
 0023-accton-as4564-26p.patch
 0024-i2c-Add-mv64xxx-support-for-AXI-bus-clock-handling.patch
 0025-net-Add-MII-support-to-mvpp2-driver.patch
+0026-net-Add-2500-Base-T-Ethernet-to-Marvell-mvpp2.patch
 
