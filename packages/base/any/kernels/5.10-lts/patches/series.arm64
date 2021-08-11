@@ -32,3 +32,4 @@
 0036-Allow-TC-NAT-to-handle-offloaded-statistics.patch
 0037-Change-HW-OFFLOAD-timeout-to-60-sec.patch
 0038-netfilter-nf_flow_table_free-flush-flows-before-clea.patch
+0039-net-sched-fix-infinite-loop-when-trying-to-create-tc.patch
