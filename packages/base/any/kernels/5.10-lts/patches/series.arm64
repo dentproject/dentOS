@@ -17,3 +17,5 @@
 0021-tn48m-add-sfp-eeprom-support-to-ethtool.patch
 0022-delta-tn48m-dn-series-dts.patch
 0023-accton-as4564-26p.patch
+0024-i2c-Add-mv64xxx-support-for-AXI-bus-clock-handling.patch
+
