@@ -13,3 +13,9 @@
 [submodule "sm/dent-artifacts"]
 	path = sm/dent-artifacts
 	url = https://github.com/dentproject/dent-artifacts.git
+[submodule "sm/iproute2"]
+	path = sm/iproute2
+	url = git://git.kernel.org/pub/scm/network/iproute2/iproute2.git
+[submodule "sm/ethtool"]
+	path = sm/ethtool
+	url = git://git.kernel.org/pub/scm/network/ethtool/ethtool.git

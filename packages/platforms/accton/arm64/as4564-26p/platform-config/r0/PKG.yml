@@ -1,0 +1,1 @@
+!include $ONL_TEMPLATES/platform-config-platform.yml ARCH=arm64 VENDOR=accton BASENAME=arm64-accton-as4564-26p REVISION=r0

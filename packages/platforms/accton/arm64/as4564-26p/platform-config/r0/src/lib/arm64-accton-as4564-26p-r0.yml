@@ -1,0 +1,43 @@
+---
+
+######################################################################
+#
+# platform-config for AS4564-26P
+#
+######################################################################
+
+arm64-accton-as4564-26p-r0:
+  flat_image_tree:
+    kernel:
+      <<: *arm64-kernel-5-10
+    dtb:
+      =: accton-as4564-26p.dtb
+      <<: *arm64-kernel-5-10-package
+    itb:
+      <<: *arm64-itb
+
+  loader:
+    device: /dev/sda
+    ##partition: /dev/sda1
+    loadaddr: 0x20000000
+    nos_bootcmds: *ssd_bootcmds
+
+    setenv:
+    - bootargs: >-
+        $console
+        onl_platform=$onl_platform
+        arm-smmu.disable_bypass=n
+        maxcpus=4
+        pci=pcie_bus_safe
+        cpuidle.off=1
+
+    environment:
+    - device: /dev/mtd1
+      env_offset: 0x00000000
+      env_size: 0x00010000
+      sector_size: 0x00010000
+
+  network:
+    interfaces:
+      eth0:
+        name: eth0
