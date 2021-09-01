@@ -17,3 +17,8 @@
 0021-tn48m-add-sfp-eeprom-support-to-ethtool.patch
 0022-delta-tn48m-dn-series-dts.patch
 0023-accton-as4564-26p.patch
+0024-i2c-Add-mv64xxx-support-for-AXI-bus-clock-handling.patch
+0025-net-Add-MII-support-to-mvpp2-driver.patch
+0026-net-Add-2500-Base-T-Ethernet-to-Marvell-mvpp2.patch
+0027-net-Add-Ethernet-2500Base-T-support-for-Marvell-10G.patch
+
