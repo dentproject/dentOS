@@ -17,6 +17,7 @@
 - sudo
 - openssh-server
 - iproute
+- iproute2
 - resolvconf
 - vim-tiny
 - zile
@@ -89,3 +90,4 @@
 - memtester
 - lsb-release
 - tknos-firmware
+- dbus

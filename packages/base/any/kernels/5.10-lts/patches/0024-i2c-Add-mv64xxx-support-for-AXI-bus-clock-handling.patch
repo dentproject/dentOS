@@ -1,0 +1,109 @@
+From 5604c64109bcd315c5d2e5461b7304f361d93642 Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Wed, 28 Jul 2021 13:00:30 +0300
+Subject: [PATCH 1/4] i2c: Add mv64xxx support for AXI bus clock handling
+
+This patch adds support for AXI bus clock handling for the
+mv64xxx i2c driver when the CP11x coprocessor is used.
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ arch/arm64/boot/dts/marvell/armada-cp11x.dtsi | 23 +++++++++++++++----
+ drivers/i2c/busses/i2c-mv64xxx.c              | 11 +++++++++
+ 2 files changed, 30 insertions(+), 4 deletions(-)
+ mode change 100644 => 100755 arch/arm64/boot/dts/marvell/armada-cp11x.dtsi
+ mode change 100644 => 100755 drivers/i2c/busses/i2c-mv64xxx.c
+
+diff --git a/arch/arm64/boot/dts/marvell/armada-cp11x.dtsi b/arch/arm64/boot/dts/marvell/armada-cp11x.dtsi
+old mode 100644
+new mode 100644
+index 9dcf16beabf5..0fbd07a902ad
+--- a/arch/arm64/boot/dts/marvell/armada-cp11x.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-cp11x.dtsi
+@@ -368,9 +368,10 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			interrupts = <120 IRQ_TYPE_LEVEL_HIGH>;
+-			clock-names = "core", "reg";
++			clock-names = "core", "reg", "axi";
+ 			clocks = <&CP11X_LABEL(clk) 1 21>,
+-				 <&CP11X_LABEL(clk) 1 17>;
++				 <&CP11X_LABEL(clk) 1 17>,
++				 <&CP11X_LABEL(clk) 1 18>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -380,9 +381,23 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			interrupts = <121 IRQ_TYPE_LEVEL_HIGH>;
+-			clock-names = "core", "reg";
++			clock-names = "core", "reg", "axi";
+ 			clocks = <&CP11X_LABEL(clk) 1 21>,
+-				 <&CP11X_LABEL(clk) 1 17>;
++				 <&CP11X_LABEL(clk) 1 17>,
++				 <&CP11X_LABEL(clk) 1 18>;
++			status = "disabled";
++		};
++
++		CP11X_LABEL(mss_i2c): i2c@211000 {
++			compatible = "marvell,mv78230-i2c";
++			reg = <0x211000 0x20>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			interrupts = <0 IRQ_TYPE_LEVEL_HIGH>;
++			clock-names = "core", "reg", "axi";
++			clocks = <&CP11X_LABEL(clk) 1 21>,
++				 <&CP11X_LABEL(clk) 1 17>,
++				 <&CP11X_LABEL(clk) 1 18>;
+ 			status = "disabled";
+ 		};
+ 
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+old mode 100644
+new mode 100644
+index e0e45fc19b8f..12d234672cc0
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -136,6 +136,7 @@ struct mv64xxx_i2c_data {
+ 	u32			freq_n;
+ 	struct clk              *clk;
+ 	struct clk              *reg_clk;
++	struct clk              *axi_clk;
+ 	wait_queue_head_t	waitq;
+ 	spinlock_t		lock;
+ 	struct i2c_msg		*msg;
+@@ -908,6 +909,14 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ 	if (!IS_ERR(drv_data->reg_clk))
+ 		clk_prepare_enable(drv_data->reg_clk);
+ 
++	drv_data->axi_clk = devm_clk_get(&pd->dev, "axi");
++	if (IS_ERR(drv_data->axi_clk) &&
++	    PTR_ERR(drv_data->axi_clk) == -EPROBE_DEFER) {
++		return -EPROBE_DEFER;
++	}
++	if (!IS_ERR(drv_data->axi_clk))
++		clk_prepare_enable(drv_data->axi_clk);
++
+ 	drv_data->irq = platform_get_irq(pd, 0);
+ 
+ 	if (pdata) {
+@@ -957,6 +966,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ exit_reset:
+ 	reset_control_assert(drv_data->rstc);
+ exit_clk:
++	clk_disable_unprepare(drv_data->axi_clk);
+ 	clk_disable_unprepare(drv_data->reg_clk);
+ 	clk_disable_unprepare(drv_data->clk);
+ 
+@@ -971,6 +981,7 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+ 	i2c_del_adapter(&drv_data->adapter);
+ 	free_irq(drv_data->irq, drv_data);
+ 	reset_control_assert(drv_data->rstc);
++	clk_disable_unprepare(drv_data->axi_clk);
+ 	clk_disable_unprepare(drv_data->reg_clk);
+ 	clk_disable_unprepare(drv_data->clk);
+ 
+-- 
+2.17.1
+
