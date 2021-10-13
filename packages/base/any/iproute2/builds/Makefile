@@ -34,9 +34,6 @@ build: deps
 	$(MAKE) V=1 PREFIX=/usr/local CC=$(GCC) -C iproute2
 
 SERIES		:= \
-  0001-lib-Move-print_rate-from-tc-here-modernize.patch \
-  0002-lib-Move-sprint_size-from-tc-here-add-print_size.patch \
-  0003-police-Add-support-for-json-output.patch \
   0004-sync-iptables-header.patch \
   0100-tc-flower-icmp-vlan.patch \
   0101-devlink-add.patch \

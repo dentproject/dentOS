@@ -571,30 +571,21 @@ static ssize_t show_rxlos_all(struct device *dev, struct device_attribute *da,
     int i, status;
     u8 values[6]  = {0};
     u8 regs_52x[] = {0x40};
-    u8 regs_mask_52x[] = {0x36};
     u8 regs_48x[] = {0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB};
-    u8 regs_mask_48x[] = {0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB};
     u8 *regs[] = {regs_48x, regs_52x, regs_52x, regs_52x};
     u8  size[] = {ARRAY_SIZE(regs_48x), ARRAY_SIZE(regs_52x), ARRAY_SIZE(regs_52x), ARRAY_SIZE(regs_52x)};
-    u8 *regs_mask[] = {regs_mask_48x, regs_mask_52x, regs_mask_52x, regs_mask_52x};
     struct i2c_client *client = to_i2c_client(dev);
     struct as4224_cpld_data *data = i2c_get_clientdata(client);
 
     mutex_lock(&data->update_lock);
 
     for (i = 0; i < size[data->platform_id]; i++) {
-        /* Enable the interrupt to CPU */
-        status = as4224_cpld_write_internal(client, regs_mask[data->platform_id][i], 0);
-        if (unlikely(status < 0)) {
-            goto exit;
-        }
-
         status = as4224_cpld_read_internal(client, regs[data->platform_id][i]);
         if (status < 0) {
             goto exit;
         }
 
-        values[i] = (u8)status;
+        values[i] = (u8)~status;
     }
 
     mutex_unlock(&data->update_lock);
@@ -679,26 +670,32 @@ static ssize_t show_module_48x(struct device *dev, struct device_attribute *da,
         mask = 0x1 << (attr->index - MODULE_TXDISABLE_41);
         break;
     case MODULE_RXLOS_1 ... MODULE_RXLOS_8:
+        invert = 1;
         reg  = 0xA6;
         mask = 0x1 << (attr->index - MODULE_RXLOS_1);
         break;
     case MODULE_RXLOS_9 ... MODULE_RXLOS_16:
+        invert = 1;
         reg  = 0xA7;
         mask = 0x1 << (attr->index - MODULE_RXLOS_9);
         break;
     case MODULE_RXLOS_17 ... MODULE_RXLOS_24:
+        invert = 1;
         reg  = 0xA8;
         mask = 0x1 << (attr->index - MODULE_RXLOS_17);
         break;
     case MODULE_RXLOS_25 ... MODULE_RXLOS_32:
+        invert = 1;
         reg  = 0xA9;
         mask = 0x1 << (attr->index - MODULE_RXLOS_25);
         break;
     case MODULE_RXLOS_33 ... MODULE_RXLOS_40:
+        invert = 1;
         reg  = 0xAA;
         mask = 0x1 << (attr->index - MODULE_RXLOS_33);
         break;
     case MODULE_RXLOS_41 ... MODULE_RXLOS_48:
+        invert = 1;
         reg  = 0xAB;
         mask = 0x1 << (attr->index - MODULE_RXLOS_41);
         break;
@@ -731,34 +728,6 @@ static ssize_t show_module_48x(struct device *dev, struct device_attribute *da,
     }
 
     mutex_lock(&data->update_lock);
-    if (attr->index >= MODULE_TXFAULT_1 && attr->index <= MODULE_TXFAULT_48) {
-        int reg_mask = 0xB0 + ((attr->index - MODULE_TXFAULT_1) / 8);
-        status = as4224_cpld_read_internal(client, reg_mask);
-        if (unlikely(status < 0)) {
-            goto exit;
-        }
-
-        /* Enable the interrupt to CPU */
-        status = as4224_cpld_write_internal(client, reg_mask, status & (~mask));
-        if (unlikely(status < 0)) {
-            goto exit;
-        }
-    }
-
-    if (attr->index >= MODULE_RXLOS_1 && attr->index <= MODULE_RXLOS_48) {
-        int reg_mask = 0xB6 + ((attr->index - MODULE_RXLOS_1) / 8);
-        status = as4224_cpld_read_internal(client, reg_mask);
-        if (unlikely(status < 0)) {
-            goto exit;
-        }
-
-        /* Enable the interrupt to CPU */
-        status = as4224_cpld_write_internal(client, reg_mask, status & (~mask));
-        if (unlikely(status < 0)) {
-            goto exit;
-        }
-    }
-
     status = as4224_cpld_read_internal(client, reg);
     if (unlikely(status < 0)) {
         goto exit;
@@ -792,12 +761,13 @@ static ssize_t show_module_52x(struct device *dev, struct device_attribute *da,
         mask = 0x1 << (attr->index - MODULE_PRESENT_49);
         break;
     case MODULE_RXLOS_49 ... MODULE_RXLOS_52:
+        invert = 1;
         reg  = 0x40;
         mask = 0x1 << (attr->index - MODULE_RXLOS_49);
         break;
     case MODULE_TXFAULT_49 ... MODULE_TXFAULT_52:
         reg  = 0x40;
-        mask = 0x10 << (attr->index - MODULE_TXFAULT_49);
+        mask = 0x10 << (attr->index - MODULE_PRESENT_49);
         break;
     case MODULE_TXDISABLE_49 ... MODULE_TXDISABLE_52:
         reg  = 0x42;
@@ -808,20 +778,6 @@ static ssize_t show_module_52x(struct device *dev, struct device_attribute *da,
     }
 
     mutex_lock(&data->update_lock);
-    if ((attr->index >= MODULE_TXFAULT_49 && attr->index <= MODULE_TXFAULT_52) ||
-        (attr->index >= MODULE_TXDISABLE_49 && attr->index <= MODULE_TXDISABLE_52)) {
-        status = as4224_cpld_read_internal(client, 0x36);
-        if (unlikely(status < 0)) {
-            goto exit;
-        }
-
-        /* Enable the interrupt to CPU */
-        status = as4224_cpld_write_internal(client, 0x36, status & (~mask));
-        if (unlikely(status < 0)) {
-            goto exit;
-        }
-    }
-
     status = as4224_cpld_read_internal(client, reg);
     if (unlikely(status < 0)) {
         goto exit;
