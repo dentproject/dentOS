@@ -1,0 +1,62 @@
+From b9e2a77fc45c7550764a7a122c6dd791b551a884 Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Wed, 28 Jul 2021 13:40:36 +0300
+Subject: [PATCH 4/4] net: Add Ethernet 2500Base-T support for Marvell 10G PHY
+
+This patch adds Ethernet 2500 Base-T support to the Marvell 10G PHY
+driver.
+Tested on Marvell A7K DB platform.
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ drivers/net/phy/marvell10g.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/phy/marvell10g.c b/drivers/net/phy/marvell10g.c
+index 1901ba277413..96e96191cf2a 100644
+--- a/drivers/net/phy/marvell10g.c
++++ b/drivers/net/phy/marvell10g.c
+@@ -263,10 +263,6 @@ static int mv3310_power_up(struct phy_device *phydev)
+ 	ret = phy_clear_bits_mmd(phydev, MDIO_MMD_VEND2, MV_V2_PORT_CTRL,
+ 				 MV_V2_PORT_CTRL_PWRDOWN);
+ 
+-	if (phydev->drv->phy_id != MARVELL_PHY_ID_88X3310 ||
+-	    priv->firmware_ver < 0x00030000)
+-		return ret;
+-
+ 	return phy_set_bits_mmd(phydev, MDIO_MMD_VEND2, MV_V2_PORT_CTRL,
+ 				MV_V2_PORT_CTRL_SWRST);
+ }
+@@ -462,9 +458,10 @@ static int mv3310_config_init(struct phy_device *phydev)
+ 	/* Check that the PHY interface type is compatible */
+ 	if (phydev->interface != PHY_INTERFACE_MODE_SGMII &&
+ 	    phydev->interface != PHY_INTERFACE_MODE_2500BASEX &&
++	    phydev->interface != PHY_INTERFACE_MODE_2500BASET &&
+ 	    phydev->interface != PHY_INTERFACE_MODE_XAUI &&
+ 	    phydev->interface != PHY_INTERFACE_MODE_RXAUI &&
+-	    phydev->interface != PHY_INTERFACE_MODE_10GBASER)
++	    phydev->interface != PHY_INTERFACE_MODE_10GKR)
+ 		return -ENODEV;
+ 
+ 	phydev->mdix_ctrl = ETH_TP_MDI_AUTO;
+@@ -598,7 +595,7 @@ static void mv3310_update_interface(struct phy_device *phydev)
+ 	}
+ 
+ 	if ((phydev->interface == PHY_INTERFACE_MODE_SGMII ||
+-	     phydev->interface == PHY_INTERFACE_MODE_2500BASEX ||
++	     phydev->interface == PHY_INTERFACE_MODE_2500BASET ||
+ 	     phydev->interface == PHY_INTERFACE_MODE_10GBASER) &&
+ 	    phydev->link) {
+ 		/* The PHY automatically switches its serdes interface (and
+@@ -612,7 +609,7 @@ static void mv3310_update_interface(struct phy_device *phydev)
+ 			phydev->interface = PHY_INTERFACE_MODE_10GBASER;
+ 			break;
+ 		case SPEED_2500:
+-			phydev->interface = PHY_INTERFACE_MODE_2500BASEX;
++			phydev->interface = PHY_INTERFACE_MODE_2500BASET;
+ 			break;
+ 		case SPEED_1000:
+ 		case SPEED_100:
+-- 
+2.17.1
+
