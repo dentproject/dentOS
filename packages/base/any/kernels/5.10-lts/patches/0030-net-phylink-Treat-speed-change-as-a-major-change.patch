@@ -1,0 +1,50 @@
+From 5a62728f6e8f7053104f2ef7f663921060a2e3fc Mon Sep 17 00:00:00 2001
+From: Taras Chornyi <taras.chornyi@plvision.eu>
+Date: Tue, 23 Feb 2021 18:32:53 +0200
+Subject: [PATCH] net: phylink: Treat speed change as a major change
+
+Commit b7ad14c2fe2d ("net: phylink: re-implement interface configuration with
+PCS") introduced a new check for a major change in link configuration.
+If the change is not major mac_config will not be called.
+This leads to the situation that speed setting for and an active link is ignored.
+With this wa  mac_config will be called if the requested speed is different than
+ the current link speed
+
+Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
+---
+ drivers/net/phy/phylink.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
+index c8f4ed866..9f1affd91 100644
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -1403,6 +1403,7 @@ int phylink_ethtool_ksettings_set(struct phylink *pl,
+ 	__ETHTOOL_DECLARE_LINK_MODE_MASK(support);
+ 	struct phylink_link_state config;
+ 	const struct phy_setting *s;
++	bool major_change = false;
+ 
+ 	ASSERT_RTNL();
+ 
+@@ -1437,6 +1438,8 @@ int phylink_ethtool_ksettings_set(struct phylink *pl,
+ 		     support);
+ 	linkmode_mod_bit(ETHTOOL_LINK_MODE_Autoneg_BIT, config.advertising,
+ 			 config.an_enabled);
++	if(kset->base.speed != config.speed)
++		major_change = true;
+ 
+ 	/* FIXME: should we reject autoneg if phy/mac does not support it? */
+ 	switch (kset->base.autoneg) {
+@@ -1498,7 +1501,7 @@ int phylink_ethtool_ksettings_set(struct phylink *pl,
+ 	pl->link_config.duplex = config.duplex;
+ 	pl->link_config.an_enabled = config.an_enabled;
+ 
+-	if (pl->link_config.interface != config.interface) {
++	if ((pl->link_config.interface != config.interface) || major_change) {
+ 		/* The interface changed, e.g. 1000base-X <-> 2500base-X */
+ 		/* We need to force the link down, then change the interface */
+ 		if (pl->old_link_state) {
+-- 
+2.17.1
+
