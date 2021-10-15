@@ -1,0 +1,62 @@
+From 3264c09c7eaea4baca29df617afc5cb52a0fee91 Mon Sep 17 00:00:00 2001
+From: Volodymyr Mytnyk <volodymyr.mytnyk@plvision.eu>
+Date: Fri, 28 May 2021 23:06:46 +0300
+Subject: [PATCH 2/2] netfilter: nf_flow_table_free(): flush flows before
+ cleanup.
+
+Fix nf_flow_table_free() function to flush the flow offload workqueue
+before doing the cleanup of flow table and gc.
+On busy system with big number of allocated HW flows (thousands), it is
+possible to hit the condition where nf_flow_table_free() function is
+called when there are still pending flow works created by, for example,
+nf_flow_offload_stats() reading HW statistics. This situation may happen
+when removing all qdisk by tc tool.
+
+...
+process_one_work
+  tcf_ct_flow_table_cleanup_work()
+    nf_flow_table_free()
+
+The nf_flow_table_free() assumes does the following:
+
+  1. cancels gc workqueue
+  2. marks all flows as teardow
+  3. execute nf_flow_offload_gc_step() once for each flow to
+     trigger correct terdown flow procedure.
+  4. waits all scheduled flow offload works to be finished.
+  5. executes nf_flow_offload_gc_step() once for each flow to
+     trigger deleting of flows.
+
+In step 3, nf_flow_offload_gc_step() will not be able to schedule
+flow offload work if there is pending already (busy) losing one
+important state for flow to be marked as dead.
+In step 5, nf_flow_offload_gc_step() assumes that all flows marked
+as dead and will be deleted by this call, but this is not true since
+some state was missing diring previous nf_flow_offload_gc_step()
+call.
+
+To fix this, add nf_flow_table_offload_flush() call between 2 & 3 step
+to make sure no other flow offload works are pending.
+
+Signed-off-by: Volodymyr Mytnyk <volodymyr.mytnyk@plvision.eu>
+Change-Id: Ic645117580fc525c2d138e927159c43ec1bbde62
+---
+ net/netfilter/nf_flow_table_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+index 513f78d..c045010 100644
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -568,6 +568,8 @@ void nf_flow_table_free(struct nf_flowtable *flow_table)
+ 
+ 	cancel_delayed_work_sync(&flow_table->gc_work);
+ 	nf_flow_table_iterate(flow_table, nf_flow_table_do_cleanup, NULL);
++	/* wait to finish */
++	nf_flow_table_offload_flush(flow_table);
+ 	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, flow_table);
+ 	nf_flow_table_offload_flush(flow_table);
+ 	if (nf_flowtable_hw_offload(flow_table))
+-- 
+2.7.4
+

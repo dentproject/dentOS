@@ -1,0 +1,103 @@
+From 948fe745b1f17e7552c90315937b4798739d864b Mon Sep 17 00:00:00 2001
+From: Volodymyr Mytnyk <volodymyr.mytnyk@plvision.eu>
+Date: Thu, 19 Nov 2020 15:31:16 +0000
+Subject: [PATCH] tc_nat: add action offload
+
+Signed-off-by: Volodymyr Mytnyk <volodymyr.mytnyk@plvision.eu>
+---
+ include/net/flow_offload.h  |  7 +++++++
+ include/net/tc_act/tc_nat.h | 29 +++++++++++++++++++++++++++++
+ net/sched/cls_api.c         |  7 +++++++
+ 3 files changed, 43 insertions(+)
+
+diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
+index 3c29dcac5..5bc1586a1 100644
+--- a/include/net/flow_offload.h
++++ b/include/net/flow_offload.h
+@@ -149,6 +149,7 @@ enum flow_action_id {
+ 	FLOW_ACTION_POLICE,
+ 	FLOW_ACTION_CT,
+ 	FLOW_ACTION_CT_METADATA,
++	FLOW_ACTION_NAT,
+ 	FLOW_ACTION_MPLS_PUSH,
+ 	FLOW_ACTION_MPLS_POP,
+ 	FLOW_ACTION_MPLS_MANGLE,
+@@ -250,6 +251,12 @@ struct flow_action_entry {
+ 			u32 mark;
+ 			u32 labels[4];
+ 		} ct_metadata;
++		struct {				/* FLOW_ACTION_NAT */
++			__be32		old_addr;
++			__be32		new_addr;
++			__be32		mask;
++			u32		flags;
++		} nat;
+ 		struct {				/* FLOW_ACTION_MPLS_PUSH */
+ 			u32		label;
+ 			__be16		proto;
+diff --git a/include/net/tc_act/tc_nat.h b/include/net/tc_act/tc_nat.h
+index c14407160..5d45b643f 100644
+--- a/include/net/tc_act/tc_nat.h
++++ b/include/net/tc_act/tc_nat.h
+@@ -16,4 +16,33 @@ struct tcf_nat {
+ 
+ #define to_tcf_nat(a) ((struct tcf_nat *)a)
+ 
++static inline bool is_tcf_nat(const struct tc_action *act)
++{
++#if defined(CONFIG_NET_CLS_ACT) && IS_ENABLED(CONFIG_NET_ACT_NAT)
++	if (act->ops && act->ops->id == TCA_ID_NAT)
++		return true;
++#endif
++	return false;
++}
++
++static inline __be32 tcf_nat_old_addr(const struct tc_action *a)
++{
++	return to_tcf_nat(a)->old_addr;
++}
++
++static inline __be32 tcf_nat_new_addr(const struct tc_action *a)
++{
++	return to_tcf_nat(a)->new_addr;
++}
++
++static inline __be32 tcf_nat_mask(const struct tc_action *a)
++{
++	return to_tcf_nat(a)->mask;
++}
++
++static inline u32 tcf_nat_flags(const struct tc_action *a)
++{
++	return to_tcf_nat(a)->flags;
++}
++
+ #endif /* __NET_TC_NAT_H */
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index 4619cb3cb..218e83196 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -35,6 +35,7 @@
+ #include <net/tc_act/tc_gact.h>
+ #include <net/tc_act/tc_police.h>
+ #include <net/tc_act/tc_sample.h>
++#include <net/tc_act/tc_nat.h>
+ #include <net/tc_act/tc_skbedit.h>
+ #include <net/tc_act/tc_ct.h>
+ #include <net/tc_act/tc_mpls.h>
+@@ -3667,6 +3668,12 @@ int tc_setup_flow_action(struct flow_action *flow_action,
+ 			entry->ct.action = tcf_ct_action(act);
+ 			entry->ct.zone = tcf_ct_zone(act);
+ 			entry->ct.flow_table = tcf_ct_ft(act);
++		} else if (is_tcf_nat(act)) {
++			entry->id = FLOW_ACTION_NAT;
++			entry->nat.old_addr = tcf_nat_old_addr(act);
++			entry->nat.new_addr = tcf_nat_new_addr(act);
++			entry->nat.flags = tcf_nat_flags(act);
++			entry->nat.mask = tcf_nat_mask(act);
+ 		} else if (is_tcf_mpls(act)) {
+ 			switch (tcf_mpls_action(act)) {
+ 			case TCA_MPLS_ACT_PUSH:
+-- 
+2.17.1
+
