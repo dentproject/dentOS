@@ -35,3 +35,4 @@
 0039-net-sched-fix-infinite-loop-when-trying-to-create-tc.patch
 0040-prestera-switchdev-prestera.patch
 0041-net-prestera-Enable-autoneg-for-1000BASE-X.patch
+0042-net-phylink-sfp-Add-quirk-for-FINISAR-10G-modules.patch
