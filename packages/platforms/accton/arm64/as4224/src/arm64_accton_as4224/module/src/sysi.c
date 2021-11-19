@@ -105,13 +105,19 @@ onlp_sysi_platform_info_get(onlp_platform_info_t* pi)
 {
     int ret = 0;
     int version = 0;
+    int sub_version = 0;
 
     ret = get_cpld_attr_int("version", &version);
     if (ret < 0) {
         return ret;
     }
 
-    pi->cpld_versions = aim_fstrdup("%d", version);
+    ret = get_cpld_attr_int("sub_version", &sub_version);
+    if (ret < 0) {
+        return ret;
+    }
+
+    pi->cpld_versions = aim_fstrdup("%x.%x", version, sub_version);
     return ONLP_STATUS_OK;
 }
 
