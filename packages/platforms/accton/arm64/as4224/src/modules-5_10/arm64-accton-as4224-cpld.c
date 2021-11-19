@@ -121,6 +121,7 @@ MODULE_DEVICE_TABLE(i2c, as4224_cpld_id);
 enum as4224_cpld_sysfs_attributes {
 	PLATFORM_ID,
 	CPLD_VERSION,
+	SUB_VERSION,
 	ACCESS,
 	I2C_ACCESS_REQUEST_7040,
 	WTD_RESET_7040,   /* Trigger GPIO to reset wtd timer */
@@ -348,6 +349,7 @@ enum as4224_cpld_sysfs_attributes {
 static SENSOR_DEVICE_ATTR(platform_id, S_IRUGO, show_platform_id, NULL,
 	PLATFORM_ID);
 static SENSOR_DEVICE_ATTR(version, S_IRUGO, show_version, NULL, CPLD_VERSION);
+static SENSOR_DEVICE_ATTR(sub_version, S_IRUGO, show_version, NULL,SUB_VERSION);
 static SENSOR_DEVICE_ATTR(access, S_IWUSR, NULL, access, ACCESS);
 static SENSOR_DEVICE_ATTR(wtd_reset_7040, S_IWUSR, NULL, reset_wtd,
 	WTD_RESET_7040);
@@ -373,6 +375,7 @@ static SENSOR_DEVICE_ATTR(i2c_access_request_7040, S_IRUGO | S_IWUSR,
 static struct attribute *cpld_attributes_common[] = {
 	&sensor_dev_attr_platform_id.dev_attr.attr,
 	&sensor_dev_attr_version.dev_attr.attr,
+	&sensor_dev_attr_sub_version.dev_attr.attr,
 	&sensor_dev_attr_access.dev_attr.attr,
 	&sensor_dev_attr_i2c_access_request_7040.dev_attr.attr,
 	&sensor_dev_attr_wtd_reset_7040.dev_attr.attr,
@@ -1286,14 +1289,19 @@ static void as4224_cpld_remove_client(struct i2c_client *client)
 	mutex_unlock(&list_lock);
 }
 
-static ssize_t show_version(struct device *dev, struct device_attribute *attr,
+static ssize_t show_version(struct device *dev, struct device_attribute *da,
 				char *buf)
 {
-	int val = 0;
+	int val = 0, reg = 0;
 	struct i2c_client *client = to_i2c_client(dev);
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
 
-	val = i2c_smbus_read_byte_data(client, 0x1);
+	if (attr->index == CPLD_VERSION)
+		reg = 0x1;
+	else /* SUB_VERSION */
+		reg = 0xFF;
 
+	val = i2c_smbus_read_byte_data(client, reg);
 	if (val < 0) {
 		dev_dbg(&client->dev, "cpld(0x%x) reg(0x1) err %d\n",
 					client->addr, val);
