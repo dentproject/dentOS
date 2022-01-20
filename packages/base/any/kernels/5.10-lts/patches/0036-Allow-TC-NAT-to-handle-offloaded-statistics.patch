@@ -1,0 +1,42 @@
+From 63f08849267e1225d7a8207bc00f83af18839d63 Mon Sep 17 00:00:00 2001
+From: Serhiy Boiko <serhiy.boiko@plvision.eu>
+Date: Mon, 17 May 2021 14:23:07 +0300
+Subject: [PATCH] Allow TC NAT to handle offloaded statistics
+
+Signed-off-by: Serhiy Boiko <serhiy.boiko@plvision.eu>
+---
+ net/sched/act_nat.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/net/sched/act_nat.c b/net/sched/act_nat.c
+index 1ebd2a86d980..7dfa2418138f 100644
+--- a/net/sched/act_nat.c
++++ b/net/sched/act_nat.c
+@@ -254,6 +254,16 @@ static int tcf_nat_act(struct sk_buff *skb, const struct tc_action *a,
+ 	return TC_ACT_SHOT;
+ }
+ 
++static void tcf_nat_stats_update(struct tc_action *a, u64 bytes, u64 packets,
++				 u64 drops, u64 lastuse, bool hw)
++{
++	struct tcf_nat *nat = to_tcf_nat(a);
++	struct tcf_t *tm = &nat->tcf_tm;
++
++	tcf_action_update_stats(a, bytes, packets, drops, hw);
++	tm->lastuse = max_t(u64, tm->lastuse, lastuse);
++}
++
+ static int tcf_nat_dump(struct sk_buff *skb, struct tc_action *a,
+ 			int bind, int ref)
+ {
+@@ -311,6 +321,7 @@ static struct tc_action_ops act_nat_ops = {
+ 	.id		=	TCA_ID_NAT,
+ 	.owner		=	THIS_MODULE,
+ 	.act		=	tcf_nat_act,
++	.stats_update	=	tcf_nat_stats_update,
+ 	.dump		=	tcf_nat_dump,
+ 	.init		=	tcf_nat_init,
+ 	.walk		=	tcf_nat_walker,
+-- 
+2.17.1
+

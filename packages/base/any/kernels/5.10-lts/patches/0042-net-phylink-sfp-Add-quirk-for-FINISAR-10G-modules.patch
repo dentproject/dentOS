@@ -1,0 +1,51 @@
+From 5c5d857711d80c3750c61103bfbaa547fa0e3f56 Mon Sep 17 00:00:00 2001
+From: Taras Chornyi <taras.chornyi@plvision.eu>
+Date: Mon, 1 Nov 2021 12:20:10 +0200
+Subject: [PATCH] net: phylink: sfp: Add quirk for FINISAR 10G modules
+
+Finisar FTLF8536P4BCL and FTLX1471D3BCL can operate
+in 1000Base-x mode as well
+
+Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
+---
+ drivers/net/phy/sfp-bus.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+index 6b76632f1..ab01708ba 100644
+--- a/drivers/net/phy/sfp-bus.c
++++ b/drivers/net/phy/sfp-bus.c
+@@ -38,6 +38,12 @@ struct sfp_bus {
+ 	bool started;
+ };
+ 
++static void sfp_quirk_1000basex(const struct sfp_eeprom_id *id,
++                                unsigned long *modes)
++{
++        phylink_set(modes, 1000baseX_Full);
++}
++
+ static void sfp_quirk_2500basex(const struct sfp_eeprom_id *id,
+ 				unsigned long *modes)
+ {
+@@ -76,6 +82,17 @@ static const struct sfp_quirk sfp_quirks[] = {
+ 		.vendor = "FINISAR CORP.",
+ 		.part = "FTLF8536P4BCL",
+ 		.modes = sfp_quirk_finisar_25g,
++	}, {
++		// Finisar FTLX1471D3BCL to support 1000base-X and 10000base-SR,
++		.vendor = "FINISAR CORP.",
++		.part = "FTLX1471D3BCL",
++		.modes = sfp_quirk_1000basex,
++	}, {
++		// Finisar FTLF8536P4BCL to support 1000base-X and 10000base-SR,
++		.vendor = "FINISAR CORP.",
++		.part = "FTLX8574D3BCL",
++		.modes = sfp_quirk_1000basex,
++
+ 	}
+ };
+ 
+-- 
+2.25.1
+
