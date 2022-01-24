@@ -50,8 +50,8 @@ class OnlPlatform_arm64_accton_as4564_26p_r0(OnlPlatformAccton,
         self.modprobe('prestera_pci')
 
         # set up systemctl rules
-        #for swp in range(1, 27):
-        #    cmd = "systemctl enable switchdev-online@swp%d" % swp
-        #    subprocess.check_call(cmd, shell=True)
+        for swp in range(1, 27):
+            cmd = "systemctl enable switchdev-online@swp%d" % swp
+            subprocess.check_call(cmd, shell=True)
 
         return True
