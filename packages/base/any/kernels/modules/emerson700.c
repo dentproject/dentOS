@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -26,6 +25,8 @@
 #include <linux/mutex.h>
 #include <linux/i2c.h>
 #include <linux/version.h>
+
+MODULE_LICENSE("GPL");
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)
 
