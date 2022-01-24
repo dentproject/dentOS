@@ -109,23 +109,35 @@ K_SOURCE_DIR := $(K_TARGET_DIR)/$(K_NAME)
 K_MBUILD_DIR := $(K_SOURCE_DIR)-mbuild
 K_INSTALL_MOD_PATH := $(K_TARGET_DIR)
 K_DTBS_DIR := $(K_SOURCE_DIR)-dtbs
+K_GIT_PATH := $(ONL_KERNELS)/archives/linux-$(K_VERSION)
 
 #
 # The kernel source archive. Download if not present.
 #
+
 $(K_ARCHIVE_PATH):
 	cd $(ONL_KERNELS)/archives && wget $(K_ARCHIVE_URL)
 
+$(K_GIT_PATH):
+	cd $(ONL_KERNELS)/archives && git clone --depth 1 --branch $(K_GIT_BRANCH) $(K_GIT_URL) linux-$(K_VERSION)
 
 .PHONY : ksource kpatched
 
 #
 # The extracted kernel sources
 #
+
+ifdef K_GIT
+$(K_SOURCE_DIR)/Makefile: $(K_GIT_PATH)
+	mkdir -p $(K_TARGET_DIR) && cd $(K_TARGET_DIR) && cp -a $(K_GIT_PATH) .
+	touch -c $(K_SOURCE_DIR)/Makefile
+	$(K_MAKE) mrproper
+else
 $(K_SOURCE_DIR)/Makefile: $(K_ARCHIVE_PATH)
 	mkdir -p $(K_TARGET_DIR) && cd $(K_TARGET_DIR) && tar kxf $(K_ARCHIVE_PATH)
 	touch -c $(K_SOURCE_DIR)/Makefile
 	$(K_MAKE) mrproper
+endif
 
 ksource: $(K_SOURCE_DIR)/Makefile
 
