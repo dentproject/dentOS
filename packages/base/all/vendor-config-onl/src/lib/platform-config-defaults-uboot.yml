@@ -81,6 +81,13 @@ default:
       =: kernel-5.10-lts-arm64-all.bin.gz
       <<: *arm64-kernel-5-10-package
 
+    arm64-kernel-5-15-package: &arm64-kernel-5-15-package
+      package: onl-kernel-5.15-lts-arm64-all:arm64
+
+    arm64-kernel-5-15: &arm64-kernel-5-15
+      =: kernel-5.15-lts-arm64-all.bin.gz
+      <<: *arm64-kernel-5-15-package
+
     ##############################
     #
     # For your system, pick from the above list
