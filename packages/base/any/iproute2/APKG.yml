@@ -4,7 +4,7 @@ prerequisites:
 
 common:
   arch: $ARCH
-  version: 5.10.0-1dent
+  version: 5.15.0-1dent
   maintainer: rothcar@amazon.com
   changelog:  Change changes changes.,
 
