@@ -34,12 +34,7 @@ build: deps
 	$(MAKE) V=1 PREFIX=/usr/local CC=$(GCC) -C iproute2
 
 SERIES		:= \
-  0001-lib-Move-print_rate-from-tc-here-modernize.patch \
-  0002-lib-Move-sprint_size-from-tc-here-add-print_size.patch \
-  0003-police-Add-support-for-json-output.patch \
-  0004-sync-iptables-header.patch \
   0100-tc-flower-icmp-vlan.patch \
-  0101-devlink-add.patch \
   # THIS LINE INTENTIONALLY LEFT BLANK
 
 patch:
@@ -50,17 +45,10 @@ patch:
 	done
 
 BUILD_DEPS	:= \
-  libmnl-dev \
-  libelf-dev \
-  libcap-dev \
-  libxtables-dev \
-  libdb-dev \
   # THIS LINE INTENTIONALLY LEFT BLANK
 
 deps-arm64:
-	sudo xapt -a arm64 $(BUILD_DEPS)
 
 deps-amd64:
-	sudo apt-get -y install $(BUILD_DEPS)
 
 deps: deps-$(ARCH)

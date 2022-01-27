@@ -5,7 +5,7 @@ prerequisites:
 common:
   arch: $ARCH
   epoch: 1
-  version: 5.10.0-1dent
+  version: 5.15.0-1dent
   maintainer: snnobel@amazon.com
   changelog:  Change changes changes.,
 

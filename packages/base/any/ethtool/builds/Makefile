@@ -42,18 +42,9 @@ patch:
 	  patch -p1 -i $(ONL)/packages/base/any/ethtool/builds/$$patch ;\
 	done
 
-BUILD_DEPS	:= \
-  libmnl-dev \
-  libelf-dev \
-  libcap-dev \
-  libxtables-dev \
-  libdb-dev \
-  # THIS LINE INTENTIONALLY LEFT BLANK
 
 deps-arm64:
-	sudo xapt -a arm64 $(BUILD_DEPS)
 
 deps-amd64:
-	sudo apt-get -y install $(BUILD_DEPS)
 
 deps: deps-$(ARCH)
