@@ -306,6 +306,12 @@ class App(SubprocessMixin, object):
             self.log.error("Installation cannot continue.")
             return 1
 
+        fwenvpath = self.installerConf.installer_platform_dir + "/onl/fw_env.config"
+        self.log.info("Checking for " + fwenvpath)
+        if os.path.exists(fwenvpath):
+            self.log.info(fwenvpath + "Exists")
+            subprocess.call('cp %s /etc/' % fwenvpath, shell=True)
+            self.log.info("Copied " + fwenvpath)
         return 0
 
     def finalizeGrub(self):
