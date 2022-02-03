@@ -87,20 +87,20 @@ class Image(object):
 class KernelImage(Image):
     """Kernel image entry"""
 
-    def __init__(self, fdata, arch):
+    def __init__(self, fdata, arch, arch_addrs):
         Image.__init__(self, "kernel", fdata, compression='gzip')
         self.os = '"linux"'
 
         # Fixme -- thse should be parameterized
         if arch == 'powerpc':
-            self.load = "<0x0>"
-            self.entry = "<0x0>"
+            self.load = arch_addrs.get('kernel_powerpc_load') # "<0x0>"
+            self.entry = arch_addrs.get('kernel_powerpc_entry') # "<0x0>"
         elif arch in [ 'armel', 'armhf' ]:
-            self.load = "<0x61008000>"
-            self.entry = "<0x61008000>"
+            self.load = arch_addrs.get('kernel_arm32_load') # "<0x61008000>"
+            self.entry = arch_addrs.get('kernel_arm32_entry') # "<0x61008000>"
         elif arch == 'arm64':
-            self.load = "<0x80080000>"
-            self.entry = "<0x80080000>"
+            self.load = arch_addrs.get('kernel_arm64_load') # "<0x80080000>"
+            self.entry = arch_addrs.get('kernel_arm64_entry') # "<0x80080000>"
 
     def write(self, f):
         self.start_image(f)
@@ -110,19 +110,19 @@ class KernelImage(Image):
 class InitrdImage(Image):
     """Initrd image entry"""
 
-    def __init__(self, fdata, arch):
+    def __init__(self, fdata, arch, arch_addrs):
         Image.__init__(self, "ramdisk", fdata, compression='gzip')
 
-        # Fixme -- thse should be parameterized
+        # Fixme -- these should be parameterized
         if arch == 'powerpc':
-            self.load = "<0x1000000>"
-            self.entry ="<0x1000000>"
+            self.load = arch_addrs.get('initrd_powerpc_load') # "<0x1000000>"
+            self.entry = arch_addrs.get('initrd_powerpc_entry') # "<0x1000000>"
         elif arch in [ 'armel', 'armhf' ]:
-            self.load = "<0x0000000>"
-            self.entry ="<0x0000000>"
+            self.load = arch_addrs.get('initrd_arm32_load') # "<0x0000000>"
+            self.entry = arch_addrs.get('initrd_arm32_entry') # "<0x0000000>"
         elif arch == 'arm64':
-            self.load = "<0x0000000>"
-            self.entry ="<0x0000000>"
+            self.load = arch_addrs.get('initrd_arm64_load') # "<0x0000000>"
+            self.entry = arch_addrs.get('initrd_arm64_entry') # "<0x0000000>"
 
         self.os = '"linux"'
 
@@ -134,11 +134,11 @@ class InitrdImage(Image):
 class DtbImage(Image):
     """DTB Image Entry"""
 
-    def __init__(self, fdata, arch):
+    def __init__(self, fdata, arch, arch_addrs):
         Image.__init__(self, "flat_dt", fdata, compression="none")
 	if arch == 'arm64':
-		self.load = "<0x90000000>"
-		self.entry ="<0x90000000>"
+		self.load = arch_addrs.get('dtb_arm64_load') # "<0x90000000>"
+		self.entry = arch_addrs.get('dtb_arm64_entry') # "<0x90000000>"
 
     def write(self, f):
         self.start_image(f)
@@ -148,12 +148,13 @@ class DtbImage(Image):
 class FlatImageTree(object):
     """Generates a FIT .its file"""
 
-    def __init__(self, description):
+    def __init__(self, description, arch_addresses):
         self.kernels = []
         self.dtbs = []
         self.initrds = []
         self.description = description
         self.configurations = {}
+        self.arch_addrs = arch_addresses
 
     def add_initrd(self, initrd):
         self.initrds.append(initrd)
@@ -238,17 +239,17 @@ class FlatImageTree(object):
 
         kdict = {}
         for k in self.kernels:
-            ki = KernelImage(k, ops.arch)
+            ki = KernelImage(k, ops.arch, self.arch_addrs)
             kdict[ki.name] = ki
 
         ddict = {}
         for d in self.dtbs:
-            di = DtbImage(d, ops.arch)
+            di = DtbImage(d, ops.arch, self.arch_addrs)
             ddict[di.name] = di
 
         idict = {}
         for i in self.initrds:
-            ii = InitrdImage(i, ops.arch)
+            ii = InitrdImage(i, ops.arch, self.arch_addrs)
             idict[ii.name] = ii
 
 
@@ -282,9 +283,9 @@ class FlatImageTree(object):
         for (name, (kernel, dtb, initrd)) in self.configurations.iteritems():
             f.write("""        %s {\n""" % name)
             f.write("""            description = "%s";\n""" % name)
-            f.write("""            kernel = "%s";\n""" % (KernelImage(kernel, ops.arch).name))
-            f.write("""            ramdisk = "%s";\n""" % (InitrdImage(initrd, ops.arch).name))
-            f.write("""            fdt = "%s";\n""" % (DtbImage(dtb, ops.arch).name))
+            f.write("""            kernel = "%s";\n""" % (KernelImage(kernel, ops.arch, self.arch_addrs).name))
+            f.write("""            ramdisk = "%s";\n""" % (InitrdImage(initrd, ops.arch, self.arch_addrs).name))
+            f.write("""            fdt = "%s";\n""" % (DtbImage(dtb, ops.arch, self.arch_addrs).name))
             f.write("""        };\n\n""")
         f.write("""    };\n""")
         f.write("""};\n""")
@@ -296,6 +297,26 @@ if __name__ == '__main__':
     import os
     import sys
     import argparse
+
+    arch_dict = {}
+    try:
+        f = open(os.path.join(sys.path[0], "flat-image-tree.conf"), "r")
+    except (OSError, IOError):
+        arch_dict = {'kernel_powerpc_load' : "<0x0>", 'kernel_powerpc_entry' : "<0x0>",
+		'kernel_arm32_load' : "<0x61008000>", 'kernel_arm32_entry' : "<0x61008000>" ,
+		'kernel_arm64_load' : "<0x80080000>", 'kernel_arm64_entry' : "<0x80080000>",
+		'initrd_powerpc_load' : "<0x1000000>", 'initrd_powerpc_entry' : "<0x1000000>",
+		'initrd_arm32_load' : "<0x0000000>", 'initrd_arm32_entry' : "<0x0000000>",
+		'initrd_arm64_load' : "<0x0000000>", 'initrd_arm64_entry' : "<0x0000000>",
+                'dtb_arm64_load' : "<0x90000000>", 'dtb_arm64_entry' : "<0x90000000>"
+		 }
+        print("Using default flat image tree configuration")
+    else:
+        with f:
+            data = f.readlines()
+            for d in data:
+                lst = d.split('=')
+                arch_dict[lst[0]] = lst[1]
 
     ap = argparse.ArgumentParser(description="UBoot Flat Image Tree Generator.")
     ap.add_argument("--initrd", nargs='+',       action='append', help="Add initrds.")
@@ -309,7 +330,7 @@ if __name__ == '__main__':
     ap.add_argument("--arch", choices=['powerpc', 'armel', 'armhf', 'arm64'], required=True)
     ops=ap.parse_args()
 
-    fit = FlatImageTree(ops.desc)
+    fit = FlatImageTree(ops.desc, arch_dict)
     initrd=None
 
     if ops.initrd:
