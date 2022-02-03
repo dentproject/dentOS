@@ -1,0 +1,1 @@
+!include $ONL_TEMPLATES/platform-modules.yml ARCH=arm64 VENDOR=marvell BASENAME=arm64-marvell-ac5x-db KERNELS="onl-kernel-5.10-lts-arm64-all:arm64"

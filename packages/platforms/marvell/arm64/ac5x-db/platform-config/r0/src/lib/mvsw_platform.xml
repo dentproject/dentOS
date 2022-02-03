@@ -1,0 +1,2421 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" version="2021-10-17-3.24" profile="SwitchDev-sip6">
+  <mtsplt:MTS-Platform xmlns:mtsplt="urn:marvell:mts:hw:platform:yang">
+    <mtsplt:typedefs>
+      <mtsplt:typedef>
+        <mtsplt:name>i2c-access-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the access to i2c in number of bytes.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>one-byte</mtsplt:name>
+          <mtsplt:description>Access by one byte.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>two-bytes</mtsplt:name>
+          <mtsplt:description>Access by two bytes.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>four-bytes</mtsplt:name>
+          <mtsplt:description>Access by four bytes.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>i2c-bus-id-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the i2c BUS Identifier.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>1</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>i2c-address-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the i2c Address (7 bits).</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>127</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>i2c-offset-type</mtsplt:name>
+        <mtsplt:type>uint16</mtsplt:type>
+        <mtsplt:description>Specifies the i2c Offset.</mtsplt:description>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>i2c-mask-type</mtsplt:name>
+        <mtsplt:type>uint16</mtsplt:type>
+        <mtsplt:description>Specifies the i2c mask.
+The following values are allowed:
+       I2c type	allowed value
+       One-byte	&lt;= 0xFF.
+       Two-bytes	&lt;= 0xFFFF.</mtsplt:description>
+        <mtsplt:min>1</mtsplt:min>
+        <mtsplt:max>65535</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>i2c-value-type</mtsplt:name>
+        <mtsplt:type>uint16</mtsplt:type>
+        <mtsplt:description>Specifies the i2c value.</mtsplt:description>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>i2c-transaction-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the i2c Transaction mode.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>offset-and-data</mtsplt:name>
+          <mtsplt:description>Offset and data are calculated in one transaction.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>offset-then-data</mtsplt:name>
+          <mtsplt:description>Two transactions are used: one for offset and then one for data.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>mpp-device-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies that the device supports MPP pins:
+0-254: Specify the Packet Processor device number.
+255: Represents the CPU device.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>255</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>mpp-pin-mode-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the MPP pin mode type used by the GPIO interface.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>gpio-readable-pin</mtsplt:name>
+          <mtsplt:description>This pin is GPIO readable.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>gpio-writable-pin</mtsplt:name>
+          <mtsplt:description>This pin is GPIO writable.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>gpio-readable-writable-pin</mtsplt:name>
+          <mtsplt:description>This pin is a GPIO readable and writable pin.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>mpp-pin-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the MPP pin number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>63</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>mpp-pin-value-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the MPP pin value.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>1</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>mpp-pin-init-value-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the initial value of the Writable MPP pin.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>0</mtsplt:name>
+          <mtsplt:description>Writable GPIO is initialized to value 0.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>1</mtsplt:name>
+          <mtsplt:description>Writable GPIO is initialized to value 1.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>hw</mtsplt:name>
+          <mtsplt:description>Writable GPIO is initialized to a value that is read from hardware.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>gpio-device-number-type</mtsplt:name>
+        <mtsplt:type>mpp-device-number-type</mtsplt:type>
+        <mtsplt:description>The device supports GPIO pins.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>255</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>gpio-pin-number-type</mtsplt:name>
+        <mtsplt:type>mpp-pin-number-type</mtsplt:type>
+        <mtsplt:description>The GPIO pin number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>63</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>gpio-pin-value-type</mtsplt:name>
+        <mtsplt:type>mpp-pin-value-type</mtsplt:type>
+        <mtsplt:description>The GPIO pin value.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>1</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>interface-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the interface Type GPIO/i2c.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>interface-gpio</mtsplt:name>
+          <mtsplt:description>The Interface type is GPIO</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>interface-i2c</mtsplt:name>
+          <mtsplt:description>The Interface type is i2c</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>smi-xsmi-interface-id-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the SMI/XSMI interface ID.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>3</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>smi-xsmi-address-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the SMI/XSMI Address.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>31</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>smi-xsmi-register-type</mtsplt:name>
+        <mtsplt:type>uint16</mtsplt:type>
+        <mtsplt:description>Specifies the SMI/XSMI Register.</mtsplt:description>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>smi-xsmi-device-or-page-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the SMI Page or XSMI Device.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>255</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>smi-xsmi-type-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the SMI/XSMI type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>smi</mtsplt:name>
+          <mtsplt:description>The type is SMI.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>xsmi</mtsplt:name>
+          <mtsplt:description>The type is XSMI.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>smi-xsmi-mask-value-type</mtsplt:name>
+        <mtsplt:type>uint16</mtsplt:type>
+        <mtsplt:description>Specifies SMI/XSMI mask or value</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>65535</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>smi-xsmi-address-role-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the SMI/XSMI address role.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>secondary</mtsplt:name>
+          <mtsplt:description>The type is secondary address.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>number-of-pps-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the number of Packet Processors.</mtsplt:description>
+        <mtsplt:min>1</mtsplt:min>
+        <mtsplt:max>2</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>pp-device-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the Packet Processor device number.
+Must be smaller than the number of Packet Processors.
+Range is 0..(number of Packet Processors minus one), i.e. {0} for single Packet Processor system or {0..1} for two Packet Processors system.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>1</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>pp-port-number-type</mtsplt:name>
+        <mtsplt:type>uint32</mtsplt:type>
+        <mtsplt:description>Specifies the Packet Processor port number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>271</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>panel-group-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the front panel group number, this is a logical number used to enumerate the different front panel groups.</mtsplt:description>
+        <mtsplt:min>1</mtsplt:min>
+        <mtsplt:max>4</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>panel-port-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the front panel port number within a specific front panel group.</mtsplt:description>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>logical-port-number-type</mtsplt:name>
+        <mtsplt:type>uint32</mtsplt:type>
+        <mtsplt:description>Specifies the logical port number within a specific front panel group.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>287</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>panel-group-ordering-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies ports location on the front panel for the group.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>RightDown</mtsplt:name>
+          <mtsplt:description>Defines line-by-line ordering of the ports on the Front Panel:
+  01 | 02 | 03 | .. | 24
+  25 | 26 | 27 | .. | 48</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>DownRight</mtsplt:name>
+          <mtsplt:description>Defines left-to-right ordering of the ports on the Front Panel:
+       1 | 3 | 5 | .. | 47
+       2 | 4 | 6 | .. | 48</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>speed-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the Speed.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>10M</mtsplt:name>
+          <mtsplt:description>10 Mbits/s</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>100M</mtsplt:name>
+          <mtsplt:description>100 Mbits/s</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>1G</mtsplt:name>
+          <mtsplt:description>1 Gbits/s</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>2.5G</mtsplt:name>
+          <mtsplt:description>2.5 Gbits/s</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>5G</mtsplt:name>
+          <mtsplt:description>5 Gbits/s</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>10G</mtsplt:name>
+          <mtsplt:description>10 Gbits/s</mtsplt:description>
+          <mtsplt:value>6</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>20G</mtsplt:name>
+          <mtsplt:description>20 Gbits/s</mtsplt:description>
+          <mtsplt:value>7</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>24G</mtsplt:name>
+          <mtsplt:description>24 Gbits/s</mtsplt:description>
+          <mtsplt:value>8</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>25G</mtsplt:name>
+          <mtsplt:description>25 Gbits/s</mtsplt:description>
+          <mtsplt:value>9</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>40G</mtsplt:name>
+          <mtsplt:description>40 Gbits/s</mtsplt:description>
+          <mtsplt:value>10</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>50G</mtsplt:name>
+          <mtsplt:description>50 Gbits/s</mtsplt:description>
+          <mtsplt:value>11</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>100G</mtsplt:name>
+          <mtsplt:description>100 Gbits/s</mtsplt:description>
+          <mtsplt:value>12</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>lane-number-type</mtsplt:name>
+        <mtsplt:type>uint32</mtsplt:type>
+        <mtsplt:description>Specifies the SERDES Lane Number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>257</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>port-lane-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the SERDES Lane relative Number of port.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>7</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>transceiver-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the port transceiver type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>fiber</mtsplt:name>
+          <mtsplt:description>Fiber</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>copper</mtsplt:name>
+          <mtsplt:description>Copper</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>combo</mtsplt:name>
+          <mtsplt:description>Combo</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>connector-type-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the port connector type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>SFPPlus</mtsplt:name>
+          <mtsplt:description>SFP+</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>DAC</mtsplt:name>
+          <mtsplt:description>Direct connected Cable</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>RJ45</mtsplt:name>
+          <mtsplt:description>Copper</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>L1-interface-mode-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the Interface Mode for a Packet Processor Port.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>SGMII</mtsplt:name>
+          <mtsplt:description>SGMII</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>XGMII</mtsplt:name>
+          <mtsplt:description>XGMII</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>1000BASE-X</mtsplt:name>
+          <mtsplt:description>1000BASE-X</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>QX</mtsplt:name>
+          <mtsplt:description>QX</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>HX</mtsplt:name>
+          <mtsplt:description>HX</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>RXAUI</mtsplt:name>
+          <mtsplt:description>RXAUI</mtsplt:description>
+          <mtsplt:value>6</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>100BASE-FX</mtsplt:name>
+          <mtsplt:description>100BASE-FX</mtsplt:description>
+          <mtsplt:value>7</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>KR</mtsplt:name>
+          <mtsplt:description>KR</mtsplt:description>
+          <mtsplt:value>8</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>SR-LR</mtsplt:name>
+          <mtsplt:description>SR-LR</mtsplt:description>
+          <mtsplt:value>9</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>QSGMII</mtsplt:name>
+          <mtsplt:description>QSGMII</mtsplt:description>
+          <mtsplt:value>10</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>MII</mtsplt:name>
+          <mtsplt:description>MII</mtsplt:description>
+          <mtsplt:value>12</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>XHGS</mtsplt:name>
+          <mtsplt:description>XHGS (11800, 23600, 47200)</mtsplt:description>
+          <mtsplt:value>13</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>KR2</mtsplt:name>
+          <mtsplt:description>KR2</mtsplt:description>
+          <mtsplt:value>14</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>CR4</mtsplt:name>
+          <mtsplt:description>CR4</mtsplt:description>
+          <mtsplt:value>15</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>KR4</mtsplt:name>
+          <mtsplt:description>KR4</mtsplt:description>
+          <mtsplt:value>16</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>SXGMII</mtsplt:name>
+          <mtsplt:description>SXGMII</mtsplt:description>
+          <mtsplt:value>17</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>DXGMII</mtsplt:name>
+          <mtsplt:description>DXGMII</mtsplt:description>
+          <mtsplt:value>18</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>QUSGMII</mtsplt:name>
+          <mtsplt:description>QUSGMII</mtsplt:description>
+          <mtsplt:value>19</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>QXGMII</mtsplt:name>
+          <mtsplt:description>QXGMII</mtsplt:description>
+          <mtsplt:value>20</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>OUSGMII</mtsplt:name>
+          <mtsplt:description>OUSGMII</mtsplt:description>
+          <mtsplt:value>21</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>OXGMII</mtsplt:name>
+          <mtsplt:description>OXGMII</mtsplt:description>
+          <mtsplt:value>22</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>list-number-type</mtsplt:name>
+        <mtsplt:type>uint16</mtsplt:type>
+        <mtsplt:description>Specifies the List Element Logical Number, used to insert entries to the list</mtsplt:description>
+        <mtsplt:min>1</mtsplt:min>
+        <mtsplt:max>65535</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>list-comment-type</mtsplt:name>
+        <mtsplt:type>string</mtsplt:type>
+        <mtsplt:description>Specifies the description of this node in the List</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>255</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>fan-id-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the FAN-unique Identifier (system wide).</mtsplt:description>
+        <mtsplt:min>1</mtsplt:min>
+        <mtsplt:max>16</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>fan-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the FAN Number, relative number within a FAN Controller.</mtsplt:description>
+        <mtsplt:min>1</mtsplt:min>
+        <mtsplt:max>8</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>fan-controller-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the FAN Controller Number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>16</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>fan-role-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the FAN role: normal or redundant.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>normal</mtsplt:name>
+          <mtsplt:description>normal</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>redundant</mtsplt:name>
+          <mtsplt:description>redundant</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>hw-fan-operation-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies a hardware FAN controller operations.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>initialize</mtsplt:name>
+          <mtsplt:description>Initialize the FAN.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>all-fan-max-speed</mtsplt:name>
+          <mtsplt:description>Set all FANs to 100% speed, including redundant.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>all-fan-normal-speed</mtsplt:name>
+          <mtsplt:description>Set all FANs to normal speed, including redundant(recovery).</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>enable-fan</mtsplt:name>
+          <mtsplt:description>Enable the FAN.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>disable-redundant-fan</mtsplt:name>
+          <mtsplt:description>Disable the FAN.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>fan-ADT7476-fault-detection-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the fault detection register for the ADT7476 FAN.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>interrupt-status</mtsplt:name>
+          <mtsplt:description>Access by one byte</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>TACHI-low-byte</mtsplt:name>
+          <mtsplt:description>Access by two bytes</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>fan-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the hardware FAN type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>tc654</mtsplt:name>
+          <mtsplt:description>Specifies FAN type as tc654.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>ADT7476</mtsplt:name>
+          <mtsplt:description>Specifies FAN type as ADT7476.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>EMC2305</mtsplt:name>
+          <mtsplt:description>Specifies FAN type as EMC2305.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PWM</mtsplt:name>
+          <mtsplt:description>Specifies FAN type as PWM.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>userDefined</mtsplt:name>
+          <mtsplt:description>Specifies FAN type as user-defined.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>bank-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the Power Bank Number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>15</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>bank-watts-type</mtsplt:name>
+        <mtsplt:type>uint16</mtsplt:type>
+        <mtsplt:description>Specifies the Power Bank size in Watts.</mtsplt:description>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>bank-source-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the Power Bank Power source.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>PS</mtsplt:name>
+          <mtsplt:description>Specifies the Power source as the main Power Supply.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>RPS</mtsplt:name>
+          <mtsplt:description>Specifies the Power source as the Redundant Power Supply.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PDports</mtsplt:name>
+          <mtsplt:description>Specifies the Power source as the PoE Powered Device ports.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>PSEindex-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the PSE index.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>127</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>PSEport-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the PSE Port Type</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>AF</mtsplt:name>
+          <mtsplt:description>Specifies the PSE Port type is AF (PoE).</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>AT</mtsplt:name>
+          <mtsplt:description>Specifies the PSE Port type as AT (PoE Plus).</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>60W</mtsplt:name>
+          <mtsplt:description>Specifies the PSE Port type as 60W (UPoE).</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>PSE-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the PSE Type</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>undefined</mtsplt:name>
+          <mtsplt:description>Specifies the PSE is not defined, legacy Yang.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>690xx</mtsplt:name>
+          <mtsplt:description>Specifies the PSE Microsemi 69008.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>691xx</mtsplt:name>
+          <mtsplt:description>Specifies the PSE Microsemi 69100.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>692xx</mtsplt:name>
+          <mtsplt:description>Specifies the PSE Microsemi 69200.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>2388xx</mtsplt:name>
+          <mtsplt:description>Specifies the PSE TI tps 238800.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>PSE-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the PSE number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>127</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>PSE-address-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the PSE index.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>127</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>power-status-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies Power Status.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>standBy</mtsplt:name>
+          <mtsplt:description>Specifies Power status is Standby.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>notAvailable</mtsplt:name>
+          <mtsplt:description>Specifies Power status is notAvailable.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>backUp</mtsplt:name>
+          <mtsplt:description>Specifies Power status is BackUp Power.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>ready</mtsplt:name>
+          <mtsplt:description>Specifies Power status is Ready.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>phy-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the PHY Number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>127</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>phy-position-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the PHY Position within the PHY (e.g. Relative PHY in a Quad PHY).</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>7</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>phy-type-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the PHY Part Identifier.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>no-phy-direct-attached-fiber</mtsplt:name>
+          <mtsplt:description>Specifies direct connection between SFP cage to mac PP</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E1543</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E1543, used for Combo ports.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E1545</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E1545, used for Copper GE with MAC on PHY support.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E1548</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E1548, used for Fiber GE.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E1680</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E1680, used for Copper with speeds of 10M/100M/1G.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E1680L</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E1680L, used for Copper with speeds of 10M/100M/1G.</mtsplt:description>
+          <mtsplt:value>6</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E151X</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E151X, used for Copper (HW supports combo and fiber).</mtsplt:description>
+          <mtsplt:value>7</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E3680</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E3680, used for Octal Copper 100M.</mtsplt:description>
+          <mtsplt:value>8</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E32X0</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E32X0, used for Copper or Combo port with speeds of 100M/1G/10G. Uses FW</mtsplt:description>
+          <mtsplt:value>9</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E33X0</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E33X0, used for MGIG Copper or Combo.</mtsplt:description>
+          <mtsplt:value>10</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E20X0</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E20X0, used for Copper with speeds of 10M/100M/1G/2.5G/5G.</mtsplt:description>
+          <mtsplt:value>11</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E2180</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E2180, used for Copper with speeds of 10M/100M/1G/2.5G/5G.</mtsplt:description>
+          <mtsplt:value>12</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E2540</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E2540, used for Copper with speeds of 10M/100M/1G/2.5G/5G.</mtsplt:description>
+          <mtsplt:value>13</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88X3540</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88X3540, used for Copper with speeds of 10M/100M/1G/2.5G/5G/10G.</mtsplt:description>
+          <mtsplt:value>14</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E1780</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E1780, used for Copper with speeds of 10M/100M/1G.</mtsplt:description>
+          <mtsplt:value>15</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>alaska-88E2580</mtsplt:name>
+          <mtsplt:description>Specifies PHY identifier 88E250, used for Copper with speeds of 10M/100M/1G/2.5G/5G.</mtsplt:description>
+          <mtsplt:value>16</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>phy-firmware-download-method-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the PHY Firmware Download method.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>none</mtsplt:name>
+          <mtsplt:description>None</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>RAM</mtsplt:name>
+          <mtsplt:description>RAM</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>Flash</mtsplt:name>
+          <mtsplt:description>Flash</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>color-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED color.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>green</mtsplt:name>
+          <mtsplt:description>Specifies LED color Green.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>amber</mtsplt:name>
+          <mtsplt:description>Specifies LED color Amber</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-state-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED state.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>solid</mtsplt:name>
+          <mtsplt:description>Specifies LED state is solid turned on.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>lowRateblinking</mtsplt:name>
+          <mtsplt:description>Specifies LED state is low-rate blinking, turned on.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>normalRateblinking</mtsplt:name>
+          <mtsplt:description>Specifies LED state is normal-rate blinking, turned on.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>highRateblinking</mtsplt:name>
+          <mtsplt:description>Specifies LED state is high-rate blinking, turned on.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>stack-led-id-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the Stack LED identifier, indicating the Unit Number.</mtsplt:description>
+        <mtsplt:min>1</mtsplt:min>
+        <mtsplt:max>8</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-gpio-i2c-interface-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED interface GPIO/i2c/External Driver.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-gpio</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is GPIO.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-i2c</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is i2c.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-external-driver</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is External Driver.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-gpio-i2c-phy-interface-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED interface GPIO/i2c/PHY.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-gpio</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is GPIO.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-i2c</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is i2c.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-phy</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is PHY.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-gpio-i2c-phy-pp-interface-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED interface GPIO/i2c/PHY/Packet Processor/External Driver.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-gpio</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is GPIO.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-i2c</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is i2c.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-phy</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is PHY.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-pp</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is Packet Processor.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>led-interface-external-driver</mtsplt:name>
+          <mtsplt:description>Specifies LED interface type is External Driver.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>port-leds-supported-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Indicates which port LED is supported </mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>left-and-right</mtsplt:name>
+          <mtsplt:description>Specifies left and right LEDs.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>single</mtsplt:name>
+          <mtsplt:description>Specifies single LED.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-blink-select-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED stream blink select type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_SELECT_0</mtsplt:name>
+          <mtsplt:description>Blink 0 signal.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_SELECT_1</mtsplt:name>
+          <mtsplt:description>Blink 1 signal</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-order-mode-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED stream ordering mode.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>ORDER_MODE_BY_PORT</mtsplt:name>
+          <mtsplt:description>the indication order is arranged by port.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>ORDER_MODE_BY_CLASS</mtsplt:name>
+          <mtsplt:description>the indication order is arranged by class.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-blink-duty-cycle-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED stream blink cycle duty cycle type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DUTY_CYCLE_0</mtsplt:name>
+          <mtsplt:description>25% on, 75% off.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DUTY_CYCLE_1</mtsplt:name>
+          <mtsplt:description>50% on, 50% off.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DUTY_CYCLE_2</mtsplt:name>
+          <mtsplt:description>50% on, 50% off.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DUTY_CYCLE_3</mtsplt:name>
+          <mtsplt:description>75% on, 25% off.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-blink-duration-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED stream blink period type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DURATION_0</mtsplt:name>
+          <mtsplt:description>BLINK_DURATION_0.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DURATION_1</mtsplt:name>
+          <mtsplt:description>BLINK_DURATION_1.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DURATION_2</mtsplt:name>
+          <mtsplt:description>BLINK_DURATION_2.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DURATION_3</mtsplt:name>
+          <mtsplt:description>BLINK_DURATION_3.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DURATION_4</mtsplt:name>
+          <mtsplt:description>BLINK_DURATION_4.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DURATION_5</mtsplt:name>
+          <mtsplt:description>BLINK_DURATION_5.</mtsplt:description>
+          <mtsplt:value>6</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DURATION_6</mtsplt:name>
+          <mtsplt:description>(APPLICABLE DEVICES: xCat3; AC5; Lion2; Bobcat2; Caelum; Aldrin; AC3X; Bobcat3; Aldrin2; Pipe) .</mtsplt:description>
+          <mtsplt:value>7</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>BLINK_DURATION_7</mtsplt:name>
+          <mtsplt:description>APPLICABLE DEVICES: Bobcat2; Caelum; Aldrin; AC3X; Bobcat3; Aldrin2; Pipe).</mtsplt:description>
+          <mtsplt:value>8</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-pulse-stretch-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED stream length of stretching for dynamic signals.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>PULSE_STRETCH_0_NO</mtsplt:name>
+          <mtsplt:description>PULSE_STRETCH_0_NO.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PULSE_STRETCH_1</mtsplt:name>
+          <mtsplt:description>PULSE_STRETCH_1.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PULSE_STRETCH_2</mtsplt:name>
+          <mtsplt:description>PULSE_STRETCH_2.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PULSE_STRETCH_3</mtsplt:name>
+          <mtsplt:description>PULSE_STRETCH_3.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PULSE_STRETCH_4</mtsplt:name>
+          <mtsplt:description>PULSE_STRETCH_4.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PULSE_STRETCH_5</mtsplt:name>
+          <mtsplt:description>PULSE_STRETCH_5.</mtsplt:description>
+          <mtsplt:value>6</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PULSE_STRETCH_6</mtsplt:name>
+          <mtsplt:description>(APPLICABLE DEVICES: Bobcat2; Caelum; Aldrin; AC3X; Bobcat3; Aldrin2; Falcon; AC5P; Pipe).</mtsplt:description>
+          <mtsplt:value>7</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PULSE_STRETCH_7</mtsplt:name>
+          <mtsplt:description>(APPLICABLE DEVICES: Bobcat2; Caelum; Aldrin; AC3X; Bobcat3; Aldrin2; Falcon; AC5P; Pipe).</mtsplt:description>
+          <mtsplt:value>8</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-clock-out-frequency-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED stream blink cycle duty cycle type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>_CLOCK_OUT_FREQUENCY_500</mtsplt:name>
+          <mtsplt:description>500 KHz LED clock frequency.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>CLOCK_OUT_FREQUENCY_1000</mtsplt:name>
+          <mtsplt:description>1 MHz LED clock frequency.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>CLOCK_OUT_FREQUENCY_2000</mtsplt:name>
+          <mtsplt:description>2 MHz LED clock frequency.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>CLOCK_OUT_FREQUENCY_3000</mtsplt:name>
+          <mtsplt:description>3 MHz LED clock frequency.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-class5-select-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED stream indication displayed on class5 (for dual-media port/phy).</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>CLASS_5_SELECT_HALF_DUPLEX</mtsplt:name>
+          <mtsplt:description>Half Duplex is displayed on class5.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>CLASS_5_SELECT_FIBER_LINK_UP</mtsplt:name>
+          <mtsplt:description>If port is a dual media port, Fiber Link Up is displayed on class5.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-class13-select-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the LED stream indication displayed on class13 (for dual-media port/phy).</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>CLASS_13_SELECT_LINK_DOWN</mtsplt:name>
+          <mtsplt:description>Link Down is displayed on class13.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>CLASS_13_SELECT_COPPER_LINK_UP</mtsplt:name>
+          <mtsplt:description>If port is a dual media port, Copper Link Up is displayed on class13.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>led-stream-port-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the ledstream port type.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>PORT_TYPE_TRI_SPEED</mtsplt:name>
+          <mtsplt:description>tri-speed port.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PORT_TYPE_XG</mtsplt:name>
+          <mtsplt:description>XG port.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>cpu-type-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the CPU Family and Part Identifier.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>xp-embedded</mtsplt:name>
+          <mtsplt:description>Specifies CPU is XP Embedded ARMv7 (MSYS).</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-MV78130</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada XP Family, Identifier MV78130.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-MV78160</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada XP Family, Identifier MV78160.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-MV78230</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada XP Family, Identifier MV78230.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-MV78260</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada XP Family, Identifier MV78260.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-MV78460</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada XP Family, Identifier MV78460.</mtsplt:description>
+          <mtsplt:value>6</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-88F6810</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada 38x Family, Identifier 88F6810.</mtsplt:description>
+          <mtsplt:value>7</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-88F6811</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada 38x Family, Identifier 88F6811.</mtsplt:description>
+          <mtsplt:value>8</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-88F6820</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada 38x Family, Identifier 88F6820.</mtsplt:description>
+          <mtsplt:value>9</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-88F6821</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada 38x Family, Identifier 88F6821.</mtsplt:description>
+          <mtsplt:value>10</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-88F6W21</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada 38x Family, Identifier 88F6W21.</mtsplt:description>
+          <mtsplt:value>11</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>armada-88F6828</mtsplt:name>
+          <mtsplt:description>Specifies CPU is Armada 38x Family, Identifier 88F6828.</mtsplt:description>
+          <mtsplt:value>12</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>cpu-port-number-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the CPU Linux eth identifier.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>2</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>cpu-sdma-port-index-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the CPU SDMA port index number.</mtsplt:description>
+        <mtsplt:min>1</mtsplt:min>
+        <mtsplt:max>8</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>cpu-logical-port-number-type</mtsplt:name>
+        <mtsplt:type>uint32</mtsplt:type>
+        <mtsplt:description>Specifies the logical cpu port number.</mtsplt:description>
+        <mtsplt:min>0</mtsplt:min>
+        <mtsplt:max>287</mtsplt:max>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>button-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the Button types.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>Reset</mtsplt:name>
+          <mtsplt:description>Specifies Reset Button.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>LED</mtsplt:name>
+          <mtsplt:description>Specifies LED Button.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>sensor-hw-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies the Sensor types.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>BOARD</mtsplt:name>
+          <mtsplt:description>Specifies BOARD sensor (e.g. LM).</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>CPU</mtsplt:name>
+          <mtsplt:description>Specifies CPU sensor.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>PHY</mtsplt:name>
+          <mtsplt:description>Specifies PHY sensor.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>MAC</mtsplt:name>
+          <mtsplt:description>Specifies MAC (i.e. Packet Processor) sensor.</mtsplt:description>
+          <mtsplt:value>4</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>POE</mtsplt:name>
+          <mtsplt:description>Specifies PoE (i.e. Power over Ethernet) sensor.</mtsplt:description>
+          <mtsplt:value>5</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>threshold-type</mtsplt:name>
+        <mtsplt:type>enumeration</mtsplt:type>
+        <mtsplt:description>Specifies threshold levels.</mtsplt:description>
+        <mtsplt:enum>
+          <mtsplt:name>normal</mtsplt:name>
+          <mtsplt:description>Specifies Normal operation threshold.</mtsplt:description>
+          <mtsplt:value>1</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>warning</mtsplt:name>
+          <mtsplt:description>Specifies Warning threshold.</mtsplt:description>
+          <mtsplt:value>2</mtsplt:value>
+        </mtsplt:enum>
+        <mtsplt:enum>
+          <mtsplt:name>critical</mtsplt:name>
+          <mtsplt:description>Specifies Critical threshold.</mtsplt:description>
+          <mtsplt:value>3</mtsplt:value>
+        </mtsplt:enum>
+      </mtsplt:typedef>
+      <mtsplt:typedef>
+        <mtsplt:name>external-driver-id-type</mtsplt:name>
+        <mtsplt:type>uint8</mtsplt:type>
+        <mtsplt:description>Specifies the External driver identifier.</mtsplt:description>
+      </mtsplt:typedef>
+    </mtsplt:typedefs>
+    <mtsplt:MPP-pin-feature-is-supported mtsplt:type="boolean">false</mtsplt:MPP-pin-feature-is-supported>
+    <mtsplt:SERDES-feature-is-supported mtsplt:type="boolean">true</mtsplt:SERDES-feature-is-supported>
+    <mtsplt:PHY-feature-is-supported mtsplt:type="boolean">false</mtsplt:PHY-feature-is-supported>
+    <mtsplt:oob-feature-is-supported mtsplt:type="boolean">false</mtsplt:oob-feature-is-supported>
+    <mtsplt:Fan-feature-is-supported mtsplt:type="boolean">false</mtsplt:Fan-feature-is-supported>
+    <mtsplt:LED-feature-is-supported mtsplt:type="boolean">true</mtsplt:LED-feature-is-supported>
+    <mtsplt:Sensor-feature-is-supported mtsplt:type="boolean">false</mtsplt:Sensor-feature-is-supported>
+    <mtsplt:POWER-feature-is-supported mtsplt:type="boolean">false</mtsplt:POWER-feature-is-supported>
+    <mtsplt:POE-feature-is-supported mtsplt:type="boolean">false</mtsplt:POE-feature-is-supported>
+    <mtsplt:Button-feature-is-supported mtsplt:type="boolean">false</mtsplt:Button-feature-is-supported>
+    <mtsplt:CPU-feature-is-supported mtsplt:type="boolean">false</mtsplt:CPU-feature-is-supported>
+    <mtsplt:CPU-SDMA-port-mapping-is-supported mtsplt:type="boolean">true</mtsplt:CPU-SDMA-port-mapping-is-supported>
+    <mtsplt:Stack-feature-is-supported mtsplt:type="boolean">false</mtsplt:Stack-feature-is-supported>
+    <mtsplt:External-driver-feature-is-supported mtsplt:type="boolean">false</mtsplt:External-driver-feature-is-supported>
+    <mtsplt:is-logical-port-required mtsplt:type="boolean">true</mtsplt:is-logical-port-required>
+    <mtsplt:Packet-Processors>
+      <mtsplt:number-of-pps mtsplt:type="number-of-pps-type">1</mtsplt:number-of-pps>
+    </mtsplt:Packet-Processors>
+    <mtsplt:Network-ports>
+      <mtsplt:front-panel-group-list>
+        <mtsplt:group-number mtsplt:type="panel-group-number-type">1</mtsplt:group-number>
+        <mtsplt:group-ordering mtsplt:type="panel-group-ordering-type">RightDown</mtsplt:group-ordering>
+        <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+        <mtsplt:prefix-name mtsplt:type="string"/>
+        <mtsplt:first-port-number-shift mtsplt:type="panel-port-number-type">8</mtsplt:first-port-number-shift>
+        <mtsplt:port-list>
+          <mtsplt:port-number mtsplt:type="panel-port-number-type">1</mtsplt:port-number>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">0</mtsplt:pp-port-number>
+          <mtsplt:logical-port-number mtsplt:type="logical-port-number-type">0</mtsplt:logical-port-number>
+          <mtsplt:transceiver mtsplt:type="transceiver-type">fiber</mtsplt:transceiver>
+          <mtsplt:fiber-L1-interface-modes-group>
+            <mtsplt:L1-interface-mode-list>
+              <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+              <mtsplt:mode mtsplt:type="L1-interface-mode-type">SR-LR</mtsplt:mode>
+            </mtsplt:L1-interface-mode-list>
+          </mtsplt:fiber-L1-interface-modes-group>
+          <mtsplt:gbic-group>
+            <mtsplt:gbicConnectedInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:gbicConnectedInfo>
+            <mtsplt:laserIsLossInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:laserIsLossInfo>
+            <mtsplt:txIsEnabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsEnabledControl>
+            <mtsplt:txIsDisabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsDisabledControl>
+            <mtsplt:memoryControl>
+              <mtsplt:i2c-read-write-address>
+                <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+              </mtsplt:i2c-read-write-address>
+            </mtsplt:memoryControl>
+          </mtsplt:gbic-group>
+          <mtsplt:serdes-lane-list>
+            <mtsplt:lane-number mtsplt:type="lane-number-type">0</mtsplt:lane-number>
+            <mtsplt:port-lane-number mtsplt:type="port-lane-number-type">0</mtsplt:port-lane-number>
+          </mtsplt:serdes-lane-list>
+        </mtsplt:port-list>
+        <mtsplt:port-list>
+          <mtsplt:port-number mtsplt:type="panel-port-number-type">2</mtsplt:port-number>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">8</mtsplt:pp-port-number>
+          <mtsplt:logical-port-number mtsplt:type="logical-port-number-type">8</mtsplt:logical-port-number>
+          <mtsplt:transceiver mtsplt:type="transceiver-type">fiber</mtsplt:transceiver>
+          <mtsplt:fiber-L1-interface-modes-group>
+            <mtsplt:L1-interface-mode-list>
+              <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+              <mtsplt:mode mtsplt:type="L1-interface-mode-type">SR-LR</mtsplt:mode>
+            </mtsplt:L1-interface-mode-list>
+          </mtsplt:fiber-L1-interface-modes-group>
+          <mtsplt:gbic-group>
+            <mtsplt:gbicConnectedInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:gbicConnectedInfo>
+            <mtsplt:laserIsLossInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:laserIsLossInfo>
+            <mtsplt:txIsEnabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsEnabledControl>
+            <mtsplt:txIsDisabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsDisabledControl>
+            <mtsplt:memoryControl>
+              <mtsplt:i2c-read-write-address>
+                <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+              </mtsplt:i2c-read-write-address>
+            </mtsplt:memoryControl>
+          </mtsplt:gbic-group>
+          <mtsplt:serdes-lane-list>
+            <mtsplt:lane-number mtsplt:type="lane-number-type">1</mtsplt:lane-number>
+            <mtsplt:port-lane-number mtsplt:type="port-lane-number-type">0</mtsplt:port-lane-number>
+          </mtsplt:serdes-lane-list>
+        </mtsplt:port-list>
+        <mtsplt:port-list>
+          <mtsplt:port-number mtsplt:type="panel-port-number-type">3</mtsplt:port-number>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">16</mtsplt:pp-port-number>
+          <mtsplt:logical-port-number mtsplt:type="logical-port-number-type">16</mtsplt:logical-port-number>
+          <mtsplt:transceiver mtsplt:type="transceiver-type">fiber</mtsplt:transceiver>
+          <mtsplt:fiber-L1-interface-modes-group>
+            <mtsplt:L1-interface-mode-list>
+              <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+              <mtsplt:mode mtsplt:type="L1-interface-mode-type">SR-LR</mtsplt:mode>
+            </mtsplt:L1-interface-mode-list>
+          </mtsplt:fiber-L1-interface-modes-group>
+          <mtsplt:gbic-group>
+            <mtsplt:gbicConnectedInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:gbicConnectedInfo>
+            <mtsplt:laserIsLossInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:laserIsLossInfo>
+            <mtsplt:txIsEnabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsEnabledControl>
+            <mtsplt:txIsDisabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsDisabledControl>
+            <mtsplt:memoryControl>
+              <mtsplt:i2c-read-write-address>
+                <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+              </mtsplt:i2c-read-write-address>
+            </mtsplt:memoryControl>
+          </mtsplt:gbic-group>
+          <mtsplt:serdes-lane-list>
+            <mtsplt:lane-number mtsplt:type="lane-number-type">2</mtsplt:lane-number>
+            <mtsplt:port-lane-number mtsplt:type="port-lane-number-type">0</mtsplt:port-lane-number>
+          </mtsplt:serdes-lane-list>
+        </mtsplt:port-list>
+        <mtsplt:port-list>
+          <mtsplt:port-number mtsplt:type="panel-port-number-type">4</mtsplt:port-number>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">24</mtsplt:pp-port-number>
+          <mtsplt:logical-port-number mtsplt:type="logical-port-number-type">24</mtsplt:logical-port-number>
+          <mtsplt:transceiver mtsplt:type="transceiver-type">fiber</mtsplt:transceiver>
+          <mtsplt:fiber-L1-interface-modes-group>
+            <mtsplt:L1-interface-mode-list>
+              <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+              <mtsplt:mode mtsplt:type="L1-interface-mode-type">SR-LR</mtsplt:mode>
+            </mtsplt:L1-interface-mode-list>
+          </mtsplt:fiber-L1-interface-modes-group>
+          <mtsplt:gbic-group>
+            <mtsplt:gbicConnectedInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:gbicConnectedInfo>
+            <mtsplt:laserIsLossInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:laserIsLossInfo>
+            <mtsplt:txIsEnabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsEnabledControl>
+            <mtsplt:txIsDisabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsDisabledControl>
+            <mtsplt:memoryControl>
+              <mtsplt:i2c-read-write-address>
+                <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+              </mtsplt:i2c-read-write-address>
+            </mtsplt:memoryControl>
+          </mtsplt:gbic-group>
+          <mtsplt:serdes-lane-list>
+            <mtsplt:lane-number mtsplt:type="lane-number-type">3</mtsplt:lane-number>
+            <mtsplt:port-lane-number mtsplt:type="port-lane-number-type">0</mtsplt:port-lane-number>
+          </mtsplt:serdes-lane-list>
+        </mtsplt:port-list>
+        <mtsplt:port-list>
+          <mtsplt:port-number mtsplt:type="panel-port-number-type">5</mtsplt:port-number>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">32</mtsplt:pp-port-number>
+          <mtsplt:logical-port-number mtsplt:type="logical-port-number-type">32</mtsplt:logical-port-number>
+          <mtsplt:transceiver mtsplt:type="transceiver-type">fiber</mtsplt:transceiver>
+          <mtsplt:fiber-L1-interface-modes-group>
+            <mtsplt:L1-interface-mode-list>
+              <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+              <mtsplt:mode mtsplt:type="L1-interface-mode-type">SR-LR</mtsplt:mode>
+            </mtsplt:L1-interface-mode-list>
+          </mtsplt:fiber-L1-interface-modes-group>
+          <mtsplt:gbic-group>
+            <mtsplt:gbicConnectedInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:gbicConnectedInfo>
+            <mtsplt:laserIsLossInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:laserIsLossInfo>
+            <mtsplt:txIsEnabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsEnabledControl>
+            <mtsplt:txIsDisabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsDisabledControl>
+            <mtsplt:memoryControl>
+              <mtsplt:i2c-read-write-address>
+                <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+              </mtsplt:i2c-read-write-address>
+            </mtsplt:memoryControl>
+          </mtsplt:gbic-group>
+          <mtsplt:serdes-lane-list>
+            <mtsplt:lane-number mtsplt:type="lane-number-type">4</mtsplt:lane-number>
+            <mtsplt:port-lane-number mtsplt:type="port-lane-number-type">0</mtsplt:port-lane-number>
+          </mtsplt:serdes-lane-list>
+        </mtsplt:port-list>
+        <mtsplt:port-list>
+          <mtsplt:port-number mtsplt:type="panel-port-number-type">6</mtsplt:port-number>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">40</mtsplt:pp-port-number>
+          <mtsplt:logical-port-number mtsplt:type="logical-port-number-type">40</mtsplt:logical-port-number>
+          <mtsplt:transceiver mtsplt:type="transceiver-type">fiber</mtsplt:transceiver>
+          <mtsplt:fiber-L1-interface-modes-group>
+            <mtsplt:L1-interface-mode-list>
+              <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+              <mtsplt:mode mtsplt:type="L1-interface-mode-type">SR-LR</mtsplt:mode>
+            </mtsplt:L1-interface-mode-list>
+          </mtsplt:fiber-L1-interface-modes-group>
+          <mtsplt:gbic-group>
+            <mtsplt:gbicConnectedInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:gbicConnectedInfo>
+            <mtsplt:laserIsLossInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:laserIsLossInfo>
+            <mtsplt:txIsEnabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsEnabledControl>
+            <mtsplt:txIsDisabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsDisabledControl>
+            <mtsplt:memoryControl>
+              <mtsplt:i2c-read-write-address>
+                <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+              </mtsplt:i2c-read-write-address>
+            </mtsplt:memoryControl>
+          </mtsplt:gbic-group>
+          <mtsplt:serdes-lane-list>
+            <mtsplt:lane-number mtsplt:type="lane-number-type">5</mtsplt:lane-number>
+            <mtsplt:port-lane-number mtsplt:type="port-lane-number-type">0</mtsplt:port-lane-number>
+          </mtsplt:serdes-lane-list>
+        </mtsplt:port-list>
+        <mtsplt:port-list>
+          <mtsplt:port-number mtsplt:type="panel-port-number-type">7</mtsplt:port-number>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">48</mtsplt:pp-port-number>
+          <mtsplt:logical-port-number mtsplt:type="logical-port-number-type">48</mtsplt:logical-port-number>
+          <mtsplt:transceiver mtsplt:type="transceiver-type">fiber</mtsplt:transceiver>
+          <mtsplt:fiber-L1-interface-modes-group>
+            <mtsplt:L1-interface-mode-list>
+              <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+              <mtsplt:mode mtsplt:type="L1-interface-mode-type">SR-LR</mtsplt:mode>
+            </mtsplt:L1-interface-mode-list>
+          </mtsplt:fiber-L1-interface-modes-group>
+          <mtsplt:gbic-group>
+            <mtsplt:gbicConnectedInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:gbicConnectedInfo>
+            <mtsplt:laserIsLossInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:laserIsLossInfo>
+            <mtsplt:txIsEnabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsEnabledControl>
+            <mtsplt:txIsDisabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsDisabledControl>
+            <mtsplt:memoryControl>
+              <mtsplt:i2c-read-write-address>
+                <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+              </mtsplt:i2c-read-write-address>
+            </mtsplt:memoryControl>
+          </mtsplt:gbic-group>
+          <mtsplt:serdes-lane-list>
+            <mtsplt:lane-number mtsplt:type="lane-number-type">6</mtsplt:lane-number>
+            <mtsplt:port-lane-number mtsplt:type="port-lane-number-type">0</mtsplt:port-lane-number>
+          </mtsplt:serdes-lane-list>
+        </mtsplt:port-list>
+        <mtsplt:port-list>
+          <mtsplt:port-number mtsplt:type="panel-port-number-type">8</mtsplt:port-number>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">49</mtsplt:pp-port-number>
+          <mtsplt:logical-port-number mtsplt:type="logical-port-number-type">49</mtsplt:logical-port-number>
+          <mtsplt:transceiver mtsplt:type="transceiver-type">fiber</mtsplt:transceiver>
+          <mtsplt:fiber-L1-interface-modes-group>
+            <mtsplt:L1-interface-mode-list>
+              <mtsplt:speed mtsplt:type="speed-type">10G</mtsplt:speed>
+              <mtsplt:mode mtsplt:type="L1-interface-mode-type">SR-LR</mtsplt:mode>
+            </mtsplt:L1-interface-mode-list>
+          </mtsplt:fiber-L1-interface-modes-group>
+          <mtsplt:gbic-group>
+            <mtsplt:gbicConnectedInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:gbicConnectedInfo>
+            <mtsplt:laserIsLossInfo>
+              <mtsplt:read-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:read-interface-select>
+              <mtsplt:read-i2c-interface>
+                <mtsplt:i2c-read-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-read-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:read-i2c-interface>
+            </mtsplt:laserIsLossInfo>
+            <mtsplt:txIsEnabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsEnabledControl>
+            <mtsplt:txIsDisabledControl>
+              <mtsplt:write-interface-select mtsplt:type="interface-type">interface-i2c</mtsplt:write-interface-select>
+              <mtsplt:write-i2c-interface>
+                <mtsplt:i2c-write-value mtsplt:type="i2c-value-type">0</mtsplt:i2c-write-value>
+                <mtsplt:i2c-read-write-address>
+                  <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                  <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                  <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                  <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                  <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                  <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+                </mtsplt:i2c-read-write-address>
+              </mtsplt:write-i2c-interface>
+            </mtsplt:txIsDisabledControl>
+            <mtsplt:memoryControl>
+              <mtsplt:i2c-read-write-address>
+                <mtsplt:i2c-bus-id mtsplt:type="i2c-bus-id-type">0</mtsplt:i2c-bus-id>
+                <mtsplt:i2c-access mtsplt:type="i2c-access-type">one-byte</mtsplt:i2c-access>
+                <mtsplt:i2c-address mtsplt:type="i2c-address-type">0</mtsplt:i2c-address>
+                <mtsplt:i2c-offset mtsplt:type="i2c-offset-type">0</mtsplt:i2c-offset>
+                <mtsplt:i2c-mask mtsplt:type="i2c-mask-type">1</mtsplt:i2c-mask>
+                <mtsplt:i2c-transaction-type mtsplt:type="i2c-transaction-type">offset-and-data</mtsplt:i2c-transaction-type>
+              </mtsplt:i2c-read-write-address>
+            </mtsplt:memoryControl>
+          </mtsplt:gbic-group>
+          <mtsplt:serdes-lane-list>
+            <mtsplt:lane-number mtsplt:type="lane-number-type">7</mtsplt:lane-number>
+            <mtsplt:port-lane-number mtsplt:type="port-lane-number-type">0</mtsplt:port-lane-number>
+          </mtsplt:serdes-lane-list>
+        </mtsplt:port-list>
+      </mtsplt:front-panel-group-list>
+    </mtsplt:Network-ports>
+    <mtsplt:SERDES>
+      <mtsplt:Packet-Processor-list>
+        <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+        <mtsplt:lane-list>
+          <mtsplt:lane-number mtsplt:type="lane-number-type">0</mtsplt:lane-number>
+          <mtsplt:lane-attributes-group>
+            <mtsplt:tx-swap mtsplt:type="boolean">false</mtsplt:tx-swap>
+            <mtsplt:rx-swap mtsplt:type="boolean">false</mtsplt:rx-swap>
+          </mtsplt:lane-attributes-group>
+        </mtsplt:lane-list>
+        <mtsplt:lane-list>
+          <mtsplt:lane-number mtsplt:type="lane-number-type">1</mtsplt:lane-number>
+          <mtsplt:lane-attributes-group>
+            <mtsplt:tx-swap mtsplt:type="boolean">false</mtsplt:tx-swap>
+            <mtsplt:rx-swap mtsplt:type="boolean">false</mtsplt:rx-swap>
+          </mtsplt:lane-attributes-group>
+        </mtsplt:lane-list>
+        <mtsplt:lane-list>
+          <mtsplt:lane-number mtsplt:type="lane-number-type">2</mtsplt:lane-number>
+          <mtsplt:lane-attributes-group>
+            <mtsplt:tx-swap mtsplt:type="boolean">false</mtsplt:tx-swap>
+            <mtsplt:rx-swap mtsplt:type="boolean">false</mtsplt:rx-swap>
+          </mtsplt:lane-attributes-group>
+        </mtsplt:lane-list>
+        <mtsplt:lane-list>
+          <mtsplt:lane-number mtsplt:type="lane-number-type">3</mtsplt:lane-number>
+          <mtsplt:lane-attributes-group>
+            <mtsplt:tx-swap mtsplt:type="boolean">false</mtsplt:tx-swap>
+            <mtsplt:rx-swap mtsplt:type="boolean">false</mtsplt:rx-swap>
+          </mtsplt:lane-attributes-group>
+        </mtsplt:lane-list>
+        <mtsplt:lane-list>
+          <mtsplt:lane-number mtsplt:type="lane-number-type">4</mtsplt:lane-number>
+          <mtsplt:lane-attributes-group>
+            <mtsplt:tx-swap mtsplt:type="boolean">false</mtsplt:tx-swap>
+            <mtsplt:rx-swap mtsplt:type="boolean">false</mtsplt:rx-swap>
+          </mtsplt:lane-attributes-group>
+        </mtsplt:lane-list>
+        <mtsplt:lane-list>
+          <mtsplt:lane-number mtsplt:type="lane-number-type">5</mtsplt:lane-number>
+          <mtsplt:lane-attributes-group>
+            <mtsplt:tx-swap mtsplt:type="boolean">false</mtsplt:tx-swap>
+            <mtsplt:rx-swap mtsplt:type="boolean">false</mtsplt:rx-swap>
+          </mtsplt:lane-attributes-group>
+        </mtsplt:lane-list>
+        <mtsplt:lane-list>
+          <mtsplt:lane-number mtsplt:type="lane-number-type">6</mtsplt:lane-number>
+          <mtsplt:lane-attributes-group>
+            <mtsplt:tx-swap mtsplt:type="boolean">false</mtsplt:tx-swap>
+            <mtsplt:rx-swap mtsplt:type="boolean">false</mtsplt:rx-swap>
+          </mtsplt:lane-attributes-group>
+        </mtsplt:lane-list>
+        <mtsplt:lane-list>
+          <mtsplt:lane-number mtsplt:type="lane-number-type">7</mtsplt:lane-number>
+          <mtsplt:lane-attributes-group>
+            <mtsplt:tx-swap mtsplt:type="boolean">false</mtsplt:tx-swap>
+            <mtsplt:rx-swap mtsplt:type="boolean">false</mtsplt:rx-swap>
+          </mtsplt:lane-attributes-group>
+        </mtsplt:lane-list>
+      </mtsplt:Packet-Processor-list>
+    </mtsplt:SERDES>
+    <mtsplt:LEDs>
+      <mtsplt:SystemLed-is-supported mtsplt:type="boolean">false</mtsplt:SystemLed-is-supported>
+      <mtsplt:PortLedState-is-supported mtsplt:type="boolean">false</mtsplt:PortLedState-is-supported>
+      <mtsplt:PortLeds-is-supported mtsplt:type="boolean">false</mtsplt:PortLeds-is-supported>
+      <mtsplt:Ledstream-is-supported mtsplt:type="boolean">true</mtsplt:Ledstream-is-supported>
+      <mtsplt:LedstreamLeds>
+        <mtsplt:Ledstream-interface-list>
+          <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+          <mtsplt:ledstream-interface-number mtsplt:type="uint8">0</mtsplt:ledstream-interface-number>
+          <mtsplt:ledstream-interface-configSet>
+            <mtsplt:ledOrganize mtsplt:type="led-stream-order-mode-type">ORDER_MODE_BY_PORT</mtsplt:ledOrganize>
+            <mtsplt:disableOnLinkDown mtsplt:type="boolean">false</mtsplt:disableOnLinkDown>
+            <mtsplt:blink0DutyCycle mtsplt:type="led-stream-blink-duty-cycle-type">BLINK_DUTY_CYCLE_0</mtsplt:blink0DutyCycle>
+            <mtsplt:blink0Duration mtsplt:type="led-stream-blink-duration-type">BLINK_DURATION_0</mtsplt:blink0Duration>
+            <mtsplt:blink1DutyCycle mtsplt:type="led-stream-blink-duty-cycle-type">BLINK_DUTY_CYCLE_0</mtsplt:blink1DutyCycle>
+            <mtsplt:blink1Duration mtsplt:type="led-stream-blink-duration-type">BLINK_DURATION_0</mtsplt:blink1Duration>
+            <mtsplt:pulseStretch mtsplt:type="led-stream-pulse-stretch-type">PULSE_STRETCH_1</mtsplt:pulseStretch>
+            <mtsplt:ledStart mtsplt:type="uint32">0</mtsplt:ledStart>
+            <mtsplt:ledEnd mtsplt:type="uint32">53</mtsplt:ledEnd>
+            <mtsplt:clkInvert mtsplt:type="boolean">false</mtsplt:clkInvert>
+            <mtsplt:class5select mtsplt:type="led-stream-class5-select-type">CLASS_5_SELECT_FIBER_LINK_UP</mtsplt:class5select>
+            <mtsplt:class13select mtsplt:type="led-stream-class13-select-type">CLASS_13_SELECT_LINK_DOWN</mtsplt:class13select>
+            <mtsplt:invertEnable mtsplt:type="boolean">false</mtsplt:invertEnable>
+            <mtsplt:ledClockFrequency mtsplt:type="led-stream-clock-out-frequency-type">_CLOCK_OUT_FREQUENCY_500</mtsplt:ledClockFrequency>
+            <mtsplt:sip6-config mtsplt:type="boolean">true</mtsplt:sip6-config>
+            <mtsplt:sip6LedConfig>
+              <mtsplt:ledClockFrequency mtsplt:type="uint32">500</mtsplt:ledClockFrequency>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">1</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">2</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">3</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">4</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">5</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">6</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">7</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">8</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">9</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">10</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">11</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">12</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">13</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">14</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">15</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledStart-list>
+                <mtsplt:index mtsplt:type="list-number-type">16</mtsplt:index>
+                <mtsplt:ledStart mtsplt:type="uint8">0</mtsplt:ledStart>
+              </mtsplt:ledStart-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">1</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">53</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">2</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">3</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">4</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">5</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">6</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">7</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">8</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">9</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">10</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">11</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">12</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">13</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">14</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">15</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledEnd-list>
+                <mtsplt:index mtsplt:type="list-number-type">16</mtsplt:index>
+                <mtsplt:ledEnd mtsplt:type="uint8">0</mtsplt:ledEnd>
+              </mtsplt:ledEnd-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">1</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">2</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">3</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">4</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">5</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">6</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">7</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">8</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">9</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">10</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">11</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">12</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">13</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">14</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">15</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+              <mtsplt:ledChainBypass-list>
+                <mtsplt:index mtsplt:type="list-number-type">16</mtsplt:index>
+                <mtsplt:ledChainBypass mtsplt:type="boolean">false</mtsplt:ledChainBypass>
+              </mtsplt:ledChainBypass-list>
+            </mtsplt:sip6LedConfig>
+          </mtsplt:ledstream-interface-configSet>
+          <mtsplt:ledstream-interface-init-exist mtsplt:type="boolean">false</mtsplt:ledstream-interface-init-exist>
+          <mtsplt:ledstream-interface-modes>
+            <mtsplt:ledstream-interface-off-exist mtsplt:type="boolean">false</mtsplt:ledstream-interface-off-exist>
+          </mtsplt:ledstream-interface-modes>
+        </mtsplt:Ledstream-interface-list>
+        <mtsplt:LedstreamPortsLeds>
+          <mtsplt:LedstreamPortLeds-list>
+            <mtsplt:panel-group-number mtsplt:type="panel-group-number-type">1</mtsplt:panel-group-number>
+            <mtsplt:panel-port-number mtsplt:type="panel-port-number-type">1</mtsplt:panel-port-number>
+            <mtsplt:Ledstream-port-init>
+              <mtsplt:ledInterface mtsplt:type="uint8">0</mtsplt:ledInterface>
+              <mtsplt:ledPosition mtsplt:type="uint8">0</mtsplt:ledPosition>
+              <mtsplt:polarityEnable mtsplt:type="boolean">false</mtsplt:polarityEnable>
+              <mtsplt:classNum mtsplt:type="uint32">3</mtsplt:classNum>
+            </mtsplt:Ledstream-port-init>
+          </mtsplt:LedstreamPortLeds-list>
+        </mtsplt:LedstreamPortsLeds>
+      </mtsplt:LedstreamLeds>
+    </mtsplt:LEDs>
+    <mtsplt:CPU-SDMA-port-mapping>
+      <mtsplt:cpu-sdma-port-list>
+        <mtsplt:cpu-sdma-port-index mtsplt:type="cpu-sdma-port-index-type">1</mtsplt:cpu-sdma-port-index>
+        <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+        <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">63</mtsplt:pp-port-number>
+        <mtsplt:logical-port-number mtsplt:type="cpu-logical-port-number-type">63</mtsplt:logical-port-number>
+      </mtsplt:cpu-sdma-port-list>
+      <mtsplt:cpu-sdma-port-list>
+        <mtsplt:cpu-sdma-port-index mtsplt:type="cpu-sdma-port-index-type">2</mtsplt:cpu-sdma-port-index>
+        <mtsplt:pp-device-number mtsplt:type="pp-device-number-type">0</mtsplt:pp-device-number>
+        <mtsplt:pp-port-number mtsplt:type="pp-port-number-type">60</mtsplt:pp-port-number>
+        <mtsplt:logical-port-number mtsplt:type="cpu-logical-port-number-type">60</mtsplt:logical-port-number>
+      </mtsplt:cpu-sdma-port-list>
+    </mtsplt:CPU-SDMA-port-mapping>
+  </mtsplt:MTS-Platform>
+</data>

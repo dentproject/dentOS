@@ -1,0 +1,1 @@
+!include $ONL_TEMPLATES/platform-config-platform.yml ARCH=arm64 VENDOR=marvell BASENAME=arm64-marvell-ac5x-db REVISION=r0

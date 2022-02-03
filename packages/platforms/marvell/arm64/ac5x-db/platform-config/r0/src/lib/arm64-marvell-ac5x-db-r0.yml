@@ -1,0 +1,53 @@
+---
+
+######################################################################
+#
+# platform-config for AC5x DB board
+#
+######################################################################
+
+arm64-marvell-ac5x-db-r0:
+  flat_image_tree:
+    kernel:
+      <<: *arm64-kernel-5-10
+    dtb:
+      =: marvell-ac5x-db-slim.dtb
+      <<: *arm64-kernel-5-10-package
+    itb:
+      <<: *arm64-itb
+
+  loader:
+    device: /dev/mmcblk0
+    ##partition: /dev/mmcblk0p1
+    loadaddr: 0x220000000
+    nos_bootcmds: *mmc_bootcmds
+
+    setenv:
+    - bootargs: >-
+        $console
+        onl_platform=$onl_platform
+        arm-smmu.disable_bypass=n
+        maxcpus=4
+        pci=pcie_bus_safe
+        cpuidle.off=1
+
+    environment:
+    - device: /dev/mtd1
+      env_offset: 0x00000000
+      env_size: 0x00010000
+      sector_size: 0x00010000
+
+  installer:
+  - ONL-BOOT:
+      =: 128MiB
+      format: ext2
+      ##format: raw
+  - ONL-CONFIG:
+      =: 128MiB
+      format: ext4
+  - ONL-IMAGES:
+      =: 1GiB
+      format: ext4
+  - ONL-DATA:
+      =: 2GiB
+      format: ext4
