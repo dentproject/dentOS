@@ -1,1 +1,1 @@
-!include $ONL_TEMPLATES/platform-modules.yml ARCH=arm64 VENDOR=delta BASENAME=arm64-delta-tn4810m KERNELS="onl-kernel-5.10-lts-arm64-all:arm64"
+!include $ONL_TEMPLATES/platform-modules.yml ARCH=arm64 VENDOR=delta BASENAME=arm64-delta-tn4810m KERNELS="onl-kernel-5.15-lts-arm64-all:arm64"
