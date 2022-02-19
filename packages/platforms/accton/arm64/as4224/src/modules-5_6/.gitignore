@@ -1,6 +1,0 @@
-*.ko
-*.mod*
-*.o
-*.a
-Module.*
-modules.order
