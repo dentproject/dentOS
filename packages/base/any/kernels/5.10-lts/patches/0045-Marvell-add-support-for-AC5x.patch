@@ -1,0 +1,3181 @@
+From a327806b0c7863790f8be1a66d13c06e798b220d Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Sun, 1 Aug 2021 21:36:26 +0300
+Subject: Add AC5X Cnm support - Import Yuval Shaia Bunch of commits from 5.4
+ along with some extra needed fixes
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ .../devicetree/bindings/mtd/marvell-nand.txt  |  14 +-
+ .../devicetree/bindings/usb/ehci-orion.txt    |   1 +
+ arch/arm/configs/mvebu_v7_defconfig           |   3 +
+ arch/arm64/boot/dts/marvell/Makefile          |   2 +
+ arch/arm64/boot/dts/marvell/ac5.dtsi          | 371 +++++++++
+ .../arm64/boot/dts/marvell/ac5_comexpress.dts |  28 +
+ arch/arm64/boot/dts/marvell/ac5_db.dts        |  35 +
+ arch/arm64/boot/dts/marvell/ac5_rd.dts        |  23 +
+ arch/arm64/boot/dts/marvell/ac5x_db.dts       |  32 +
+ arch/arm64/configs/marvell_v8_sdk_defconfig   | 740 ++++++++++++++++++
+ drivers/mmc/host/sdhci-xenon.c                |  10 +
+ drivers/mtd/nand/raw/Kconfig                  |   2 +-
+ drivers/mtd/nand/raw/internals.h              |   1 +
+ drivers/mtd/nand/raw/marvell_nand.c           | 279 ++++++-
+ drivers/mtd/nand/raw/nand_timings.c           |  14 +
+ drivers/net/ethernet/marvell/mvneta.c         |  78 +-
+ drivers/usb/host/ehci-orion.c                 |  15 +-
+ 18 files changed, 1864 insertions(+), 181 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/marvell/ac5.dtsi
+ create mode 100644 arch/arm64/boot/dts/marvell/ac5_comexpress.dts
+ create mode 100644 arch/arm64/boot/dts/marvell/ac5_db.dts
+ create mode 100644 arch/arm64/boot/dts/marvell/ac5_rd.dts
+ create mode 100644 arch/arm64/boot/dts/marvell/ac5x_db.dts
+ create mode 100644 arch/arm64/configs/marvell_v8_sdk_defconfig
+
+diff --git a/Documentation/devicetree/bindings/mtd/marvell-nand.txt b/Documentation/devicetree/bindings/mtd/marvell-nand.txt
+index a2d9a0f2b683..e6dfff618501 100644
+--- a/Documentation/devicetree/bindings/mtd/marvell-nand.txt
++++ b/Documentation/devicetree/bindings/mtd/marvell-nand.txt
+@@ -2,6 +2,7 @@ Marvell NAND Flash Controller (NFC)
+ 
+ Required properties:
+ - compatible: can be one of the following:
++    * "marvell,ac5-nand-controller"
+     * "marvell,armada-8k-nand-controller"
+     * "marvell,armada370-nand-controller"
+     * "marvell,pxa3xx-nand-controller"
+@@ -57,11 +58,20 @@ Optional properties:
+   step size will shrink or grow in order to fit the required strength.
+   Step sizes are not completely random for all and follow certain
+   patterns described in AN-379, "Marvell SoC NFC ECC".
++- nand-timing-mode:
++  This field is relevant only if "is_marvell_timing_modes" capabilitiy
++  is supportted, then the supported modes are: 0 to "max_mode_number"
++  (the maxmium mode the NFC can support, it is also one of the driver
++  capabilities). it is recomannded use it for Nand devices
++  that not supports ONFI and can't read the mode from parameter page,
++  else mode will be set to 0 or according to nand_ids table.
++  In case mode is read from parameter page but also the
++  "nand-timing-mode" is defined in dts, than device tree definition is
++  the one that counts.
+ 
+ See Documentation/devicetree/bindings/mtd/nand-controller.yaml for more details on
+ generic bindings.
+-
+-
++  
+ Example:
+ nand_controller: nand-controller@d0000 {
+ 	compatible = "marvell,armada370-nand-controller";
+diff --git a/Documentation/devicetree/bindings/usb/ehci-orion.txt b/Documentation/devicetree/bindings/usb/ehci-orion.txt
+index 2855bae79fda..ad970bfeb16b 100644
+--- a/Documentation/devicetree/bindings/usb/ehci-orion.txt
++++ b/Documentation/devicetree/bindings/usb/ehci-orion.txt
+@@ -12,6 +12,7 @@ Optional properties:
+ - clocks: reference to the clock
+ - phys: reference to the USB PHY
+ - phy-names: name of the USB PHY, should be "usb"
++- max-speed-full-speed: Limit USB to full speed
+ 
+ Example:
+ 
+diff --git a/arch/arm/configs/mvebu_v7_defconfig b/arch/arm/configs/mvebu_v7_defconfig
+index cddce57fe4b9..2513ec00db15 100644
+--- a/arch/arm/configs/mvebu_v7_defconfig
++++ b/arch/arm/configs/mvebu_v7_defconfig
+@@ -67,8 +67,11 @@ CONFIG_MVNETA=y
+ CONFIG_MVPP2=y
+ CONFIG_SFP=y
+ CONFIG_MARVELL_PHY=y
++CONFIG_USB_RTL8150=y
++CONFIG_USB_RTL8152=y
+ CONFIG_MWIFIEX=y
+ CONFIG_MWIFIEX_SDIO=y
++CONFIG_USB_NET_RNDIS_WLAN=y
+ CONFIG_INPUT_EVDEV=y
+ CONFIG_KEYBOARD_GPIO=y
+ CONFIG_SERIAL_8250=y
+diff --git a/arch/arm64/boot/dts/marvell/Makefile b/arch/arm64/boot/dts/marvell/Makefile
+index 3e5f2e7a040c..21fcc04c4045 100644
+--- a/arch/arm64/boot/dts/marvell/Makefile
++++ b/arch/arm64/boot/dts/marvell/Makefile
+@@ -1,5 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Mvebu SoC Family
++dtb-$(CONFIG_ARCH_MVEBU) += ac5_db.dtb
++dtb-$(CONFIG_ARCH_MVEBU) += ac5_rd.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += armada-3720-db.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += armada-3720-espressobin.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += armada-3720-espressobin-emmc.dtb
+diff --git a/arch/arm64/boot/dts/marvell/ac5.dtsi b/arch/arm64/boot/dts/marvell/ac5.dtsi
+new file mode 100644
+index 000000000000..4abcbde9d2a0
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/ac5.dtsi
+@@ -0,0 +1,371 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree For AC5.
++ *
++ * Copyright (C) 2021 Marvell
++ *
++ */
++
++/dts-v1/;
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++/*#include <dt-bindings/phy/phy-utmi-mvebu.h>*/
++
++/ {
++	model = "Marvell AC5x board";
++	compatible = "marvell,armada3700";
++	interrupt-parent = <&gic>;
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	aliases {
++		serial0 = &uart0;
++		spiflash0 = &spiflash0;
++	};
++
++	psci {
++		compatible = "arm,psci-0.2";
++		method = "smc";
++	};
++
++	timer {
++		compatible = "arm,armv8-timer";
++		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>,
++				 <GIC_PPI 8 IRQ_TYPE_LEVEL_HIGH>,
++				 <GIC_PPI 10 IRQ_TYPE_LEVEL_HIGH>,
++				 <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
++		//clock-frequency = <10020>;
++		//clock-frequency = <110400>;
++		//clock-frequency = <110020>;
++		clock-frequency = <25000000>;
++	};
++
++	pmu {
++		compatible = "arm,armv8-pmuv3";
++		interrupts = <GIC_PPI 12 IRQ_TYPE_LEVEL_HIGH>;
++	};
++
++	soc {
++		compatible = "simple-bus";
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++		dma-ranges;
++
++		internal-regs@7f000000 {
++			#address-cells = <1>;
++			#size-cells = <1>;
++			compatible = "simple-bus";
++			/* 16M internal register @ 0x7f00_0000 */
++			ranges = <0x0 0x0 0x7f000000 0x1000000>;
++			dma-coherent;
++
++			uart0: serial@12000 {
++				compatible = "snps,dw-apb-uart";
++				reg = <0x12000 0x100>;
++				reg-shift = <2>;
++				interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
++				reg-io-width = <1>;
++				clock-frequency = <328000000>;
++				status = "okay";
++			};
++
++			mdio: mdio@20000 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				compatible = "marvell,orion-mdio";
++				reg = <0x22004 0x4>;
++				clocks = <&core_clock>;
++				phy0: ethernet-phy@0 {
++					reg = < 0 0 >;
++				};
++			};
++
++			i2c0: i2c@11000{
++				compatible = "marvell,mv78230-i2c";
++				reg = <0x11000 0x20>;
++
++				clocks = <&core_clock>;
++				clock-names = "core";
++				interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
++				clock-frequency=<100000>;
++				status="okay";
++			};
++
++			i2c1: i2c@11100{
++				compatible = "marvell,mv78230-i2c";
++				reg = <0x11100 0x20>;
++
++				clocks = <&core_clock>;
++				clock-names = "core";
++				interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_HIGH>;
++				clock-frequency=<100000>;
++				status="okay";
++			};
++		};
++
++		/* Dedicated section for devices behind 32bit controllers so we
++		   can configure specific DMA mapping for them */
++		behind-32bit-controller@7f000000 {
++			compatible = "simple-bus";
++			#address-cells = <0x2>;
++			#size-cells = <0x2>;
++			ranges = <0x0 0x0 0x0 0x7f000000 0x0 0x1000000>;
++			/* Host addresses starts at 0x2000000 */
++			dma-ranges = <0x0 0x0 0x2 0x0 0x1 0x0>;
++			dma-coherent;
++
++			eth0: ethernet@20000 {
++				compatible = "marvell,armada-ac5-neta";
++				reg = <0x0 0x20000 0x0 0x4000>;
++				interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
++				clocks = <&core_clock>;
++				status = "disabled";
++				phy-mode = "sgmii";
++				memory-region = <&reserved>;
++			};
++
++			eth1: ethernet@24000 {
++				compatible = "marvell,armada-ac5-neta";
++				reg = <0x0 0x24000 0x0 0x4000>;
++				interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
++				clocks = <&core_clock>;
++				status = "disabled";
++				phy-mode = "sgmii";
++				memory-region = <&reserved>;
++				fixed-link {
++					speed = <100>;
++					full-duplex;
++				};
++			};
++
++			/* A dummy entry used for chipidea phy init */
++			usb1phy: usbphy {
++				compatible = "usb-nop-xceiv";
++				#phy-cells = <0>;
++			};
++
++			/* USB0 is a host USB */
++			usb0: usb@80000 {
++				compatible = "marvell,ac5-ehci", "marvell,orion-ehci";
++				reg = <0x0 0x80000 0x0 0x500>;
++				interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
++				memory-region = <&reserved>;
++				status = "okay";
++			};
++
++			/* USB1 is a peripheral USB */
++			usb1: usb@A0000 {
++				reg = <0x0 0xA0000 0x0 0x500>;
++				interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
++				memory-region = <&reserved>;
++				status = "okay";
++			};
++		};
++
++		pcie0: pcie@800a0000 {
++			compatible = "marvell,ac5-pcie", "snps,dw-pcie";
++			reg = <0 0x800a0000 0 0x20000>, <0 0x3fff0000 0 0x10000>, <0 0x800a0000 0 0x20000>;
++			reg-names = "ctrl", "config", "atu";
++			#address-cells = <3>;
++			#size-cells = <2>;
++			#interrupt-cells = <1>;
++			device_type = "pci";
++			dma-coherent;
++			bus-range = <0 0xff>;
++			/* ranges for the PCI memory and I/O regions */
++			ranges = <0x82000000 0 0x30000000 0 0x30000000 0 0xfff0000>;
++
++			interrupt-map-mask = <0 0 0 1>;
++			interrupt-map = <0 0 0 1 &gic GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>;
++
++			interrupts = <GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>;
++
++			num-lanes = <1>;
++			status = "disabled";
++
++			clocks = <&core_clock>;
++		};
++
++		core_clock: core_clock@0 {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <400000000>;
++		};
++
++		axi_clock: axi_clock@0 {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <325000000>;
++		};
++
++		spi_clock: spi_clock@0 {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <200000000>;
++		};
++
++		spi@805a0000 {
++			compatible = "marvell,armada-3700-spi";
++			reg = <0x0 0x805a0000 0x0 0x50>;
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			clocks = <&spi_clock>;
++		        interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
++		        num-cs = <1>;
++			status = "okay";
++
++			spiflash0: spi-flash@0 {
++				compatible = "spi-nor";
++				spi-max-frequency = <50000000>;
++				spi-tx-bus-width = <1>; /* 1-single, 2-dual, 4-quad */
++				spi-rx-bus-width = <1>; /* 1-single, 2-dual, 4-quad */
++				reg = <0>;
++
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				partition@0 {
++					label = "spi_flash_part0";
++					reg = <0x0 0x800000>;
++				};
++
++				parition@1 {
++					label = "spi_flash_part1";
++					reg = <0x800000 0x700000>;
++				};
++
++				parition@2 {
++					label = "spi_flash_part2";
++					reg = <0xF00000 0x100000>;
++				};
++			};
++		};
++
++		spi@805a8000 {
++			compatible = "marvell,armada-3700-spi";
++			reg = <0x0 0x805a8000 0x0 0x50>;
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			clocks = <&spi_clock>;
++		        interrupts = <GIC_SPI 91 IRQ_TYPE_LEVEL_HIGH>;
++		        num-cs = <1>;
++			status = "disabled";
++		};
++
++		sdhci@805c0000 {
++			compatible = "marvell, ac5-sdhci", "marvell,armada-ap806-sdhci";
++			reg = <0x0 0x805c0000 0x0 0x300>;
++			interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&core_clock>;
++			clock-names = "core";
++			status = "okay";
++			bus-width = <8>;
++			//marvell,xenon-phy-slow-mode;
++			non-removable;
++			mmc-ddr-1_8v;
++			mmc-hs200-1_8v;
++			mmc-hs400-1_8v;
++			memory-region = <&reserved>;
++		};
++
++		nand@805b00 {
++			compatible = "marvell,ac5-nand-controller";
++			reg =  <0x0 0x805b0000 0x0 0x00000054
++				0x0 0x840F8204 0x0 0x00000004
++				0x0 0x80013010 0x0 0x00000020>;
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&core_clock>;
++			/*marvell,system-controller = <0x15>*/
++			status = "okay";
++			nand-timing-mode = <1>;
++
++			nand@0 {
++				reg = <0x0>;
++				label = "main-storage";
++				nand-rb = <0>;
++				nand-ecc-mode = "hw";
++				nand-ecc-strength = <12>;
++				nand-ecc-step-size = <512>;
++			};
++		};
++
++		prestera {
++			compatible = "marvell,armada-ac5-switch";
++			interrupts = <GIC_SPI 0x23 IRQ_TYPE_LEVEL_HIGH>;
++			status = "okay";
++		};
++
++	};
++
++	gic: interrupt-controller@80600000 {
++		compatible = "arm,gic-v3";
++		#interrupt-cells = <3>;
++		interrupt-controller;
++		/*#redistributor-regions = <1>;*/
++		redistributor-stride = <0x0 0x20000>;	// 128kB stride
++		reg = <0x0 0x80600000 0x0 0x10000>, /* GICD */
++			  <0x0 0x80660000 0x0 0x40000>; /* GICR */
++		interrupts = <GIC_PPI 6 IRQ_TYPE_LEVEL_HIGH>;
++	};
++
++	cpus {
++		#address-cells = <2>;
++		#size-cells = <0>;
++
++		cpu-map {
++			cluster0 {
++				core0 {
++					cpu = <&CPU0>;
++				};
++				core1 {
++					cpu = <&CPU1>;
++				};
++			};
++		};
++
++		CPU0:cpu@0 {
++			device_type = "cpu";
++			compatible = "arm,armv8";
++			reg = <0x0 0x0>;
++			enable-method = "psci";
++			next-level-cache = <&L2_0>;
++		};
++
++		CPU1:cpu@1 {
++			device_type = "cpu";
++			compatible = "arm,armv8";
++			reg = <0x0 0x100>;
++			enable-method = "psci";
++			next-level-cache = <&L2_0>;
++		};
++
++		L2_0: l2-cache0 {
++			compatible = "cache";
++		};
++	};
++
++	memory@00000000 {
++		device_type = "memory";
++		reg = <0x2 0x00000000 0x0 0x40000000>;
++		linux,usable-memory = <0x2 0x00000000 0x0 0x40000000>;
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		reserved: buffer@0 {
++			compatible = "shared-dma-pool"; // to be used as a shared pool of DMA buffers for a set of devices
++			no-map;	// No one other than devices registered for that mem, may use this area
++			// reusable - OS can use the memory in this region with the limitation that the device driver(s)
++			//			  owning the region need to be able to reclaim it back.
++			reg = <0x2 0x0 0x0 0x1000000>;
++		};
++	};
++
++};
+diff --git a/arch/arm64/boot/dts/marvell/ac5_comexpress.dts b/arch/arm64/boot/dts/marvell/ac5_comexpress.dts
+new file mode 100644
+index 000000000000..3e34ffa1ba2e
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/ac5_comexpress.dts
+@@ -0,0 +1,28 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree For AC5 comExpress.
++ *
++ * Copyright (C) 2021 Marvell
++ *
++ */
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree file for Marvell AC5 comExpress development board
++ * This board file supports the B configuration of the board
++ */
++
++#include "ac5.dtsi"
++
++
++&eth0 {
++	status = "okay";
++	phy = <&phy0>;
++};
++
++&usb1 {
++	compatible = "chipidea,usb2";
++	phys = <&usb1phy>;
++	phy-names = "usb-phy";
++	dr_mode = "peripheral";
++};
++
+diff --git a/arch/arm64/boot/dts/marvell/ac5_db.dts b/arch/arm64/boot/dts/marvell/ac5_db.dts
+new file mode 100644
+index 000000000000..7156618b7809
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/ac5_db.dts
+@@ -0,0 +1,35 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree For AC5_db.
++ *
++ * Copyright (C) 2021 Marvell
++ *
++ */
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree file for Marvell Alleycat 5 development board
++ * This board file supports the B configuration of the board
++ */
++
++#include "ac5.dtsi"
++
++
++&eth0 {
++	status = "okay";
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
++};
++
++&eth1 {
++	status = "okay";
++};
++
++&usb1 {
++	compatible = "chipidea,usb2";
++	phys = <&usb1phy>;
++	phy-names = "usb-phy";
++	dr_mode = "peripheral";
++};
++
+diff --git a/arch/arm64/boot/dts/marvell/ac5_rd.dts b/arch/arm64/boot/dts/marvell/ac5_rd.dts
+new file mode 100644
+index 000000000000..2892c705e0a7
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/ac5_rd.dts
+@@ -0,0 +1,23 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree For AC5X.
++ *
++ * Copyright (C) 2016 Marvell
++ *
++ */
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree file for Marvell Armada 7040 development board
++ * This board file supports the B configuration of the board
++ */
++
++#include "ac5.dtsi"
++
++
++&pcie0 {
++	status = "okay";
++};
++
++&usb1 {
++	compatible = "marvell,ac5-ehci", "marvell,orion-ehci";
++};
+diff --git a/arch/arm64/boot/dts/marvell/ac5x_db.dts b/arch/arm64/boot/dts/marvell/ac5x_db.dts
+new file mode 100644
+index 000000000000..6a5bc72d49dc
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/ac5x_db.dts
+@@ -0,0 +1,32 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree For AC5X.
++ *
++ * Copyright (C) 2021 Marvell
++ *
++ */
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree file for Marvell Alleycat 5X development board
++ * This board file supports the B configuration of the board
++ */
++
++#include "ac5.dtsi"
++
++
++&eth0 {
++	status = "okay";
++	phy = <&phy0>;
++};
++
++&eth1 {
++	status = "okay";
++};
++
++&usb1 {
++	compatible = "chipidea,usb2";
++	phys = <&usb1phy>;
++	phy-names = "usb-phy";
++	dr_mode = "peripheral";
++};
++
+diff --git a/arch/arm64/configs/marvell_v8_sdk_defconfig b/arch/arm64/configs/marvell_v8_sdk_defconfig
+new file mode 100644
+index 000000000000..065e8e45b73d
+--- /dev/null
++++ b/arch/arm64/configs/marvell_v8_sdk_defconfig
+@@ -0,0 +1,740 @@
++CONFIG_SYSVIPC=y
++CONFIG_POSIX_MQUEUE=y
++CONFIG_AUDIT=y
++CONFIG_NO_HZ_IDLE=y
++CONFIG_HIGH_RES_TIMERS=y
++CONFIG_PREEMPT=y
++CONFIG_IRQ_TIME_ACCOUNTING=y
++CONFIG_BSD_PROCESS_ACCT=y
++CONFIG_BSD_PROCESS_ACCT_V3=y
++CONFIG_TASKSTATS=y
++CONFIG_TASK_DELAY_ACCT=y
++CONFIG_TASK_XACCT=y
++CONFIG_TASK_IO_ACCOUNTING=y
++CONFIG_IKCONFIG=y
++CONFIG_IKCONFIG_PROC=y
++CONFIG_NUMA_BALANCING=y
++CONFIG_MEMCG=y
++CONFIG_MEMCG_SWAP=y
++CONFIG_BLK_CGROUP=y
++CONFIG_CGROUP_PIDS=y
++CONFIG_CGROUP_HUGETLB=y
++CONFIG_CPUSETS=y
++CONFIG_CGROUP_DEVICE=y
++CONFIG_CGROUP_CPUACCT=y
++CONFIG_CGROUP_PERF=y
++CONFIG_USER_NS=y
++CONFIG_SCHED_AUTOGROUP=y
++CONFIG_BLK_DEV_INITRD=y
++CONFIG_KALLSYMS_ALL=y
++# CONFIG_COMPAT_BRK is not set
++CONFIG_PROFILING=y
++CONFIG_ARCH_AGILEX=y
++CONFIG_ARCH_SUNXI=y
++CONFIG_ARCH_ALPINE=y
++CONFIG_ARCH_BCM2835=y
++CONFIG_ARCH_BCM_IPROC=y
++CONFIG_ARCH_BERLIN=y
++CONFIG_ARCH_BRCMSTB=y
++CONFIG_ARCH_EXYNOS=y
++CONFIG_ARCH_K3=y
++CONFIG_ARCH_LAYERSCAPE=y
++CONFIG_ARCH_LG1K=y
++CONFIG_ARCH_HISI=y
++CONFIG_ARCH_MEDIATEK=y
++CONFIG_ARCH_MESON=y
++CONFIG_ARCH_MVEBU=y
++CONFIG_ARCH_MXC=y
++CONFIG_ARCH_QCOM=y
++CONFIG_ARCH_RENESAS=y
++CONFIG_ARCH_ROCKCHIP=y
++CONFIG_ARCH_SEATTLE=y
++CONFIG_ARCH_STRATIX10=y
++CONFIG_ARCH_SYNQUACER=y
++CONFIG_ARCH_TEGRA=y
++CONFIG_ARCH_THUNDER2=y
++CONFIG_ARCH_UNIPHIER=y
++CONFIG_ARCH_VEXPRESS=y
++CONFIG_ARCH_XGENE=y
++CONFIG_ARCH_ZX=y
++CONFIG_ARCH_ZYNQMP=y
++CONFIG_ARM64_VA_BITS_48=y
++CONFIG_SCHED_MC=y
++CONFIG_NUMA=y
++CONFIG_SECCOMP=y
++CONFIG_KEXEC=y
++CONFIG_CRASH_DUMP=y
++CONFIG_XEN=y
++CONFIG_COMPAT=y
++CONFIG_RANDOMIZE_BASE=y
++CONFIG_WQ_POWER_EFFICIENT_DEFAULT=y
++CONFIG_ARM_CPUIDLE=y
++CONFIG_ARM_PSCI_CPUIDLE=y
++CONFIG_CPU_FREQ=y
++CONFIG_CPU_FREQ_STAT=y
++CONFIG_CPU_FREQ_GOV_POWERSAVE=y
++CONFIG_CPU_FREQ_GOV_USERSPACE=y
++CONFIG_CPU_FREQ_GOV_ONDEMAND=y
++CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
++CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
++CONFIG_CPUFREQ_DT=y
++CONFIG_ACPI_CPPC_CPUFREQ=m
++CONFIG_ARM_ARMADA_37XX_CPUFREQ=y
++CONFIG_ARM_ARMADA_8K_CPUFREQ=y
++CONFIG_ARM_SCPI_CPUFREQ=y
++CONFIG_ARM_IMX_CPUFREQ_DT=m
++CONFIG_ARM_RASPBERRYPI_CPUFREQ=m
++CONFIG_ARM_TEGRA186_CPUFREQ=y
++CONFIG_ARM_SCPI_PROTOCOL=y
++CONFIG_RASPBERRYPI_FIRMWARE=y
++CONFIG_INTEL_STRATIX10_SERVICE=y
++CONFIG_IMX_SCU=y
++CONFIG_IMX_SCU_PD=y
++CONFIG_ACPI=y
++CONFIG_ACPI_HED=y
++CONFIG_VIRTUALIZATION=y
++CONFIG_KVM=y
++CONFIG_ARM64_CRYPTO=y
++CONFIG_CRYPTO_SHA1_ARM64_CE=y
++CONFIG_CRYPTO_SHA2_ARM64_CE=y
++CONFIG_CRYPTO_SHA512_ARM64_CE=m
++CONFIG_CRYPTO_SHA3_ARM64=m
++CONFIG_CRYPTO_SM3_ARM64_CE=m
++CONFIG_CRYPTO_GHASH_ARM64_CE=y
++CONFIG_CRYPTO_CRCT10DIF_ARM64_CE=m
++CONFIG_CRYPTO_AES_ARM64_CE_CCM=y
++CONFIG_CRYPTO_AES_ARM64_CE_BLK=y
++CONFIG_CRYPTO_CHACHA20_NEON=m
++CONFIG_CRYPTO_AES_ARM64_BS=m
++CONFIG_JUMP_LABEL=y
++CONFIG_MODULES=y
++CONFIG_MODULE_UNLOAD=y
++# CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
++CONFIG_KSM=y
++CONFIG_MEMORY_FAILURE=y
++CONFIG_TRANSPARENT_HUGEPAGE=y
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++CONFIG_IP_MULTICAST=y
++CONFIG_IP_PNP=y
++CONFIG_IP_PNP_DHCP=y
++CONFIG_IP_PNP_BOOTP=y
++CONFIG_IPV6=m
++CONFIG_NETFILTER=y
++CONFIG_NF_CONNTRACK=m
++CONFIG_NF_CONNTRACK_EVENTS=y
++CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
++CONFIG_NETFILTER_XT_TARGET_LOG=m
++CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=m
++CONFIG_NETFILTER_XT_MATCH_CONNTRACK=m
++CONFIG_IP_NF_IPTABLES=m
++CONFIG_IP_NF_FILTER=m
++CONFIG_IP_NF_TARGET_REJECT=m
++CONFIG_IP_NF_NAT=m
++CONFIG_IP_NF_TARGET_MASQUERADE=m
++CONFIG_IP_NF_MANGLE=m
++CONFIG_IP6_NF_IPTABLES=m
++CONFIG_IP6_NF_FILTER=m
++CONFIG_IP6_NF_TARGET_REJECT=m
++CONFIG_IP6_NF_MANGLE=m
++CONFIG_IP6_NF_NAT=m
++CONFIG_IP6_NF_TARGET_MASQUERADE=m
++CONFIG_BRIDGE=m
++CONFIG_BRIDGE_VLAN_FILTERING=y
++CONFIG_VLAN_8021Q=m
++CONFIG_VLAN_8021Q_GVRP=y
++CONFIG_VLAN_8021Q_MVRP=y
++CONFIG_QRTR=m
++CONFIG_QRTR_SMD=m
++CONFIG_QRTR_TUN=m
++CONFIG_BPF_JIT=y
++CONFIG_BT=m
++CONFIG_BT_HIDP=m
++# CONFIG_BT_HS is not set
++# CONFIG_BT_LE is not set
++CONFIG_BT_LEDS=y
++# CONFIG_BT_DEBUGFS is not set
++CONFIG_BT_HCIBTUSB=m
++CONFIG_BT_HCIUART=m
++CONFIG_BT_HCIUART_LL=y
++CONFIG_BT_HCIUART_BCM=y
++CONFIG_CFG80211=m
++CONFIG_MAC80211=m
++CONFIG_MAC80211_LEDS=y
++CONFIG_NET_9P=y
++CONFIG_NET_9P_VIRTIO=y
++CONFIG_PCI=y
++CONFIG_PCIEPORTBUS=y
++CONFIG_PCI_IOV=y
++CONFIG_HOTPLUG_PCI=y
++CONFIG_HOTPLUG_PCI_ACPI=y
++CONFIG_PCI_AARDVARK=y
++CONFIG_PCI_TEGRA=y
++CONFIG_PCIE_RCAR=y
++CONFIG_PCI_HOST_GENERIC=y
++CONFIG_PCIE_ALTERA=y
++CONFIG_PCIE_ALTERA_MSI=y
++CONFIG_PCI_HOST_THUNDER_PEM=y
++CONFIG_PCIE_ROCKCHIP_HOST=m
++CONFIG_PCI_LAYERSCAPE=y
++CONFIG_PCIE_QCOM=y
++CONFIG_PCIE_ARMADA_8K=y
++CONFIG_PCIE_HISI_STB=y
++CONFIG_PCIE_TEGRA194=m
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++CONFIG_FW_LOADER_USER_HELPER=y
++CONFIG_FW_LOADER_USER_HELPER_FALLBACK=y
++CONFIG_HISILICON_LPC=y
++CONFIG_SIMPLE_PM_BUS=y
++CONFIG_MTD=y
++CONFIG_MTD_BLOCK=y
++CONFIG_MTD_RAW_NAND=y
++CONFIG_MTD_NAND_DENALI_DT=y
++CONFIG_MTD_NAND_MARVELL=y
++CONFIG_MTD_NAND_QCOM=y
++CONFIG_MTD_SPI_NOR=y
++CONFIG_BLK_DEV_LOOP=y
++CONFIG_BLK_DEV_NBD=m
++CONFIG_VIRTIO_BLK=y
++CONFIG_SRAM=y
++CONFIG_EEPROM_AT25=m
++# CONFIG_SCSI_PROC_FS is not set
++CONFIG_BLK_DEV_SD=y
++CONFIG_SCSI_SAS_ATA=y
++CONFIG_SCSI_HISI_SAS=y
++CONFIG_SCSI_HISI_SAS_PCI=y
++CONFIG_SCSI_MPT3SAS=m
++CONFIG_SCSI_UFSHCD=y
++CONFIG_SCSI_UFSHCD_PLATFORM=y
++CONFIG_SCSI_UFS_QCOM=m
++CONFIG_SCSI_UFS_HISI=y
++CONFIG_ATA=y
++CONFIG_SATA_AHCI=y
++CONFIG_SATA_AHCI_PLATFORM=y
++CONFIG_AHCI_CEVA=y
++CONFIG_AHCI_MVEBU=y
++CONFIG_AHCI_XGENE=y
++CONFIG_AHCI_QORIQ=y
++CONFIG_SATA_SIL24=y
++CONFIG_SATA_RCAR=y
++CONFIG_PATA_PLATFORM=y
++CONFIG_PATA_OF_PLATFORM=y
++CONFIG_NETDEVICES=y
++CONFIG_MACVLAN=m
++CONFIG_MACVTAP=m
++CONFIG_TUN=y
++CONFIG_VETH=m
++CONFIG_NET_XGENE=y
++CONFIG_ATL1C=m
++CONFIG_BNX2X=m
++CONFIG_FEC=y
++CONFIG_HIX5HD2_GMAC=y
++CONFIG_HNS3=y
++CONFIG_HNS3_HCLGE=y
++CONFIG_HNS3_ENET=y
++CONFIG_E1000E=y
++CONFIG_IGB=y
++CONFIG_IGBVF=y
++CONFIG_MVNETA=y
++CONFIG_MVPP2=y
++CONFIG_QCOM_EMAC=m
++CONFIG_RAVB=y
++CONFIG_SNI_AVE=y
++CONFIG_SNI_NETSEC=y
++CONFIG_MDIO_BUS_MUX_MMIOREG=y
++CONFIG_AT803X_PHY=m
++CONFIG_MARVELL_PHY=y
++CONFIG_MARVELL_10G_PHY=y
++CONFIG_MESON_GXL_PHY=m
++CONFIG_MICREL_PHY=y
++CONFIG_REALTEK_PHY=m
++CONFIG_ROCKCHIP_PHY=y
++CONFIG_USB_PEGASUS=m
++CONFIG_USB_RTL8150=m
++CONFIG_USB_RTL8152=y
++CONFIG_USB_LAN78XX=m
++CONFIG_USB_USBNET=y
++CONFIG_USB_NET_CDCETHER=m
++CONFIG_USB_NET_CDC_NCM=m
++CONFIG_USB_NET_DM9601=y
++CONFIG_USB_NET_SR9800=y
++CONFIG_USB_NET_SMSC75XX=y
++CONFIG_USB_NET_SMSC95XX=y
++CONFIG_USB_NET_PLUSB=y
++CONFIG_USB_NET_MCS7830=y
++# CONFIG_USB_NET_CDC_SUBSET is not set
++# CONFIG_USB_NET_ZAURUS is not set
++# CONFIG_WLAN is not set
++CONFIG_INPUT_MATRIXKMAP=y
++CONFIG_INPUT_EVDEV=y
++CONFIG_KEYBOARD_GPIO=y
++CONFIG_KEYBOARD_SNVS_PWRKEY=m
++CONFIG_INPUT_TOUCHSCREEN=y
++CONFIG_TOUCHSCREEN_ATMEL_MXT=m
++CONFIG_INPUT_MISC=y
++CONFIG_INPUT_HISI_POWERKEY=y
++# CONFIG_SERIO_SERPORT is not set
++CONFIG_SERIO_AMBAKMI=y
++CONFIG_LEGACY_PTY_COUNT=16
++CONFIG_SERIAL_8250=y
++CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_SERIAL_8250_EXTENDED=y
++CONFIG_SERIAL_8250_SHARE_IRQ=y
++CONFIG_SERIAL_8250_BCM2835AUX=y
++CONFIG_SERIAL_8250_DW=y
++CONFIG_SERIAL_8250_OMAP=y
++CONFIG_SERIAL_8250_MT6577=y
++CONFIG_SERIAL_8250_UNIPHIER=y
++CONFIG_SERIAL_OF_PLATFORM=y
++CONFIG_SERIAL_AMBA_PL011=y
++CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
++CONFIG_SERIAL_MESON=y
++CONFIG_SERIAL_MESON_CONSOLE=y
++CONFIG_SERIAL_SAMSUNG=y
++CONFIG_SERIAL_SAMSUNG_CONSOLE=y
++CONFIG_SERIAL_TEGRA=y
++CONFIG_SERIAL_TEGRA_TCU=y
++CONFIG_SERIAL_IMX=y
++CONFIG_SERIAL_IMX_CONSOLE=y
++CONFIG_SERIAL_SH_SCI=y
++CONFIG_SERIAL_MSM=y
++CONFIG_SERIAL_MSM_CONSOLE=y
++CONFIG_SERIAL_QCOM_GENI=y
++CONFIG_SERIAL_QCOM_GENI_CONSOLE=y
++CONFIG_SERIAL_XILINX_PS_UART=y
++CONFIG_SERIAL_XILINX_PS_UART_CONSOLE=y
++CONFIG_SERIAL_FSL_LPUART=y
++CONFIG_SERIAL_FSL_LPUART_CONSOLE=y
++CONFIG_SERIAL_MVEBU_UART=y
++CONFIG_SERIAL_DEV_BUS=y
++CONFIG_VIRTIO_CONSOLE=y
++CONFIG_IPMI_HANDLER=m
++CONFIG_IPMI_DEVICE_INTERFACE=m
++CONFIG_IPMI_SI=m
++CONFIG_TCG_TPM=y
++CONFIG_TCG_TIS_I2C_INFINEON=y
++CONFIG_I2C_CHARDEV=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_MUX_PCA954x=y
++CONFIG_I2C_BCM2835=m
++CONFIG_I2C_DESIGNWARE_PLATFORM=y
++CONFIG_I2C_GPIO=m
++CONFIG_I2C_IMX=y
++CONFIG_I2C_IMX_LPI2C=y
++CONFIG_I2C_MESON=y
++CONFIG_I2C_MV64XXX=y
++CONFIG_I2C_PXA=y
++CONFIG_I2C_QCOM_GENI=m
++CONFIG_I2C_QUP=y
++CONFIG_I2C_RK3X=y
++CONFIG_I2C_SH_MOBILE=y
++CONFIG_I2C_TEGRA=y
++CONFIG_I2C_UNIPHIER_F=y
++CONFIG_I2C_RCAR=y
++CONFIG_SPI=y
++CONFIG_SPI_ARMADA_3700=y
++CONFIG_SPI_BCM2835=m
++CONFIG_SPI_BCM2835AUX=m
++CONFIG_SPI_NXP_FLEXSPI=y
++CONFIG_SPI_IMX=m
++CONFIG_SPI_MESON_SPICC=m
++CONFIG_SPI_MESON_SPIFC=m
++CONFIG_SPI_ORION=y
++CONFIG_SPI_PL022=y
++CONFIG_SPI_ROCKCHIP=y
++CONFIG_SPI_QUP=y
++CONFIG_SPI_S3C64XX=y
++CONFIG_SPI_SUN6I=y
++CONFIG_SPI_SPIDEV=m
++CONFIG_PINCTRL_SINGLE=y
++CONFIG_PINCTRL_IMX8MM=y
++CONFIG_PINCTRL_IMX8MN=y
++CONFIG_PINCTRL_IMX8MQ=y
++CONFIG_PINCTRL_IMX8QXP=y
++CONFIG_PINCTRL_IPQ8074=y
++CONFIG_PINCTRL_MSM8916=y
++CONFIG_PINCTRL_MSM8994=y
++CONFIG_PINCTRL_MSM8996=y
++CONFIG_PINCTRL_MSM8998=y
++CONFIG_PINCTRL_QCS404=y
++CONFIG_PINCTRL_QDF2XXX=y
++CONFIG_PINCTRL_SDM845=y
++CONFIG_PINCTRL_SM8150=y
++CONFIG_GPIO_DWAPB=y
++CONFIG_GPIO_MB86S7X=y
++CONFIG_GPIO_PL061=y
++CONFIG_GPIO_RCAR=y
++CONFIG_GPIO_UNIPHIER=y
++CONFIG_GPIO_XGENE=y
++CONFIG_GPIO_XGENE_SB=y
++CONFIG_GPIO_MAX732X=y
++CONFIG_GPIO_PCA953X=y
++CONFIG_GPIO_PCA953X_IRQ=y
++CONFIG_POWER_AVS=y
++CONFIG_ROCKCHIP_IODOMAIN=y
++CONFIG_POWER_RESET_MSM=y
++CONFIG_POWER_RESET_XGENE=y
++CONFIG_POWER_RESET_SYSCON=y
++CONFIG_SYSCON_REBOOT_MODE=y
++CONFIG_BATTERY_SBS=m
++CONFIG_BATTERY_BQ27XXX=y
++CONFIG_SENSORS_ARM_SCPI=y
++CONFIG_SENSORS_LM90=m
++CONFIG_SENSORS_RASPBERRYPI_HWMON=m
++CONFIG_SENSORS_INA2XX=m
++CONFIG_SENSORS_INA3221=m
++CONFIG_THERMAL_GOV_POWER_ALLOCATOR=y
++CONFIG_CPU_THERMAL=y
++CONFIG_THERMAL_EMULATION=y
++CONFIG_QORIQ_THERMAL=m
++CONFIG_ROCKCHIP_THERMAL=m
++CONFIG_RCAR_THERMAL=y
++CONFIG_RCAR_GEN3_THERMAL=y
++CONFIG_ARMADA_THERMAL=y
++CONFIG_BCM2835_THERMAL=m
++CONFIG_BRCMSTB_THERMAL=m
++CONFIG_EXYNOS_THERMAL=y
++CONFIG_TEGRA_BPMP_THERMAL=m
++CONFIG_QCOM_TSENS=y
++CONFIG_UNIPHIER_THERMAL=y
++CONFIG_WATCHDOG=y
++CONFIG_ARM_SP805_WATCHDOG=y
++CONFIG_S3C2410_WATCHDOG=y
++CONFIG_DW_WATCHDOG=y
++CONFIG_SUNXI_WATCHDOG=m
++CONFIG_IMX2_WDT=y
++CONFIG_IMX_SC_WDT=m
++CONFIG_MESON_GXBB_WATCHDOG=m
++CONFIG_MESON_WATCHDOG=m
++CONFIG_RENESAS_WDT=y
++CONFIG_UNIPHIER_WATCHDOG=y
++CONFIG_BCM2835_WDT=y
++CONFIG_MFD_ALTERA_SYSMGR=y
++CONFIG_MFD_BD9571MWV=y
++CONFIG_MFD_AXP20X_I2C=y
++CONFIG_MFD_AXP20X_RSB=y
++CONFIG_MFD_EXYNOS_LPASS=m
++CONFIG_MFD_HI655X_PMIC=y
++CONFIG_MFD_ROHM_BD718XX=y
++CONFIG_REGULATOR_AXP20X=y
++CONFIG_REGULATOR_BD718XX=y
++CONFIG_REGULATOR_BD9571MWV=y
++CONFIG_REGULATOR_HI655X=y
++CONFIG_REGULATOR_MAX8973=y
++CONFIG_REGULATOR_PFUZE100=y
++CONFIG_REGULATOR_QCOM_RPMH=y
++CONFIG_REGULATOR_QCOM_SMD_RPM=y
++CONFIG_REGULATOR_VCTRL=m
++CONFIG_RC_CORE=m
++CONFIG_RC_DECODERS=y
++CONFIG_RC_DEVICES=y
++CONFIG_IR_MESON=m
++CONFIG_IR_SUNXI=m
++CONFIG_MEDIA_SUPPORT=m
++CONFIG_MEDIA_CAMERA_SUPPORT=y
++CONFIG_MEDIA_ANALOG_TV_SUPPORT=y
++CONFIG_MEDIA_DIGITAL_TV_SUPPORT=y
++CONFIG_MEDIA_CONTROLLER=y
++CONFIG_VIDEO_V4L2_SUBDEV_API=y
++# CONFIG_DVB_NET is not set
++CONFIG_MEDIA_USB_SUPPORT=y
++CONFIG_USB_VIDEO_CLASS=m
++CONFIG_V4L_PLATFORM_DRIVERS=y
++CONFIG_VIDEO_SUN6I_CSI=m
++CONFIG_V4L_MEM2MEM_DRIVERS=y
++CONFIG_VIDEO_SAMSUNG_S5P_JPEG=m
++CONFIG_VIDEO_SAMSUNG_S5P_MFC=m
++CONFIG_VIDEO_SAMSUNG_EXYNOS_GSC=m
++CONFIG_VIDEO_RENESAS_FCP=m
++CONFIG_VIDEO_RENESAS_VSP1=m
++CONFIG_DRM=m
++CONFIG_DRM_I2C_NXP_TDA998X=m
++CONFIG_DRM_NOUVEAU=m
++CONFIG_DRM_EXYNOS=m
++CONFIG_DRM_EXYNOS5433_DECON=y
++CONFIG_DRM_EXYNOS7_DECON=y
++CONFIG_DRM_EXYNOS_DSI=y
++# CONFIG_DRM_EXYNOS_DP is not set
++CONFIG_DRM_EXYNOS_HDMI=y
++CONFIG_DRM_EXYNOS_MIC=y
++CONFIG_DRM_ROCKCHIP=m
++CONFIG_ROCKCHIP_ANALOGIX_DP=y
++CONFIG_ROCKCHIP_CDN_DP=y
++CONFIG_ROCKCHIP_DW_HDMI=y
++CONFIG_ROCKCHIP_DW_MIPI_DSI=y
++CONFIG_ROCKCHIP_INNO_HDMI=y
++CONFIG_DRM_RCAR_DU=m
++CONFIG_DRM_SUN4I=m
++CONFIG_DRM_SUN8I_DW_HDMI=m
++CONFIG_DRM_SUN8I_MIXER=m
++CONFIG_DRM_MSM=m
++CONFIG_DRM_TEGRA=m
++CONFIG_DRM_PANEL_SIMPLE=m
++CONFIG_DRM_SII902X=m
++CONFIG_DRM_I2C_ADV7511=m
++CONFIG_DRM_ETNAVIV=m
++CONFIG_DRM_HISI_HIBMC=m
++CONFIG_DRM_HISI_KIRIN=m
++CONFIG_DRM_MESON=m
++CONFIG_DRM_PL111=m
++CONFIG_DRM_LIMA=m
++CONFIG_DRM_PANFROST=m
++CONFIG_FB=y
++CONFIG_FB_MODE_HELPERS=y
++CONFIG_FB_EFI=y
++CONFIG_I2C_HID=m
++CONFIG_USB=y
++CONFIG_USB_OTG=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_XHCI_TEGRA=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_EHCI_EXYNOS=y
++CONFIG_USB_EHCI_HCD_PLATFORM=y
++CONFIG_USB_EHCI_ROOT_HUB_TT=y
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_OHCI_EXYNOS=y
++CONFIG_USB_OHCI_HCD_PLATFORM=y
++CONFIG_USB_RENESAS_USBHS=m
++CONFIG_USB_STORAGE=y
++CONFIG_USB_MUSB_HDRC=y
++CONFIG_USB_MUSB_SUNXI=y
++CONFIG_USB_DWC3=y
++CONFIG_USB_DWC3_HOST=y
++CONFIG_USB_DWC2=y
++CONFIG_USB_DWC2_HOST=y
++CONFIG_USB_CHIPIDEA=y
++CONFIG_USB_CHIPIDEA_UDC=y
++CONFIG_NOP_USB_XCEIV=y
++CONFIG_USB_ULPI=y
++CONFIG_USB_GADGET=y
++CONFIG_USB_RENESAS_USBHS_UDC=m
++CONFIG_USB_RENESAS_USB3=m
++CONFIG_USB_CONFIGFS=y
++CONFIG_USB_CONFIGFS_SERIAL=y
++CONFIG_USB_CONFIGFS_ACM=y
++CONFIG_USB_CONFIGFS_OBEX=y
++CONFIG_USB_CONFIGFS_MASS_STORAGE=y
++CONFIG_USB_G_SERIAL=y
++CONFIG_TYPEC=m
++CONFIG_MMC=y
++CONFIG_MMC_BLOCK_MINORS=32
++CONFIG_MMC_ARMMMCI=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_ACPI=y
++CONFIG_MMC_SDHCI_PLTFM=y
++CONFIG_MMC_SDHCI_OF_ARASAN=y
++CONFIG_MMC_SDHCI_OF_ESDHC=y
++CONFIG_MMC_SDHCI_CADENCE=y
++CONFIG_MMC_SDHCI_ESDHC_IMX=y
++CONFIG_MMC_SDHCI_TEGRA=y
++CONFIG_MMC_SDHCI_F_SDH30=y
++CONFIG_MMC_MESON_GX=y
++CONFIG_MMC_SDHCI_MSM=y
++CONFIG_MMC_SPI=y
++CONFIG_MMC_SDHI=y
++CONFIG_MMC_UNIPHIER=y
++CONFIG_MMC_DW=y
++CONFIG_MMC_DW_EXYNOS=y
++CONFIG_MMC_DW_HI3798CV200=y
++CONFIG_MMC_DW_K3=y
++CONFIG_MMC_DW_ROCKCHIP=y
++CONFIG_MMC_SUNXI=y
++CONFIG_MMC_BCM2835=y
++CONFIG_MMC_SDHCI_XENON=y
++CONFIG_NEW_LEDS=y
++CONFIG_LEDS_CLASS=y
++CONFIG_LEDS_GPIO=y
++CONFIG_LEDS_SYSCON=y
++CONFIG_LEDS_TRIGGER_DISK=y
++CONFIG_LEDS_TRIGGER_HEARTBEAT=y
++CONFIG_LEDS_TRIGGER_CPU=y
++CONFIG_LEDS_TRIGGER_DEFAULT_ON=y
++CONFIG_LEDS_TRIGGER_PANIC=y
++CONFIG_EDAC=y
++CONFIG_RTC_CLASS=y
++CONFIG_RTC_DRV_RX8581=m
++CONFIG_RTC_DRV_DS3232=y
++CONFIG_RTC_DRV_S3C=y
++CONFIG_RTC_DRV_PL031=y
++CONFIG_RTC_DRV_SUN6I=y
++CONFIG_RTC_DRV_ARMADA38X=y
++CONFIG_RTC_DRV_TEGRA=y
++CONFIG_RTC_DRV_SNVS=m
++CONFIG_RTC_DRV_IMX_SC=m
++CONFIG_RTC_DRV_XGENE=y
++CONFIG_DMADEVICES=y
++CONFIG_DMA_BCM2835=m
++CONFIG_DMA_SUN6I=m
++CONFIG_FSL_EDMA=y
++CONFIG_IMX_SDMA=y
++CONFIG_K3_DMA=y
++CONFIG_MV_XOR=y
++CONFIG_MV_XOR_V2=y
++CONFIG_PL330_DMA=y
++CONFIG_TEGRA20_APB_DMA=y
++CONFIG_QCOM_BAM_DMA=y
++CONFIG_RCAR_DMAC=y
++CONFIG_RENESAS_USB_DMAC=m
++CONFIG_UIO=y
++CONFIG_UIO_PDRV_GENIRQ=m
++CONFIG_VFIO=y
++CONFIG_VFIO_PCI=y
++CONFIG_VIRTIO_PCI=y
++CONFIG_VIRTIO_BALLOON=y
++CONFIG_VIRTIO_MMIO=y
++CONFIG_COMMON_CLK_SCPI=y
++CONFIG_COMMON_CLK_CS2000_CP=y
++CONFIG_CLK_QORIQ=y
++CONFIG_CLK_RASPBERRYPI=m
++CONFIG_CLK_IMX8MM=y
++CONFIG_CLK_IMX8MN=y
++CONFIG_CLK_IMX8MQ=y
++CONFIG_CLK_IMX8QXP=y
++CONFIG_TI_SCI_CLK=y
++CONFIG_COMMON_CLK_QCOM=y
++CONFIG_QCOM_A53PLL=y
++CONFIG_QCOM_CLK_APCS_MSM8916=y
++CONFIG_QCOM_CLK_SMD_RPM=y
++CONFIG_QCOM_CLK_RPMH=y
++CONFIG_IPQ_GCC_8074=y
++CONFIG_MSM_GCC_8916=y
++CONFIG_MSM_GCC_8994=y
++CONFIG_MSM_MMCC_8996=y
++CONFIG_MSM_GCC_8998=y
++CONFIG_QCS_GCC_404=y
++CONFIG_SDM_GCC_845=y
++CONFIG_SM_GCC_8150=y
++CONFIG_HWSPINLOCK=y
++CONFIG_HWSPINLOCK_QCOM=y
++CONFIG_ARM_MHU=y
++CONFIG_IMX_MBOX=y
++CONFIG_PLATFORM_MHU=y
++CONFIG_BCM2835_MBOX=y
++CONFIG_QCOM_APCS_IPC=y
++CONFIG_ROCKCHIP_IOMMU=y
++CONFIG_TEGRA_IOMMU_SMMU=y
++CONFIG_ARM_SMMU=y
++CONFIG_ARM_SMMU_V3=y
++CONFIG_QCOM_IOMMU=y
++CONFIG_REMOTEPROC=y
++CONFIG_QCOM_Q6V5_MSS=m
++CONFIG_QCOM_Q6V5_PAS=m
++CONFIG_QCOM_SYSMON=m
++CONFIG_RPMSG_QCOM_GLINK_RPM=y
++CONFIG_RPMSG_QCOM_GLINK_SMEM=m
++CONFIG_RPMSG_QCOM_SMD=y
++CONFIG_RASPBERRYPI_POWER=y
++CONFIG_IMX_SCU_SOC=y
++CONFIG_QCOM_GENI_SE=y
++CONFIG_QCOM_GLINK_SSR=m
++CONFIG_QCOM_RPMH=y
++CONFIG_QCOM_SMEM=y
++CONFIG_QCOM_SMD_RPM=y
++CONFIG_QCOM_SMP2P=y
++CONFIG_QCOM_SMSM=y
++CONFIG_ARCH_R8A774A1=y
++CONFIG_ARCH_R8A774C0=y
++CONFIG_ARCH_R8A7795=y
++CONFIG_ARCH_R8A7796=y
++CONFIG_ARCH_R8A77965=y
++CONFIG_ARCH_R8A77970=y
++CONFIG_ARCH_R8A77980=y
++CONFIG_ARCH_R8A77990=y
++CONFIG_ARCH_R8A77995=y
++CONFIG_ROCKCHIP_PM_DOMAINS=y
++CONFIG_ARCH_TEGRA_132_SOC=y
++CONFIG_ARCH_TEGRA_210_SOC=y
++CONFIG_ARCH_TEGRA_186_SOC=y
++CONFIG_ARCH_TEGRA_194_SOC=y
++CONFIG_ARCH_K3_AM6_SOC=y
++CONFIG_ARCH_K3_J721E_SOC=y
++CONFIG_TI_SCI_PM_DOMAINS=y
++CONFIG_EXTCON_USB_GPIO=y
++CONFIG_MEMORY=y
++CONFIG_RESET_TI_SCI=y
++CONFIG_PHY_XGENE=y
++CONFIG_PHY_SUN4I_USB=y
++CONFIG_PHY_HI6220_USB=y
++CONFIG_PHY_HISTB_COMBPHY=y
++CONFIG_PHY_HISI_INNO_USB2=y
++CONFIG_PHY_MVEBU_CP110_COMPHY=y
++CONFIG_PHY_QCOM_QMP=m
++CONFIG_PHY_QCOM_QUSB2=m
++CONFIG_PHY_QCOM_USB_HS=y
++CONFIG_PHY_RCAR_GEN3_PCIE=y
++CONFIG_PHY_RCAR_GEN3_USB2=y
++CONFIG_PHY_RCAR_GEN3_USB3=m
++CONFIG_PHY_ROCKCHIP_EMMC=y
++CONFIG_PHY_ROCKCHIP_INNO_HDMI=m
++CONFIG_PHY_ROCKCHIP_INNO_USB2=y
++CONFIG_PHY_ROCKCHIP_PCIE=m
++CONFIG_PHY_ROCKCHIP_TYPEC=y
++CONFIG_PHY_UNIPHIER_USB2=y
++CONFIG_PHY_UNIPHIER_USB3=y
++CONFIG_PHY_TEGRA_XUSB=y
++CONFIG_FSL_IMX8_DDR_PMU=m
++CONFIG_HISI_PMU=y
++CONFIG_QCOM_L2_PMU=y
++CONFIG_QCOM_L3_PMU=y
++CONFIG_NVMEM_IMX_OCOTP=y
++CONFIG_NVMEM_IMX_OCOTP_SCU=y
++CONFIG_QCOM_QFPROM=y
++CONFIG_ROCKCHIP_EFUSE=y
++CONFIG_NVMEM_SUNXI_SID=y
++CONFIG_UNIPHIER_EFUSE=y
++CONFIG_MESON_EFUSE=m
++CONFIG_FPGA=y
++CONFIG_FPGA_MGR_STRATIX10_SOC=m
++CONFIG_FPGA_BRIDGE=m
++CONFIG_ALTERA_FREEZE_BRIDGE=m
++CONFIG_FPGA_REGION=m
++CONFIG_OF_FPGA_REGION=m
++CONFIG_TEE=y
++CONFIG_EXT2_FS=m
++CONFIG_EXT3_FS=y
++CONFIG_EXT4_FS_POSIX_ACL=y
++CONFIG_BTRFS_FS=m
++CONFIG_BTRFS_FS_POSIX_ACL=y
++CONFIG_FANOTIFY=y
++CONFIG_FANOTIFY_ACCESS_PERMISSIONS=y
++CONFIG_QUOTA=y
++CONFIG_AUTOFS4_FS=y
++CONFIG_FUSE_FS=m
++CONFIG_CUSE=m
++CONFIG_OVERLAY_FS=m
++CONFIG_VFAT_FS=y
++CONFIG_HUGETLBFS=y
++CONFIG_SQUASHFS=y
++CONFIG_NFS_FS=y
++CONFIG_NFS_V4=y
++CONFIG_NFS_V4_1=y
++CONFIG_NFS_V4_2=y
++CONFIG_ROOT_NFS=y
++CONFIG_9P_FS=y
++CONFIG_NLS_CODEPAGE_437=y
++CONFIG_NLS_ISO8859_1=y
++CONFIG_SECURITY=y
++CONFIG_CRYPTO_AUTHENC=y
++CONFIG_CRYPTO_ECHAINIV=y
++CONFIG_CRYPTO_CBC=y
++CONFIG_CRYPTO_MD5=y
++CONFIG_CRYPTO_SHA512=y
++CONFIG_CRYPTO_DES=y
++CONFIG_CRYPTO_ANSI_CPRNG=y
++CONFIG_CRYPTO_DEV_SAFEXCEL=m
++CONFIG_LIBCRC32C=y
++CONFIG_CMA_SIZE_MBYTES=256
++CONFIG_PRINTK_TIME=y
++CONFIG_DEBUG_INFO=y
++CONFIG_DEBUG_FS=y
++CONFIG_MAGIC_SYSRQ=y
++CONFIG_DEBUG_KERNEL=y
++CONFIG_PANIC_TIMEOUT=1
++# CONFIG_SCHED_DEBUG is not set
++# CONFIG_DEBUG_PREEMPT is not set
++# CONFIG_FTRACE is not set
++CONFIG_MEMTEST=y
++# CONFIG_ARM64_VHE is not set
+diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
+index 24c978de2a3f..00b7ae76316d 100644
+--- a/drivers/mmc/host/sdhci-xenon.c
++++ b/drivers/mmc/host/sdhci-xenon.c
+@@ -17,6 +17,7 @@
+ #include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/pm_runtime.h>
++#include <linux/of_reserved_mem.h>
+ 
+ #include "sdhci-pltfm.h"
+ #include "sdhci-xenon.h"
+@@ -535,6 +536,15 @@ static int xenon_probe(struct platform_device *pdev)
+ 	if (err)
+ 		goto err_clk_axi;
+ 
++	/* Initialize reserved memory resources */
++	if (of_device_is_compatible(pdev->dev.of_node, "marvell, ac5-sdhci")) {
++		err = of_reserved_mem_device_init(&pdev->dev);
++		if (err) {
++			dev_err(&pdev->dev, "Could not get reserved memory\n");
++			return -ENOMEM;
++		}
++	}
++
+ 	err = xenon_sdhc_prepare(host);
+ 	if (err)
+ 		goto err_clk_axi;
+diff --git a/drivers/mtd/nand/raw/Kconfig b/drivers/mtd/nand/raw/Kconfig
+index 6c46f25b57e2..0290244a2dae 100644
+--- a/drivers/mtd/nand/raw/Kconfig
++++ b/drivers/mtd/nand/raw/Kconfig
+@@ -187,7 +187,7 @@ config MTD_NAND_MARVELL
+ 	  including:
+ 	  - PXA3xx processors (NFCv1)
+ 	  - 32-bit Armada platforms (XP, 37x, 38x, 39x) (NFCv2)
+-	  - 64-bit Aramda platforms (7k, 8k) (NFCv2)
++	  - 64-bit Aramda platforms (7k, 8k, ac5) (NFCv2)
+ 
+ config MTD_NAND_SLC_LPC32XX
+ 	tristate "NXP LPC32xx SLC NAND controller"
+diff --git a/drivers/mtd/nand/raw/internals.h b/drivers/mtd/nand/raw/internals.h
+index 012876e14317..4e7e5f57ae4a 100644
+--- a/drivers/mtd/nand/raw/internals.h
++++ b/drivers/mtd/nand/raw/internals.h
+@@ -84,6 +84,7 @@ int nand_bbm_get_next_page(struct nand_chip *chip, int page);
+ int nand_markbad_bbm(struct nand_chip *chip, loff_t ofs);
+ int nand_erase_nand(struct nand_chip *chip, struct erase_info *instr,
+ 		    int allowbbt);
++const struct nand_sdr_timings *onfi_async_timing_mode_to_sdr_timings(int mode);
+ void onfi_fill_interface_config(struct nand_chip *chip,
+ 				struct nand_interface_config *iface,
+ 				enum nand_interface_type type,
+diff --git a/drivers/mtd/nand/raw/marvell_nand.c b/drivers/mtd/nand/raw/marvell_nand.c
+index f5ca2002d08e..5a545ef65287 100644
+--- a/drivers/mtd/nand/raw/marvell_nand.c
++++ b/drivers/mtd/nand/raw/marvell_nand.c
+@@ -90,6 +90,8 @@
+ #include <linux/dma/pxa-dma.h>
+ #include <linux/platform_data/mtd-nand-pxa3xx.h>
+ 
++#include "internals.h"
++
+ /* Data FIFO granularity, FIFO reads/writes must be a multiple of this length */
+ #define FIFO_DEPTH		8
+ #define FIFO_REP(x)		(x / sizeof(u32))
+@@ -226,6 +228,20 @@
+ #define XTYPE_COMMAND_DISPATCH	6
+ #define XTYPE_MASK		7
+ 
++/* use tRP_min, tWC_min and tWP_min to distinct across timings modes */
++#define IS_TIMINGS_EQUAL(t1,t2) \
++		((t1->tRP_min == t2->tRP_min &&\
++		t1->tWC_min == t2->tWC_min &&\
++		t1->tWP_min== t2->tWP_min) ? true : false)
++
++/*  ndtr0,1 set , each set has few modes level */
++typedef enum marvell_nfc_timing_mode_set{
++	MARVELL_NFC_NDTR_SET_0, 		/*tested with ac5*/
++
++	MARVELL_NFC_NDTR_NUM_OF_SET,
++	MARVELL_NFC_NDTR_SET_NON = MARVELL_NFC_NDTR_NUM_OF_SET
++}marvell_nfc_timing_mode_set_t;
++
+ /**
+  * struct marvell_hw_ecc_layout - layout of Marvell ECC
+  *
+@@ -283,14 +299,21 @@ struct marvell_hw_ecc_layout {
+ 
+ /* Layouts explained in AN-379_Marvell_SoC_NFC_ECC */
+ static const struct marvell_hw_ecc_layout marvell_nfc_layouts[] = {
+-	MARVELL_LAYOUT(  512,   512,  1,  1,  1,  512,  8,  8,  0,  0,  0),
+-	MARVELL_LAYOUT( 2048,   512,  1,  1,  1, 2048, 40, 24,  0,  0,  0),
+-	MARVELL_LAYOUT( 2048,   512,  4,  1,  1, 2048, 32, 30,  0,  0,  0),
+-	MARVELL_LAYOUT( 2048,   512,  8,  2,  1, 1024,  0, 30,1024,32, 30),
+-	MARVELL_LAYOUT( 4096,   512,  4,  2,  2, 2048, 32, 30,  0,  0,  0),
+-	MARVELL_LAYOUT( 4096,   512,  8,  5,  4, 1024,  0, 30,  0, 64, 30),
+-	MARVELL_LAYOUT( 8192,   512,  4,  4,  4, 2048,  0, 30,  0,  0,  0),
+-	MARVELL_LAYOUT( 8192,   512,  8,  9,  8, 1024,  0, 30,  0, 160, 30),
++	MARVELL_LAYOUT(  512,   512,  1,  1,  1,  512,  8,  8,  0,   0,  0),
++	MARVELL_LAYOUT( 2048,   512,  1,  1,  1, 2048, 40, 24,  0,   0,  0),
++	MARVELL_LAYOUT( 2048,   512,  4,  1,  1, 2048, 32, 30,  0,   0,  0),
++	MARVELL_LAYOUT( 2048,   512,  8,  2,  1, 1024,  0, 30,  1024,32, 30),
++	MARVELL_LAYOUT( 2048,   512,  8,  2,  1, 1024,  0, 30,  1024,64, 30),
++	MARVELL_LAYOUT( 2048,   512,  12, 3,  2, 704,   0, 30,  640, 0,  30),
++	MARVELL_LAYOUT( 2048,   512,  16, 5,  4, 512,   0, 30,  0,   32, 30),
++	MARVELL_LAYOUT( 4096,   512,  4,  2,  2, 2048, 32, 30,  0,   0,  0),
++	MARVELL_LAYOUT( 4096,   512,  8,  5,  4, 1024,  0, 30,  0,   64, 30),
++	MARVELL_LAYOUT( 4096,   512,  12, 6,  5, 704,   0, 30,  576, 32, 30),
++	MARVELL_LAYOUT( 4096,   512,  16, 9,  8, 512,   0, 30,  0,   32, 30),
++	MARVELL_LAYOUT( 8192,   512,  4,  4,  4, 2048,  0, 30,  0,   0,  0),
++	MARVELL_LAYOUT( 8192,   512,  8,  9,  8, 1024,  0, 30,  0,  160, 30),
++	MARVELL_LAYOUT( 8192,   512,  12, 12, 11, 704,  0, 30,  448, 64, 30),
++	MARVELL_LAYOUT( 8192,   512,  16, 17, 16, 512,  0, 30,  0,   32, 30),
+ };
+ 
+ /**
+@@ -328,6 +351,7 @@ struct marvell_nand_chip_sel {
+  * @selected_die:	Current active CS
+  * @nsels:		Number of CS lines required by the NAND chip
+  * @sels:		Array of CS lines descriptions
++ * @nand_timing_mode:	nand-timing-mode from dts
+  */
+ struct marvell_nand_chip {
+ 	struct nand_chip chip;
+@@ -339,7 +363,8 @@ struct marvell_nand_chip {
+ 	int addr_cyc;
+ 	int selected_die;
+ 	unsigned int nsels;
+-	struct marvell_nand_chip_sel sels[];
++	struct marvell_nand_chip_sel sels[0];
++	int nand_timing_mode;
+ };
+ 
+ static inline struct marvell_nand_chip *to_marvell_nand(struct nand_chip *chip)
+@@ -367,6 +392,10 @@ static inline struct marvell_nand_chip_sel *to_nand_sel(struct marvell_nand_chip
+  *			BCH error detection and correction algorithm,
+  *			NDCB3 register has been added
+  * @use_dma:		Use dma for data transfers
++ * @is_marvell_timing_modes: use marvell predefined register values per mode
++ * @max_mode_number: supported mode by NFC (max mode that supported)
++ * @timing_mode_set: which set to use from predefined array of sets
++ 					 each set has few modes
+  */
+ struct marvell_nfc_caps {
+ 	unsigned int max_cs_nb;
+@@ -375,6 +404,9 @@ struct marvell_nfc_caps {
+ 	bool legacy_of_bindings;
+ 	bool is_nfcv2;
+ 	bool use_dma;
++	bool is_marvell_timing_modes;
++	unsigned int max_mode_number;
++	marvell_nfc_timing_mode_set_t timing_mode_set;
+ };
+ 
+ /**
+@@ -485,6 +517,119 @@ struct marvell_nfc_op {
+ 	const struct nand_op_instr *data_instr;
+ };
+ 
++/* NFC ndtr0 */
++typedef union  marvell_nand_ndtr0
++{
++	struct {
++		unsigned  int tRP                 :3;  /* 0-2   */
++		unsigned  int tRH                 :3;  /* 3-5   */
++		unsigned  int tRPE                :1;  /* 6     */
++		unsigned  int tRE_edge            :1;  /* 7     */
++		unsigned  int tWP                 :3;  /* 8-10  */
++		unsigned  int tWH                 :3;  /* 11-13 */
++		unsigned  int reserved            :2;  /* 14-15 */
++		unsigned  int tCS                 :3;  /* 16-18 */
++		unsigned  int tCH                 :3;  /* 19-21 */
++		unsigned  int Rd_Cnt_Del          :4;  /* 22-25 */
++		unsigned  int selCnrl             :1;  /* 26    */
++		unsigned  int tADL                :5;  /* 27-31 */
++	} fields;
++	unsigned  int  regValue;
++}marvell_nfc_ndtr0_t;
++
++/* NFC ndtr1 */
++typedef union  marvell_nand_ndtr1
++{
++	struct {
++		unsigned  int tAR                 :4;  /* 0-3   */
++		unsigned  int tWHR                :4;  /* 4-7   */
++		unsigned  int tRHW                :2;  /* 8-9   */
++		unsigned  int reserved            :4;  /* 10-13 */
++		unsigned  int Prescale            :1;  /* 14    */
++		unsigned  int wait_mode           :1;  /* 15    */
++		unsigned  int tR                  :16; /* 16-31 */
++	} fields;
++	unsigned  int  regValue;
++}marvell_nfc_ndtr1_t;
++
++#define NUM_OF_TIMING_MODES	6
++
++/* arrays of NFC timings modes */
++typedef marvell_nfc_ndtr0_t marvell_nfc_ndtr0_arr[NUM_OF_TIMING_MODES];
++typedef marvell_nfc_ndtr1_t marvell_nfc_ndtr1_arr[NUM_OF_TIMING_MODES];
++
++#define MARVELL_NTDR0(trp, trh, trpe, tre_edge, twp, twh, resrv, tcs, tch, rd_cnt_del, selcnrl, tadl)	\
++		{\
++			.fields = {\
++				.tRP = trp,                 /* 0-2   */\
++				.tRH = trh,                 /* 3-5   */\
++				.tRPE = trpe,               /* 6     */\
++				.tRE_edge = tre_edge,       /* 7     */\
++				.tWP = twp,                 /* 8-10  */\
++				.tWH = twh,                 /* 11-13 */\
++				.reserved = resrv,          /* 14-15 */\
++				.tCS = tcs,                 /* 16-18 */\
++				.tCH = tch,                 /* 19-21 */\
++				.Rd_Cnt_Del = rd_cnt_del,   /* 22-25 */\
++				.selCnrl = selcnrl,         /* 26    */\
++				.tADL = tadl,               /* 27-31 */\
++			}\
++		}
++
++#define MARVELL_NTDR1(tar, twhr, trhw, resrv, prescale, waiting_mode, tr)	\
++		{\
++			.fields = {\
++				.tAR = tar,                 /* 0-3   */\
++				.tWHR = twhr,               /* 4-7   */\
++				.tRHW = trhw,               /* 8-9   */\
++				.reserved = resrv,          /* 10-13 */\
++				.Prescale = prescale,       /* 14    */\
++				.wait_mode = waiting_mode,  /* 15    */\
++				.tR = tr,                   /* 16-31 */\
++			}\
++		}
++
++/* ndtr0_modes and ndtr1_modes are arrays of modes with optimal values
++ * that were tested with Marvell NFC with correlation to ONFI timings mode
++ * each entry in the array presents different set of modes , for example ac5
++ * is entry 0 */
++/* todo: add more modes ASAP */
++
++/* Layouts explained in AN-379_Marvell_SoC_NFC_ECC */
++marvell_nfc_ndtr0_arr ndtr0_modes[MARVELL_NFC_NDTR_NUM_OF_SET] =
++{
++	/* value tested with AC5 */
++	{
++		MARVELL_NTDR0(7,7,1,0,7,7,0,7,7,0,1,31),
++		MARVELL_NTDR0(6,3,0,0,4,4,0,7,7,1,1,15),
++		MARVELL_NTDR0(4,3,0,0,3,3,0,7,7,2,1,15),
++		MARVELL_NTDR0(2,2,0,0,2,1,0,1,0,2,1,15)
++	}
++};
++
++marvell_nfc_ndtr1_arr ndtr1_modes[MARVELL_NFC_NDTR_NUM_OF_SET] =
++{
++	/* value tested with AC5 */
++	{
++		MARVELL_NTDR1(15,15,3,0,0,1,50),
++		MARVELL_NTDR1(15,15,3,0,0,1,25),
++		MARVELL_NTDR1(15,15,3,0,0,1,25),
++		MARVELL_NTDR1(11,11,2,0,0,1,25)
++	}
++};
++
++/*
++ * get nand timing-mode from device tree
++ */
++static int get_nand_timing_mode(struct device_node *np)
++{
++	int ret;
++	u32 val;
++
++	ret = of_property_read_u32(np, "nand-timing-mode", &val);
++	return ret ? ret : val;
++}
++
+ /*
+  * Internal helper to conditionnally apply a delay (from the above structure,
+  * most of the time).
+@@ -2254,6 +2399,14 @@ static int marvell_nand_hw_ecc_controller_init(struct mtd_info *mtd,
+ 	ecc->steps = l->nchunks;
+ 	ecc->size = l->data_bytes;
+ 
++	/* nand_scan_tail func perform  validity tests for ECC strength, and it
++	 * assumes that all chunks are with same size. in our case when ecc is 12
++	 * the chunk size is 704 but the last chunk is with different size so
++	 * we cheat it nand_scan_tail validity tests by set info->ecc_size value to
++	 * 512*/
++	if(ecc->strength == 12)
++		ecc->size = 512;
++
+ 	if (ecc->strength == 1) {
+ 		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+ 		ecc->read_page_raw = marvell_nfc_hw_ecc_hmg_read_page_raw;
+@@ -2354,9 +2507,11 @@ static int marvell_nfc_setup_interface(struct nand_chip *chip, int chipnr,
+ 	struct marvell_nand_chip *marvell_nand = to_marvell_nand(chip);
+ 	struct marvell_nfc *nfc = to_marvell_nfc(chip->controller);
+ 	unsigned int period_ns = 1000000000 / clk_get_rate(nfc->core_clk) * 2;
+-	const struct nand_sdr_timings *sdr;
++	const struct nand_sdr_timings *sdr,*timings;
+ 	struct marvell_nfc_timings nfc_tmg;
+ 	int read_delay;
++	marvell_nfc_timing_mode_set_t modes_set;
++	int mode = 0;
+ 
+ 	sdr = nand_get_sdr_timings(conf);
+ 	if (IS_ERR(sdr))
+@@ -2415,32 +2570,74 @@ static int marvell_nfc_setup_interface(struct nand_chip *chip, int chipnr,
+ 			nfc_tmg.tR = 0;
+ 	}
+ 
+-	if (chipnr < 0)
+-		return 0;
++		
++	/* get the timing modes from predefined values according to its compatibility*/
++	if (nfc->caps->is_marvell_timing_modes) {
++		/* get the mode set */
++		modes_set = nfc->caps->timing_mode_set;
++		if (modes_set >= MARVELL_NFC_NDTR_SET_NON)
++		{
++			dev_warn(nfc->dev,
++				"Warning: not supported timing registers set,use set number 0 by default\n");
+ 
+-	marvell_nand->ndtr0 =
+-		NDTR0_TRP(nfc_tmg.tRP) |
+-		NDTR0_TRH(nfc_tmg.tRH) |
+-		NDTR0_ETRP(nfc_tmg.tRP) |
+-		NDTR0_TWP(nfc_tmg.tWP) |
+-		NDTR0_TWH(nfc_tmg.tWH) |
+-		NDTR0_TCS(nfc_tmg.tCS) |
+-		NDTR0_TCH(nfc_tmg.tCH);
++			modes_set = MARVELL_NFC_NDTR_SET_0;
++		}
+ 
+-	marvell_nand->ndtr1 =
+-		NDTR1_TAR(nfc_tmg.tAR) |
+-		NDTR1_TWHR(nfc_tmg.tWHR) |
+-		NDTR1_TR(nfc_tmg.tR);
++		/* find the caller mode according to timings values */
++		/* if exit on error it means no more modes; not suppose to happen*/
++		do
++		{
++			timings = onfi_async_timing_mode_to_sdr_timings(mode);
++			if( IS_TIMINGS_EQUAL(timings,sdr))
++				break;
++			mode++;
++		}while(!IS_ERR(timings));
++
++		/* if mode is not supported by NFC, return false or if nand-timing-mode that
++		 * exists in device tree greater then caller mode also return false and wait
++		 * for caller to try with next mode (mode-1). we want the nand feature to be
++		 * configured with nand-timing-mode value */
++		if ( mode > nfc->caps->max_mode_number ||
++			 ((marvell_nand->nand_timing_mode) >= 0 &&
++			 (mode > marvell_nand->nand_timing_mode) ))
++			return -ENOTSUPP;
+ 
+-	if (nfc->caps->is_nfcv2) {
+-		marvell_nand->ndtr0 |=
+-			NDTR0_RD_CNT_DEL(read_delay) |
+-			NDTR0_SELCNTR |
+-			NDTR0_TADL(nfc_tmg.tADL);
++		/* just checking NFC capabilities no need to set the registers */
++		if (chipnr < 0)
++			return 0;
++
++		marvell_nand->ndtr0 = ndtr0_modes[modes_set][mode].regValue;
++		marvell_nand->ndtr1 = ndtr1_modes[modes_set][mode].regValue;
++	}
++	else
++	{
++		if (chipnr < 0)
++			return 0;
+ 
+-		marvell_nand->ndtr1 |=
+-			NDTR1_TRHW(nfc_tmg.tRHW) |
+-			NDTR1_WAIT_MODE;
++		marvell_nand->ndtr0 =
++			NDTR0_TRP(nfc_tmg.tRP) |
++			NDTR0_TRH(nfc_tmg.tRH) |
++			NDTR0_ETRP(nfc_tmg.tRP) |
++			NDTR0_TWP(nfc_tmg.tWP) |
++			NDTR0_TWH(nfc_tmg.tWH) |
++			NDTR0_TCS(nfc_tmg.tCS) |
++			NDTR0_TCH(nfc_tmg.tCH);
++
++		marvell_nand->ndtr1 =
++			NDTR1_TAR(nfc_tmg.tAR) |
++			NDTR1_TWHR(nfc_tmg.tWHR) |
++			NDTR1_TR(nfc_tmg.tR);
++
++		if (nfc->caps->is_nfcv2) {
++			marvell_nand->ndtr0 |=
++				NDTR0_RD_CNT_DEL(read_delay) |
++				NDTR0_SELCNTR |
++				NDTR0_TADL(nfc_tmg.tADL);
++
++			marvell_nand->ndtr1 |=
++				NDTR1_TRHW(nfc_tmg.tRHW) |
++				NDTR1_WAIT_MODE;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -2562,6 +2759,7 @@ static int marvell_nand_chip_init(struct device *dev, struct marvell_nfc *nfc,
+ 	struct nand_chip *chip;
+ 	int nsels, ret, i;
+ 	u32 cs, rb;
++	struct device_node *dn;
+ 
+ 	/*
+ 	 * The legacy "num-cs" property indicates the number of CS on the only
+@@ -2675,6 +2873,10 @@ static int marvell_nand_chip_init(struct device *dev, struct marvell_nfc *nfc,
+ 	if (!of_property_read_bool(np, "marvell,nand-keep-config"))
+ 		chip->options |= NAND_KEEP_TIMINGS;
+ 
++	/* read the mode from device tree */
++	dn = nand_get_flash_node(chip);
++	marvell_nand->nand_timing_mode = get_nand_timing_mode(dn);
++
+ 	mtd = nand_to_mtd(chip);
+ 	mtd->dev.parent = dev;
+ 
+@@ -3062,6 +3264,15 @@ static const struct marvell_nfc_caps marvell_armada_8k_nfc_caps = {
+ 	.is_nfcv2 = true,
+ };
+ 
++static const struct marvell_nfc_caps marvell_ac5_caps = {
++	.max_cs_nb = 2,
++	.max_rb_nb = 1,
++	.is_nfcv2 = true,
++	.is_marvell_timing_modes = true,
++	.max_mode_number = 3,
++	.timing_mode_set = MARVELL_NFC_NDTR_SET_0,
++};
++
+ static const struct marvell_nfc_caps marvell_armada370_nfc_caps = {
+ 	.max_cs_nb = 4,
+ 	.max_rb_nb = 2,
+@@ -3110,6 +3321,10 @@ static const struct of_device_id marvell_nfc_of_ids[] = {
+ 		.compatible = "marvell,armada-8k-nand-controller",
+ 		.data = &marvell_armada_8k_nfc_caps,
+ 	},
++	{
++		.compatible = "marvell,ac5-nand-controller",
++		.data = &marvell_ac5_caps,
++	},
+ 	{
+ 		.compatible = "marvell,armada370-nand-controller",
+ 		.data = &marvell_armada370_nfc_caps,
+diff --git a/drivers/mtd/nand/raw/nand_timings.c b/drivers/mtd/nand/raw/nand_timings.c
+index 94d832646487..33428fdd202c 100644
+--- a/drivers/mtd/nand/raw/nand_timings.c
++++ b/drivers/mtd/nand/raw/nand_timings.c
+@@ -298,6 +298,20 @@ const struct nand_interface_config *nand_get_reset_interface_config(void)
+ 	return &onfi_sdr_timings[0];
+ }
+ 
++/**
++ * onfi_async_timing_mode_to_sdr_timings - [NAND Interface] Retrieve NAND
++ * timings according to the given ONFI timing mode
++ * @mode: ONFI timing mode
++ */
++const struct nand_sdr_timings *onfi_async_timing_mode_to_sdr_timings(int mode)
++{
++	if (mode < 0 || mode >= ARRAY_SIZE(onfi_sdr_timings))
++		return ERR_PTR(-EINVAL);
++
++	return &onfi_sdr_timings[mode].timings.sdr;
++}
++EXPORT_SYMBOL(onfi_async_timing_mode_to_sdr_timings);
++
+ /**
+  * onfi_find_closest_sdr_mode - Derive the closest ONFI SDR timing mode given a
+  *                              set of timings
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index ceb4f2789800..ad04cb8e4eb5 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -39,6 +39,8 @@
+ #include <net/tso.h>
+ #include <net/page_pool.h>
+ #include <linux/bpf_trace.h>
++#include <linux/of_reserved_mem.h>
++
+ 
+ /* Registers */
+ #define MVNETA_RXQ_CONFIG_REG(q)                (0x1400 + ((q) << 2))
+@@ -353,6 +355,13 @@ enum {
+ 	ETHTOOL_MAX_STATS,
+ };
+ 
++enum mvneta_type {
++	MVNETA_TYPE_XP,
++	MVNETA_TYPE_370,
++	MVNETA_TYPE_3700,
++	MVNETA_TYPE_AC5
++};
++
+ struct mvneta_statistic {
+ 	unsigned short offset;
+ 	unsigned short type;
+@@ -512,7 +521,7 @@ struct mvneta_port {
+ 	u32 indir[MVNETA_RSS_LU_TABLE_SIZE];
+ 
+ 	/* Flags for special SoC configurations */
+-	bool neta_armada3700;
++	enum mvneta_type neta_type;
+ 	u16 rx_offset_correction;
+ 	const struct mbus_dram_target_info *dram_target_info;
+ };
+@@ -1117,7 +1126,7 @@ static int mvneta_bm_port_init(struct platform_device *pdev,
+ 	struct device_node *dn = pdev->dev.of_node;
+ 	u32 long_pool_id, short_pool_id;
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		int ret;
+ 
+ 		ret = mvneta_bm_port_mbus_init(pp);
+@@ -1456,7 +1465,7 @@ static void mvneta_defaults_set(struct mvneta_port *pp)
+ 	for_each_present_cpu(cpu) {
+ 		int rxq_map = 0, txq_map = 0;
+ 		int rxq, txq;
+-		if (!pp->neta_armada3700) {
++		if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 			for (rxq = 0; rxq < rxq_number; rxq++)
+ 				if ((rxq % max_cpu) == cpu)
+ 					rxq_map |= MVNETA_CPU_RXQ_ACCESS(rxq);
+@@ -3157,8 +3166,10 @@ static int mvneta_poll(struct napi_struct *napi, int budget)
+ 	/* For the case where the last mvneta_poll did not process all
+ 	 * RX packets
+ 	 */
+-	cause_rx_tx |= pp->neta_armada3700 ? pp->cause_rx_tx :
+-		port->cause_rx_tx;
++	if ((pp->neta_type == MVNETA_TYPE_3700) || (pp->neta_type == MVNETA_TYPE_AC5))
++		cause_rx_tx |= pp->cause_rx_tx;
++	else
++		cause_rx_tx |= port->cause_rx_tx;
+ 
+ 	rx_queue = fls(((cause_rx_tx >> 8) & 0xff));
+ 	if (rx_queue) {
+@@ -3175,7 +3186,7 @@ static int mvneta_poll(struct napi_struct *napi, int budget)
+ 		cause_rx_tx = 0;
+ 		napi_complete_done(napi, rx_done);
+ 
+-		if (pp->neta_armada3700) {
++		if ((pp->neta_type == MVNETA_TYPE_3700) || (pp->neta_type == MVNETA_TYPE_AC5)) {
+ 			unsigned long flags;
+ 
+ 			local_irq_save(flags);
+@@ -3189,7 +3200,7 @@ static int mvneta_poll(struct napi_struct *napi, int budget)
+ 		}
+ 	}
+ 
+-	if (pp->neta_armada3700)
++	if ((pp->neta_type == MVNETA_TYPE_3700) || (pp->neta_type == MVNETA_TYPE_AC5))
+ 		pp->cause_rx_tx = cause_rx_tx;
+ 	else
+ 		port->cause_rx_tx = cause_rx_tx;
+@@ -3609,7 +3620,7 @@ static void mvneta_start_dev(struct mvneta_port *pp)
+ 	/* start the Rx/Tx activity */
+ 	mvneta_port_enable(pp);
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		/* Enable polling on the port */
+ 		for_each_online_cpu(cpu) {
+ 			struct mvneta_pcpu_port *port =
+@@ -3649,7 +3660,7 @@ static void mvneta_stop_dev(struct mvneta_port *pp)
+ 
+ 	phylink_stop(pp->phylink);
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		for_each_online_cpu(cpu) {
+ 			struct mvneta_pcpu_port *port =
+ 				per_cpu_ptr(pp->ports, cpu);
+@@ -4294,7 +4305,7 @@ static int mvneta_open(struct net_device *dev)
+ 		goto err_cleanup_rxqs;
+ 
+ 	/* Connect to port interrupt line */
+-	if (pp->neta_armada3700)
++	if ((pp->neta_type == MVNETA_TYPE_3700) || (pp->neta_type == MVNETA_TYPE_AC5))
+ 		ret = request_irq(pp->dev->irq, mvneta_isr, 0,
+ 				  dev->name, pp);
+ 	else
+@@ -4305,7 +4316,7 @@ static int mvneta_open(struct net_device *dev)
+ 		goto err_cleanup_txqs;
+ 	}
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		/* Enable per-CPU interrupt on all the CPU to handle our RX
+ 		 * queue interrupts
+ 		 */
+@@ -4337,15 +4348,15 @@ static int mvneta_open(struct net_device *dev)
+ 	return 0;
+ 
+ err_free_dead_hp:
+-	if (!pp->neta_armada3700)
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5))
+ 		cpuhp_state_remove_instance_nocalls(CPUHP_NET_MVNETA_DEAD,
+ 						    &pp->node_dead);
+ err_free_online_hp:
+-	if (!pp->neta_armada3700)
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5))
+ 		cpuhp_state_remove_instance_nocalls(online_hpstate,
+ 						    &pp->node_online);
+ err_free_irq:
+-	if (pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		free_irq(pp->dev->irq, pp);
+ 	} else {
+ 		on_each_cpu(mvneta_percpu_disable, pp, true);
+@@ -4363,7 +4374,7 @@ static int mvneta_stop(struct net_device *dev)
+ {
+ 	struct mvneta_port *pp = netdev_priv(dev);
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		/* Inform that we are stopping so we don't want to setup the
+ 		 * driver for new CPUs in the notifiers. The code of the
+ 		 * notifier for CPU online is protected by the same spinlock,
+@@ -4746,7 +4757,7 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
+ 
+ 	on_each_cpu(mvneta_percpu_mask_interrupt, pp, true);
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		/* We have to synchronise on the napi of each CPU */
+ 		for_each_online_cpu(cpu) {
+ 			struct mvneta_pcpu_port *pcpu_port =
+@@ -4774,7 +4785,7 @@ static int  mvneta_config_rss(struct mvneta_port *pp)
+ 	mvneta_percpu_elect(pp);
+ 	spin_unlock(&pp->lock);
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		/* We have to synchronise on the napi of each CPU */
+ 		for_each_online_cpu(cpu) {
+ 			struct mvneta_pcpu_port *pcpu_port =
+@@ -4797,7 +4808,7 @@ static int mvneta_ethtool_set_rxfh(struct net_device *dev, const u32 *indir,
+ 	struct mvneta_port *pp = netdev_priv(dev);
+ 
+ 	/* Current code for Armada 3700 doesn't support RSS features yet */
+-	if (pp->neta_armada3700)
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5))
+ 		return -EOPNOTSUPP;
+ 
+ 	/* We require at least one supported parameter to be changed
+@@ -4821,7 +4832,7 @@ static int mvneta_ethtool_get_rxfh(struct net_device *dev, u32 *indir, u8 *key,
+ 	struct mvneta_port *pp = netdev_priv(dev);
+ 
+ 	/* Current code for Armada 3700 doesn't support RSS features yet */
+-	if (pp->neta_armada3700)
++	if ((pp->neta_type == MVNETA_TYPE_3700) || (pp->neta_type == MVNETA_TYPE_AC5))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (hfunc)
+@@ -5063,6 +5074,14 @@ static int mvneta_probe(struct platform_device *pdev)
+ 	int err;
+ 	int cpu;
+ 
++	if (of_device_is_compatible(dn, "marvell,armada-ac5-neta")) {
++		err = of_reserved_mem_device_init(&pdev->dev);
++		if (err) {
++			dev_err(&pdev->dev, "Could not get reserved memory\n");
++			return -ENOMEM;
++		}
++	}
++
+ 	dev = devm_alloc_etherdev_mqs(&pdev->dev, sizeof(struct mvneta_port),
+ 				      txq_number, rxq_number);
+ 	if (!dev)
+@@ -5115,7 +5134,11 @@ static int mvneta_probe(struct platform_device *pdev)
+ 
+ 	/* Get special SoC configurations */
+ 	if (of_device_is_compatible(dn, "marvell,armada-3700-neta"))
+-		pp->neta_armada3700 = true;
++		pp->neta_type = MVNETA_TYPE_3700;
++	else if (of_device_is_compatible(dn, "marvell,armada-ac5-neta"))
++		pp->neta_type = MVNETA_TYPE_AC5;
++	else
++		pp->neta_type = MVNETA_TYPE_XP;
+ 
+ 	pp->clk = devm_clk_get(&pdev->dev, "core");
+ 	if (IS_ERR(pp->clk))
+@@ -5181,13 +5204,12 @@ static int mvneta_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	pp->tx_csum_limit = tx_csum_limit;
+-
+ 	pp->dram_target_info = mv_mbus_dram_info();
+ 	/* Armada3700 requires setting default configuration of Mbus
+ 	 * windows, however without using filled mbus_dram_target_info
+ 	 * structure.
+ 	 */
+-	if (pp->dram_target_info || pp->neta_armada3700)
++	if (pp->dram_target_info || (pp->neta_type == MVNETA_TYPE_3700))
+ 		mvneta_conf_mbus_windows(pp, pp->dram_target_info);
+ 
+ 	pp->tx_ring_size = MVNETA_MAX_TXD;
+@@ -5238,8 +5260,9 @@ static int mvneta_probe(struct platform_device *pdev)
+ 	/* Armada3700 network controller does not support per-cpu
+ 	 * operation, so only single NAPI should be initialized.
+ 	 */
+-	if (pp->neta_armada3700) {
+-		netif_napi_add(dev, &pp->napi, mvneta_poll, NAPI_POLL_WEIGHT);
++	if ((pp->neta_type == MVNETA_TYPE_3700) || (pp->neta_type == MVNETA_TYPE_AC5)) {
++			netif_napi_add(dev, &pp->napi, mvneta_poll,
++				       NAPI_POLL_WEIGHT);
+ 	} else {
+ 		for_each_present_cpu(cpu) {
+ 			struct mvneta_pcpu_port *port =
+@@ -5331,7 +5354,7 @@ static int mvneta_suspend(struct device *device)
+ 	if (!netif_running(dev))
+ 		goto clean_exit;
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		spin_lock(&pp->lock);
+ 		pp->is_stopped = true;
+ 		spin_unlock(&pp->lock);
+@@ -5376,7 +5399,7 @@ static int mvneta_resume(struct device *device)
+ 	clk_prepare_enable(pp->clk);
+ 	if (!IS_ERR(pp->clk_bus))
+ 		clk_prepare_enable(pp->clk_bus);
+-	if (pp->dram_target_info || pp->neta_armada3700)
++	if (pp->dram_target_info || (pp->neta_type == MVNETA_TYPE_3700))
+ 		mvneta_conf_mbus_windows(pp, pp->dram_target_info);
+ 	if (pp->bm_priv) {
+ 		err = mvneta_bm_port_init(pdev, pp);
+@@ -5412,7 +5435,7 @@ static int mvneta_resume(struct device *device)
+ 		mvneta_txq_hw_init(pp, txq);
+ 	}
+ 
+-	if (!pp->neta_armada3700) {
++	if ((pp->neta_type != MVNETA_TYPE_3700) && (pp->neta_type != MVNETA_TYPE_AC5)) {
+ 		spin_lock(&pp->lock);
+ 		pp->is_stopped = false;
+ 		spin_unlock(&pp->lock);
+@@ -5437,6 +5460,7 @@ static const struct of_device_id mvneta_match[] = {
+ 	{ .compatible = "marvell,armada-370-neta" },
+ 	{ .compatible = "marvell,armada-xp-neta" },
+ 	{ .compatible = "marvell,armada-3700-neta" },
++	{ .compatible = "marvell,armada-ac5-neta" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, mvneta_match);
+diff --git a/drivers/usb/host/ehci-orion.c b/drivers/usb/host/ehci-orion.c
+index a319b1df3011..7748a76a9170 100644
+--- a/drivers/usb/host/ehci-orion.c
++++ b/drivers/usb/host/ehci-orion.c
+@@ -19,6 +19,8 @@
+ #include <linux/usb/hcd.h>
+ #include <linux/io.h>
+ #include <linux/dma-mapping.h>
++#include <linux/of_reserved_mem.h>
++
+ 
+ #include "ehci.h"
+ 
+@@ -221,6 +223,14 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
+ 
+ 	pr_debug("Initializing Orion-SoC USB Host Controller\n");
+ 
++	if (of_device_is_compatible(pdev->dev.of_node, "marvell,ac5-ehci")) {
++		err = of_reserved_mem_device_init(&pdev->dev);
++		if (err) {
++			dev_err(&pdev->dev, "Could not get reserved memory\n");
++			return -ENOMEM;
++		}
++	}
++
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq <= 0) {
+ 		err = -ENODEV;
+@@ -232,7 +242,7 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
+ 	 * set. Since shared usb code relies on it, set it here for
+ 	 * now. Once we have dma capability bindings this can go away.
+ 	 */
+-	err = dma_coerce_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
++	err = dma_coerce_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+ 	if (err)
+ 		goto err;
+ 
+@@ -337,7 +347,8 @@ static int ehci_orion_drv_remove(struct platform_device *pdev)
+ static const struct of_device_id ehci_orion_dt_ids[] = {
+ 	{ .compatible = "marvell,orion-ehci", },
+ 	{ .compatible = "marvell,armada-3700-ehci", },
+-	{},
++	{ .compatible = "marvell,ac5-ehci", },
++	{ },
+ };
+ MODULE_DEVICE_TABLE(of, ehci_orion_dt_ids);
+ 
+-- 
+2.17.1
+
+
+From 8c0ce9e9e27df63de08bbc57828901c52b433070 Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Sun, 1 Aug 2021 21:40:43 +0300
+Subject: Import kernel 5.4 patch by Yulia Weisman - Add pci_enable by default
+ to AC5 Com Express
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ arch/arm64/boot/dts/marvell/ac5_comexpress.dts | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/marvell/ac5_comexpress.dts b/arch/arm64/boot/dts/marvell/ac5_comexpress.dts
+index 3e34ffa1ba2e..651eaae84aeb 100644
+--- a/arch/arm64/boot/dts/marvell/ac5_comexpress.dts
++++ b/arch/arm64/boot/dts/marvell/ac5_comexpress.dts
+@@ -26,3 +26,6 @@
+ 	dr_mode = "peripheral";
+ };
+ 
++&pcie0 {
++	status = "okay";
++};
+-- 
+2.17.1
+
+
+From b7534ef4209df396bb23b855f3b75a46d8603cfa Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Sun, 1 Aug 2021 21:42:07 +0300
+Subject: Import Yuval Shaia commit from Kernel 5.4 - dts: Add ac5x to Makefile
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ arch/arm64/boot/dts/marvell/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/marvell/Makefile b/arch/arm64/boot/dts/marvell/Makefile
+index 21fcc04c4045..145403192d10 100644
+--- a/arch/arm64/boot/dts/marvell/Makefile
++++ b/arch/arm64/boot/dts/marvell/Makefile
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Mvebu SoC Family
++dtb-$(CONFIG_ARCH_MVEBU) += ac5x_db.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += ac5_db.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += ac5_rd.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += armada-3720-db.dtb
+-- 
+2.17.1
+
+
+From 411f5d530bc4be99a814c92ec5dc1dfcb9b112f9 Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Sun, 1 Aug 2021 21:44:25 +0300
+Subject: Import fix from kernel 5.4 by Yuval Shaia - Fix PCI discovery in AC5
+ RD
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ arch/arm64/boot/dts/marvell/ac5.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/marvell/ac5.dtsi b/arch/arm64/boot/dts/marvell/ac5.dtsi
+index 4abcbde9d2a0..c350b752884c 100644
+--- a/arch/arm64/boot/dts/marvell/ac5.dtsi
++++ b/arch/arm64/boot/dts/marvell/ac5.dtsi
+@@ -166,8 +166,8 @@
+ 
+ 		pcie0: pcie@800a0000 {
+ 			compatible = "marvell,ac5-pcie", "snps,dw-pcie";
+-			reg = <0 0x800a0000 0 0x20000>, <0 0x3fff0000 0 0x10000>, <0 0x800a0000 0 0x20000>;
+-			reg-names = "ctrl", "config", "atu";
++			reg = <0 0x800a0000 0 0x20000>, <0 0x3fff0000 0 0x10000>;
++			reg-names = "ctrl", "config";
+ 			#address-cells = <3>;
+ 			#size-cells = <2>;
+ 			#interrupt-cells = <1>;
+-- 
+2.17.1
+
+
+From e35732cad1cfe26228d08a326254f2effbb656ba Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Sun, 1 Aug 2021 21:45:39 +0300
+Subject: Import Eyal Oron fix from Kernel 5.4 - Marvell AC5x dts - disable
+ eth1
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ arch/arm64/boot/dts/marvell/ac5x_db.dts | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/marvell/ac5x_db.dts b/arch/arm64/boot/dts/marvell/ac5x_db.dts
+index 6a5bc72d49dc..649fbb18d50c 100644
+--- a/arch/arm64/boot/dts/marvell/ac5x_db.dts
++++ b/arch/arm64/boot/dts/marvell/ac5x_db.dts
+@@ -19,10 +19,6 @@
+ 	phy = <&phy0>;
+ };
+ 
+-&eth1 {
+-	status = "okay";
+-};
+-
+ &usb1 {
+ 	compatible = "chipidea,usb2";
+ 	phys = <&usb1phy>;
+-- 
+2.17.1
+
+
+From 76a30b2eec199bffadfdccbaf7041f0abb0387ba Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Mon, 2 Aug 2021 10:13:31 +0300
+Subject: Import Vadym Kochan Fix bus: mbus: export mvebu_mbus_x_window for
+ modules
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ drivers/bus/mvebu-mbus.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/bus/mvebu-mbus.c b/drivers/bus/mvebu-mbus.c
+index 2519ceede64b..a582e6c30f50 100644
+--- a/drivers/bus/mvebu-mbus.c
++++ b/drivers/bus/mvebu-mbus.c
+@@ -914,6 +914,7 @@ int mvebu_mbus_add_window_remap_by_id(unsigned int target,
+ 
+ 	return mvebu_mbus_alloc_window(s, base, size, remap, target, attribute);
+ }
++EXPORT_SYMBOL_GPL(mvebu_mbus_add_window_remap_by_id);
+ 
+ int mvebu_mbus_add_window_by_id(unsigned int target, unsigned int attribute,
+ 				phys_addr_t base, size_t size)
+@@ -933,6 +934,7 @@ int mvebu_mbus_del_window(phys_addr_t base, size_t size)
+ 	mvebu_mbus_disable_window(&mbus_state, win);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mvebu_mbus_del_window);
+ 
+ void mvebu_mbus_get_pcie_mem_aperture(struct resource *res)
+ {
+-- 
+2.17.1
+
+
+From f553833aadc59af871a846c78c45acced71441ba Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Thu, 11 Nov 2021 17:46:09 +0200
+Subject: AC5X slim mode board DTS support
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ arch/arm64/boot/dts/marvell/Makefile          |   2 +
+ arch/arm64/boot/dts/marvell/ac5-4gb.dtsi      | 370 ++++++++++++++++++
+ arch/arm64/boot/dts/marvell/ac5.dtsi          |  13 +-
+ .../boot/dts/marvell/ac5_db_slim.dts    | 258 ++++++++++++
+ 4 files changed, 730 insertions(+), 7 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/marvell/ac5-4gb.dtsi
+ create mode 100644 arch/arm64/boot/dts/marvell/ac5_db_slim.dts
+
+diff --git a/arch/arm64/boot/dts/marvell/Makefile b/arch/arm64/boot/dts/marvell/Makefile
+index 145403192d10..53ae73e372e8 100644
+--- a/arch/arm64/boot/dts/marvell/Makefile
++++ b/arch/arm64/boot/dts/marvell/Makefile
+@@ -2,6 +2,7 @@
+ # Mvebu SoC Family
+ dtb-$(CONFIG_ARCH_MVEBU) += ac5x_db.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += ac5_db.dtb
++dtb-$(CONFIG_ARCH_MVEBU) += ac5_db_slim.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += ac5_rd.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += armada-3720-db.dtb
+ dtb-$(CONFIG_ARCH_MVEBU) += armada-3720-espressobin.dtb
+diff --git a/arch/arm64/boot/dts/marvell/ac5-4gb.dtsi b/arch/arm64/boot/dts/marvell/ac5-4gb.dtsi
+new file mode 100644
+index 000000000000..08b598cb0809
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/ac5-4gb.dtsi
+@@ -0,0 +1,370 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree For AC5.
++ *
++ * Copyright (C) 2021 Marvell
++ *
++ */
++
++/dts-v1/;
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++/*#include <dt-bindings/phy/phy-utmi-mvebu.h>*/
++
++/ {
++	model = "Marvell AC5x board";
++	compatible = "marvell,armada3700";
++	interrupt-parent = <&gic>;
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	aliases {
++		serial0 = &uart0;
++		spiflash0 = &spiflash0;
++	};
++
++	psci {
++		compatible = "arm,psci-0.2";
++		method = "smc";
++	};
++
++	timer {
++		compatible = "arm,armv8-timer";
++		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>,
++				 <GIC_PPI 8 IRQ_TYPE_LEVEL_HIGH>,
++				 <GIC_PPI 10 IRQ_TYPE_LEVEL_HIGH>,
++				 <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
++		//clock-frequency = <10020>;
++		//clock-frequency = <110400>;
++		//clock-frequency = <110020>;
++		clock-frequency = <25000000>;
++	};
++
++	pmu {
++		compatible = "arm,armv8-pmuv3";
++		interrupts = <GIC_PPI 12 IRQ_TYPE_LEVEL_HIGH>;
++	};
++
++	soc {
++		compatible = "simple-bus";
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++		dma-ranges;
++
++		internal-regs@7f000000 {
++			#address-cells = <1>;
++			#size-cells = <1>;
++			compatible = "simple-bus";
++			/* 16M internal register @ 0x7f00_0000 */
++			ranges = <0x0 0x0 0x7f000000 0x1000000>;
++			dma-coherent;
++
++			uart0: serial@12000 {
++				compatible = "snps,dw-apb-uart";
++				reg = <0x12000 0x100>;
++				reg-shift = <2>;
++				interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
++				reg-io-width = <1>;
++				clock-frequency = <328000000>;
++				status = "okay";
++			};
++
++			mdio: mdio@20000 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				compatible = "marvell,orion-mdio";
++				reg = <0x22004 0x4>;
++				clocks = <&core_clock>;
++				phy0: ethernet-phy@0 {
++					reg = < 0 0 >;
++				};
++			};
++
++			i2c0: i2c@11000{
++				compatible = "marvell,mv78230-i2c";
++				reg = <0x11000 0x20>;
++
++				clocks = <&core_clock>;
++				clock-names = "core";
++				interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
++				clock-frequency=<100000>;
++				status="okay";
++			};
++
++			i2c1: i2c@11100{
++				compatible = "marvell,mv78230-i2c";
++				reg = <0x11100 0x20>;
++
++				clocks = <&core_clock>;
++				clock-names = "core";
++				interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_HIGH>;
++				clock-frequency=<100000>;
++				status="okay";
++			};
++		};
++
++		/* Dedicated section for devices behind 32bit controllers so we
++		   can configure specific DMA mapping for them */
++		behind-32bit-controller@7f000000 {
++			compatible = "simple-bus";
++			#address-cells = <0x2>;
++			#size-cells = <0x2>;
++			ranges = <0x0 0x0 0x0 0x7f000000 0x0 0x1000000>;
++			/* Host addresses starts at 0x2000000 */
++			dma-ranges = <0x0 0x0 0x2 0x0 0x1 0x0>;
++			dma-coherent;
++
++			eth0: ethernet@20000 {
++				compatible = "marvell,armada-ac5-neta";
++				reg = <0x0 0x20000 0x0 0x4000>;
++				interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
++				clocks = <&core_clock>;
++				status = "disabled";
++				phy-mode = "sgmii";
++				memory-region = <&reserved>;
++			};
++
++			eth1: ethernet@24000 {
++				compatible = "marvell,armada-ac5-neta";
++				reg = <0x0 0x24000 0x0 0x4000>;
++				interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
++				clocks = <&core_clock>;
++				status = "disabled";
++				phy-mode = "sgmii";
++				memory-region = <&reserved>;
++				fixed-link {
++					speed = <100>;
++					full-duplex;
++				};
++			};
++
++			/* A dummy entry used for chipidea phy init */
++			usb1phy: usbphy {
++				compatible = "usb-nop-xceiv";
++				#phy-cells = <0>;
++			};
++
++			/* USB0 is a host USB */
++			usb0: usb@80000 {
++				compatible = "marvell,ac5-ehci", "marvell,orion-ehci";
++				reg = <0x0 0x80000 0x0 0x500>;
++				interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
++				memory-region = <&reserved>;
++				status = "okay";
++			};
++
++			/* USB1 is a peripheral USB */
++			usb1: usb@A0000 {
++				reg = <0x0 0xA0000 0x0 0x500>;
++				interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
++				memory-region = <&reserved>;
++				status = "okay";
++			};
++		};
++
++		pcie0: pcie@800a0000 {
++			compatible = "marvell,ac5-pcie", "snps,dw-pcie";
++			reg = <0 0x800a0000 0 0x20000>, <0 0x3fff0000 0 0x10000>;
++			reg-names = "ctrl", "config";
++			#address-cells = <3>;
++			#size-cells = <2>;
++			#interrupt-cells = <1>;
++			device_type = "pci";
++			dma-coherent;
++			bus-range = <0 0xff>;
++			/* ranges for the PCI memory and I/O regions */
++			ranges = <0x82000000 0 0x30000000 0 0x30000000 0 0xfff0000>;
++
++			interrupt-map-mask = <0 0 0 1>;
++			interrupt-map = <0 0 0 1 &gic GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>;
++
++			interrupts = <GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>;
++
++			num-lanes = <1>;
++			status = "disabled";
++
++			clocks = <&core_clock>;
++		};
++
++		core_clock: core_clock@0 {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <400000000>;
++		};
++
++		axi_clock: axi_clock@0 {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <325000000>;
++		};
++
++		spi_clock: spi_clock@0 {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <200000000>;
++		};
++
++		spi@805a0000 {
++			compatible = "marvell,armada-3700-spi";
++			reg = <0x0 0x805a0000 0x0 0x50>;
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			clocks = <&spi_clock>;
++		        interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
++		        num-cs = <1>;
++			status = "okay";
++
++			spiflash0: spi-flash@0 {
++				compatible = "spi-nor";
++				spi-max-frequency = <50000000>;
++				spi-tx-bus-width = <1>; /* 1-single, 2-dual, 4-quad */
++				spi-rx-bus-width = <1>; /* 1-single, 2-dual, 4-quad */
++				reg = <0>;
++
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				partition@0 {
++					label = "spi_flash_part0";
++					reg = <0x0 0x800000>;
++				};
++
++				parition@1 {
++					label = "spi_flash_part1";
++					reg = <0x800000 0x700000>;
++				};
++
++				parition@2 {
++					label = "spi_flash_part2";
++					reg = <0xF00000 0x100000>;
++				};
++			};
++		};
++
++		spi@805a8000 {
++			compatible = "marvell,armada-3700-spi";
++			reg = <0x0 0x805a8000 0x0 0x50>;
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			clocks = <&spi_clock>;
++		        interrupts = <GIC_SPI 91 IRQ_TYPE_LEVEL_HIGH>;
++		        num-cs = <1>;
++			status = "disabled";
++		};
++
++		sdhci@805c0000 {
++			compatible = "marvell, ac5-sdhci", "marvell,armada-ap806-sdhci";
++			reg = <0x0 0x805c0000 0x0 0x300>;
++			interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&core_clock>;
++			clock-names = "core";
++			status = "okay";
++			bus-width = <8>;
++			//marvell,xenon-phy-slow-mode;
++			non-removable;
++			mmc-ddr-1_8v;
++			mmc-hs200-1_8v;
++			mmc-hs400-1_8v;
++			memory-region = <&reserved>;
++		};
++
++		nand@805b00 {
++			compatible = "marvell,ac5-nand-controller";
++			reg =  <0x0 0x805b0000 0x0 0x00000054
++				0x0 0x840F8204 0x0 0x00000004
++				0x0 0x80013010 0x0 0x00000020>;
++			#address-cells = <0x1>;
++			#size-cells = <0x0>;
++			interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&core_clock>;
++			/*marvell,system-controller = <0x15>*/
++			status = "okay";
++			nand-timing-mode = <1>;
++
++			nand@0 {
++				reg = <0x0>;
++				label = "main-storage";
++				nand-rb = <0>;
++				nand-ecc-mode = "hw";
++				nand-ecc-strength = <12>;
++				nand-ecc-step-size = <512>;
++			};
++		};
++
++		prestera: pack-processor@0 {
++			compatible = "marvell,armada-ac5-switch", "mervell,prestera";
++			interrupts = <GIC_SPI 0x23 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
++	};
++
++	gic: interrupt-controller@80600000 {
++		compatible = "arm,gic-v3";
++		#interrupt-cells = <3>;
++		interrupt-controller;
++		/*#redistributor-regions = <1>;*/
++		redistributor-stride = <0x0 0x20000>;	// 128kB stride
++		reg = <0x0 0x80600000 0x0 0x10000>, /* GICD */
++			  <0x0 0x80660000 0x0 0x40000>; /* GICR */
++		interrupts = <GIC_PPI 6 IRQ_TYPE_LEVEL_HIGH>;
++	};
++
++	cpus {
++		#address-cells = <2>;
++		#size-cells = <0>;
++
++		cpu-map {
++			cluster0 {
++				core0 {
++					cpu = <&CPU0>;
++				};
++				core1 {
++					cpu = <&CPU1>;
++				};
++			};
++		};
++
++		CPU0:cpu@0 {
++			device_type = "cpu";
++			compatible = "arm,armv8";
++			reg = <0x0 0x0>;
++			enable-method = "psci";
++			next-level-cache = <&L2_0>;
++		};
++
++		CPU1:cpu@1 {
++			device_type = "cpu";
++			compatible = "arm,armv8";
++			reg = <0x0 0x100>;
++			enable-method = "psci";
++			next-level-cache = <&L2_0>;
++		};
++
++		L2_0: l2-cache0 {
++			compatible = "cache";
++		};
++	};
++
++	memory@00000000 {
++		device_type = "memory";
++		reg = <0x2 0x00000000 0x1 0x00000000>;
++		linux,usable-memory = <0x2 0x00000000 0x1 0x00000000>;
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		reserved: buffer@0 {
++			compatible = "shared-dma-pool"; // to be used as a shared pool of DMA buffers for a set of devices
++			no-map;	// No one other than devices registered for that mem, may use this area
++			// reusable - OS can use the memory in this region with the limitation that the device driver(s)
++			//			  owning the region need to be able to reclaim it back.
++			reg = <0x2 0x0 0x0 0x1000000>;
++		};
++	};
++
++};
+diff --git a/arch/arm64/boot/dts/marvell/ac5.dtsi b/arch/arm64/boot/dts/marvell/ac5.dtsi
+index c350b752884c..6ae0f1c3cb99 100644
+--- a/arch/arm64/boot/dts/marvell/ac5.dtsi
++++ b/arch/arm64/boot/dts/marvell/ac5.dtsi
+@@ -293,10 +293,9 @@
+ 			};
+ 		};
+ 
+-		prestera {
+-			compatible = "marvell,armada-ac5-switch";
++		prestera: pack-processor@0 {
++			compatible = "marvell,armada-ac5-switch", "mervell,prestera";
+ 			interrupts = <GIC_SPI 0x23 IRQ_TYPE_LEVEL_HIGH>;
+-			status = "okay";
+ 		};
+ 
+ 	};
+@@ -349,10 +348,10 @@
+ 	};
+ 
+ 	memory@00000000 {
+-		device_type = "memory";
+-		reg = <0x2 0x00000000 0x0 0x40000000>;
+-		linux,usable-memory = <0x2 0x00000000 0x0 0x40000000>;
+-	};
++                device_type = "memory";
++                reg = <0x2 0x00000000 0x0 0x40000000>;
++                // linux,usable-memory = <0x2 0x00000000 0x0 0x80000000>;
++        };
+ 
+ 	reserved-memory {
+ 		#address-cells = <2>;
+diff --git a/arch/arm64/boot/dts/marvell/ac5_db_slim.dts b/arch/arm64/boot/dts/marvell/ac5_db_slim.dts
+new file mode 100644
+index 000000000000..742c172d2238
+--- /dev/null
++++ b/arch/arm64/boot/dts/marvell/ac5_db_slim.dts
+@@ -0,0 +1,258 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree For AC5_db.
++ *
++ * Copyright (C) 2021 Marvell
++ *
++ */
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Device Tree file for Marvell Alleycat 5 development board
++ * This board file supports the B configuration of the board
++ */
++#include "ac5.dtsi"
++
++/ {
++	sfp1: sfp-1 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c0_sfp0>;
++		maximum-power-milliwatt = <2000>;
++		los-gpio = <&pca9555_0 8 GPIO_ACTIVE_HIGH>;
++                mod-def0-gpio = <&pca9555_1 0 GPIO_ACTIVE_LOW>;
++                tx-disable-gpio = <&pca9555_0 0 GPIO_ACTIVE_HIGH>;
++
++	};
++
++	sfp2: sfp-2 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c0_sfp1>;
++		los-gpio = <&pca9555_0 9 GPIO_ACTIVE_HIGH>;
++                mod-def0-gpio = <&pca9555_1 1 GPIO_ACTIVE_LOW>;
++                tx-disable-gpio = <&pca9555_0 1 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
++	};
++
++	sfp3: sfp-3 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c0_sfp2>;
++		los-gpio = <&pca9555_0 10 GPIO_ACTIVE_HIGH>;
++                mod-def0-gpio = <&pca9555_1 2 GPIO_ACTIVE_LOW>;
++                tx-disable-gpio = <&pca9555_0 2 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
++	};
++
++	sfp4: sfp-4 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c0_sfp3>;
++		los-gpio = <&pca9555_0 11 GPIO_ACTIVE_HIGH>;
++                mod-def0-gpio = <&pca9555_1 3 GPIO_ACTIVE_LOW>;
++                tx-disable-gpio = <&pca9555_0 3 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
++	};
++
++	sfp5: sfp-5 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c0_sfp4>;
++		los-gpio = <&pca9555_0 12 GPIO_ACTIVE_HIGH>;
++                mod-def0-gpio = <&pca9555_1 4 GPIO_ACTIVE_LOW>;
++                tx-disable-gpio = <&pca9555_0 4 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
++	};
++
++	sfp6: sfp-6 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c0_sfp5>;
++		los-gpio = <&pca9555_0 13 GPIO_ACTIVE_HIGH>;
++                mod-def0-gpio = <&pca9555_1 5 GPIO_ACTIVE_LOW>;
++                tx-disable-gpio = <&pca9555_0 5 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
++	};
++
++	sfp7: sfp-7 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c0_sfp6>;
++		los-gpio = <&pca9555_0 14 GPIO_ACTIVE_HIGH>;
++                mod-def0-gpio = <&pca9555_1 6 GPIO_ACTIVE_LOW>;
++                tx-disable-gpio = <&pca9555_0 6 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
++	};
++
++	sfp8: sfp-8 {
++		compatible = "sff,sfp";
++		i2c-bus = <&i2c0_sfp7>;
++		los-gpio = <&pca9555_0 15 GPIO_ACTIVE_HIGH>;
++                mod-def0-gpio = <&pca9555_1 7 GPIO_ACTIVE_LOW>;
++                tx-disable-gpio = <&pca9555_0 7 GPIO_ACTIVE_HIGH>;
++		maximum-power-milliwatt = <2000>;
++	};
++
++};
++
++&i2c0 {
++        status = "okay";
++        clock-frequency = <100000>;
++        i2cmux@70 {
++                compatible = "nxp,pca9548";
++                reg = <0x70>;
++                #address-cells = <1>;
++                #size-cells = <0>;
++        i2c-mux-idle-disconnect;
++
++                i2c0_sfp0: i2c@0 {
++                        reg = <0>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++			pca9555_0: pca9555@20 {
++				compatible = "nxp,pca9555";
++				gpio-controller;
++				#gpio-cells = <2>;
++				reg = <0x20>;
++			};
++
++			pca9555_1: pca9555@21 {
++				compatible = "nxp,pca9555";
++				gpio-controller;
++				#gpio-cells = <2>;
++				reg = <0x21>;
++			};
++
++                };
++                i2c0_sfp1: i2c@1 {
++                        reg = <1>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++                };
++                i2c0_sfp2: i2c@2 {
++                        reg = <2>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++                };
++                i2c0_sfp3: i2c@3 {
++                        reg = <3>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++                };
++                i2c0_sfp4: i2c@4 {
++                        reg = <4>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++                };
++                i2c0_sfp5: i2c@5 {
++                        reg = <5>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++                };
++		i2c0_sfp6: i2c@6 {
++                        reg = <6>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++                };
++                i2c0_sfp7: i2c@7 {
++                        reg = <7>;
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++                };
++	};
++};
++
++
++&eth0 {
++	status = "okay";
++	fixed-link {
++		speed = <1000>;
++		full-duplex;
++	};
++};
++
++&eth1 {
++	status = "okay";
++};
++
++&usb1 {
++	compatible = "chipidea,usb2";
++	phys = <&usb1phy>;
++	phy-names = "usb-phy";
++	dr_mode = "peripheral";
++};
++
++&prestera {
++	compatible = "marvell,prestera";
++	status = "okay";
++	reg = <0x0 0x7F900000 0x0 0x40000>;
++	ports {
++		port1 {
++			prestera,port-num = <1>;
++			sfp = <&sfp1>;
++		};
++		port2 {
++			prestera,port-num = <2>;
++			sfp = <&sfp2>;
++		};
++
++		port3 {
++			prestera,port-num = <3>;
++			sfp = <&sfp3>;
++		};
++
++		port4 {
++			prestera,port-num = <4>;
++			sfp = <&sfp4>;
++		};
++
++		port5 {
++			prestera,port-num = <5>;
++			sfp = <&sfp5>;
++		};
++
++		port6 {
++			prestera,port-num = <6>;
++			sfp = <&sfp6>;
++		};
++
++		port7 {
++			prestera,port-num = <7>;
++			sfp = <&sfp7>;
++		};
++
++		port8 {
++			prestera,port-num = <8>;
++			sfp = <&sfp8>;
++		};
++
++	};
++};
++
++&sfp1 {
++	status = "okay";
++};
++
++&sfp2 {
++	status = "okay";
++};
++
++&sfp3 {
++	status = "okay";
++};
++
++&sfp4 {
++	status = "okay";
++};
++
++&sfp5 {
++	status = "okay";
++};
++
++&sfp6 {
++	status = "okay";
++};
++
++&sfp7 {
++	status = "okay";
++};
++
++&sfp8 {
++	status = "okay";
++};
++
++
+-- 
+2.17.1
+
+
+From 63ed6c2b8e47334bb0c4a5b294eff996281d9a0d Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Thu, 11 Nov 2021 19:37:04 +0200
+Subject: Fix ac5x DB board slim eth0 settings to working ones
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ .../boot/dts/marvell/ac5_db_slim.dts    |  5 +---
+ drivers/net/ethernet/marvell/mvneta.c         | 28 +++++++++++++++++++
+ 2 files changed, 29 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/marvell/ac5_db_slim.dts b/arch/arm64/boot/dts/marvell/ac5_db_slim.dts
+index 742c172d2238..deffa9bb5af8 100644
+--- a/arch/arm64/boot/dts/marvell/ac5_db_slim.dts
++++ b/arch/arm64/boot/dts/marvell/ac5_db_slim.dts
+@@ -159,10 +159,7 @@
+ 
+ &eth0 {
+ 	status = "okay";
+-	fixed-link {
+-		speed = <1000>;
+-		full-duplex;
+-	};
++	phy = <&phy0>;
+ };
+ 
+ &eth1 {
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index ad04cb8e4eb5..46f4f5b73bef 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -77,6 +77,8 @@
+ #define MVNETA_WIN_SIZE(w)                      (0x2204 + ((w) << 3))
+ #define MVNETA_WIN_REMAP(w)                     (0x2280 + ((w) << 2))
+ #define MVNETA_BASE_ADDR_ENABLE                 0x2290
++#define      MVNETA_AC5_CNM_DDR_TARGET         0x2
++#define      MVNETA_AC5_CNM_DDR_ATTR           0xb
+ #define MVNETA_ACCESS_PROTECT_ENABLE            0x2294
+ #define MVNETA_PORT_CONFIG                      0x2400
+ #define      MVNETA_UNI_PROMISC_MODE            BIT(0)
+@@ -5042,6 +5044,29 @@ static void mvneta_conf_mbus_windows(struct mvneta_port *pp,
+ 	mvreg_write(pp, MVNETA_ACCESS_PROTECT_ENABLE, win_protect);
+ }
+ 
++static void mvneta_conf_ac5_cnm_xbar_windows(struct mvneta_port *pp)
++{
++       int i;
++
++       /* Clear all windows */
++       for (i = 0; i < 6; i++) {
++               mvreg_write(pp, MVNETA_WIN_BASE(i), 0);
++               mvreg_write(pp, MVNETA_WIN_SIZE(i), 0);
++
++               if (i < 4)
++                       mvreg_write(pp, MVNETA_WIN_REMAP(i), 0);
++       }
++
++       /*
++        * Setup window #0 base 0x0 to target XBAR port 2 (AMB2), attribute 0xb,
++        * size 4GB AMB2 address decoder remaps 0x0 to DDR 64 bit base address
++        */
++       mvreg_write(pp, MVNETA_WIN_BASE(0), (MVNETA_AC5_CNM_DDR_ATTR << 8) |
++                   MVNETA_AC5_CNM_DDR_TARGET);
++       mvreg_write(pp, MVNETA_WIN_SIZE(0),0xffff0000);
++       mvreg_write(pp, MVNETA_BASE_ADDR_ENABLE, 0x3e);
++}
++
+ /* Power up the port */
+ static int mvneta_port_power_up(struct mvneta_port *pp, int phy_mode)
+ {
+@@ -5212,6 +5237,9 @@ static int mvneta_probe(struct platform_device *pdev)
+ 	if (pp->dram_target_info || (pp->neta_type == MVNETA_TYPE_3700))
+ 		mvneta_conf_mbus_windows(pp, pp->dram_target_info);
+ 
++       if (pp->neta_type == MVNETA_TYPE_AC5)
++               mvneta_conf_ac5_cnm_xbar_windows(pp);
++
+ 	pp->tx_ring_size = MVNETA_MAX_TXD;
+ 	pp->rx_ring_size = MVNETA_MAX_RXD;
+ 
+-- 
+2.17.1
+
+
+From 4bfeb749e307dc1f51f67765cfe4c56600922308 Mon Sep 17 00:00:00 2001
+From: Elad Nachman <enachman@marvell.com>
+Date: Tue, 23 Nov 2021 13:13:16 +0200
+Subject: Import Eyal Oron PIO workaround for SDHCI 2GB DMA limit
+
+Signed-off-by: Elad Nachman <enachman@marvell.com>
+---
+ arch/arm64/boot/dts/marvell/ac5-4gb.dtsi |  2 +-
+ arch/arm64/boot/dts/marvell/ac5.dtsi     |  2 +-
+ drivers/mmc/host/sdhci-xenon.c           | 11 +++++++++++
+ 3 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/marvell/ac5-4gb.dtsi b/arch/arm64/boot/dts/marvell/ac5-4gb.dtsi
+index 08b598cb0809..3ed3ea297cd9 100644
+--- a/arch/arm64/boot/dts/marvell/ac5-4gb.dtsi
++++ b/arch/arm64/boot/dts/marvell/ac5-4gb.dtsi
+@@ -255,7 +255,7 @@
+ 		};
+ 
+ 		sdhci@805c0000 {
+-			compatible = "marvell, ac5-sdhci", "marvell,armada-ap806-sdhci";
++			compatible = "marvell,ac5-sdhci", "marvell,armada-ap806-sdhci";
+ 			reg = <0x0 0x805c0000 0x0 0x300>;
+ 			interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&core_clock>;
+diff --git a/arch/arm64/boot/dts/marvell/ac5.dtsi b/arch/arm64/boot/dts/marvell/ac5.dtsi
+index 6ae0f1c3cb99..a2b30142bbfa 100644
+--- a/arch/arm64/boot/dts/marvell/ac5.dtsi
++++ b/arch/arm64/boot/dts/marvell/ac5.dtsi
+@@ -255,7 +255,7 @@
+ 		};
+ 
+ 		sdhci@805c0000 {
+-			compatible = "marvell, ac5-sdhci", "marvell,armada-ap806-sdhci";
++			compatible = "marvell,ac5-sdhci", "marvell,armada-ap806-sdhci";
+ 			reg = <0x0 0x805c0000 0x0 0x300>;
+ 			interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&core_clock>;
+diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
+index 00b7ae76316d..4ab44c086f63 100644
+--- a/drivers/mmc/host/sdhci-xenon.c
++++ b/drivers/mmc/host/sdhci-xenon.c
+@@ -18,6 +18,7 @@
+ #include <linux/pm.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/of_reserved_mem.h>
++#include <linux/mm.h>
+ 
+ #include "sdhci-pltfm.h"
+ #include "sdhci-xenon.h"
+@@ -417,6 +418,7 @@ static int xenon_probe_dt(struct platform_device *pdev)
+ 	struct xenon_priv *priv = sdhci_pltfm_priv(pltfm_host);
+ 	u32 sdhc_id, nr_sdhc;
+ 	u32 tuning_count;
++	struct sysinfo si;
+ 
+ 	/* Disable HS200 on Armada AP806 */
+ 	if (of_device_is_compatible(np, "marvell,armada-ap806-sdhci"))
+@@ -445,6 +447,15 @@ static int xenon_probe_dt(struct platform_device *pdev)
+ 	}
+ 	priv->tuning_count = tuning_count;
+ 
++	si_meminfo(&si);
++
++	if (of_device_is_compatible(np, "marvell,ac5-sdhci") &&
++		((si.totalram * si.mem_unit) > 0x80000000 /*2G*/)) {
++		host->quirks |= SDHCI_QUIRK_BROKEN_DMA;
++		host->quirks |= SDHCI_QUIRK_BROKEN_ADMA;
++		dev_info(mmc_dev(mmc), "Disabling DMA because of 2GB DMA access limit.\n");
++	}
++
+ 	return xenon_phy_parse_dt(np, host);
+ }
+ 
+-- 
+2.17.1
+
