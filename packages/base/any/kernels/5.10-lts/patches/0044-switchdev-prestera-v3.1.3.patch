@@ -1,0 +1,27 @@
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_drv_ver.h b/drivers/net/ethernet/marvell/prestera/prestera_drv_ver.h
+index 2c0d754..9f2fb3d 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_drv_ver.h
++++ b/drivers/net/ethernet/marvell/prestera/prestera_drv_ver.h
+@@ -10,7 +10,7 @@
+ #define PRESTERA_DRV_VER_MAJOR	2
+ #define PRESTERA_DRV_VER_MINOR	0
+ #define PRESTERA_DRV_VER_PATCH	0
+-#define PRESTERA_DRV_VER_EXTRA	-v3.1.1
++#define PRESTERA_DRV_VER_EXTRA	-v3.1.3
+ 
+ #define PRESTERA_DRV_VER \
+ 		__stringify(PRESTERA_DRV_VER_MAJOR)  "." \
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_rxtx.c b/drivers/net/ethernet/marvell/prestera/prestera_rxtx.c
+index 38aed5d..8dfae08 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_rxtx.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_rxtx.c
+@@ -377,7 +377,8 @@ static int mvsw_sdma_rx_poll(struct napi_struct *napi, int budget)
+ 	}
+ 
+ 	if (pkts_done < budget && napi_complete_done(napi, pkts_done))
+-		mvsw_reg_write(sdma->sw, SDMA_RX_INTR_MASK_REG, 0xff << 2);
++		mvsw_reg_write(sdma->sw, SDMA_RX_INTR_MASK_REG,
++			       (0xff << 2) | (0xff << 11));
+ 
+ 	netif_receive_skb_list(&rx_list);
+ 
