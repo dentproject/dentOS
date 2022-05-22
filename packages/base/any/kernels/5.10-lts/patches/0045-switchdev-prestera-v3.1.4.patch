@@ -1,0 +1,218 @@
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera.h b/drivers/net/ethernet/marvell/prestera/prestera.h
+index 08cf4a4..bd01eeb 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera.h
++++ b/drivers/net/ethernet/marvell/prestera/prestera.h
+@@ -31,6 +31,9 @@
+ 
+ #define PRESTERA_SPAN_INVALID_ID -1
+ 
++#define PRESTERA_IPG_DEFAULT_VALUE (12)
++#define PRESTERA_IPG_ALIGN_VALUE (4)
++
+ struct prestera_fw_rev {
+ 	u16 maj;
+ 	u16 min;
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_debugfs.c b/drivers/net/ethernet/marvell/prestera/prestera_debugfs.c
+index d824202..e9b053d 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_debugfs.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_debugfs.c
+@@ -26,9 +26,17 @@
+ static ssize_t prestera_cnt_read(struct file *file, char __user *ubuf,
+ 				 size_t count, loff_t *ppos);
+ 
++static ssize_t
++prestera_ipg_write(struct file *file, const char __user *ubuf,
++		   size_t count, loff_t *ppos);
++static ssize_t
++prestera_ipg_read(struct file *file, char __user *ubuf,
++		  size_t count, loff_t *ppos);
++
+ struct prestera_debugfs {
+ 	struct dentry *root_dir;
+ 	const struct file_operations cpu_code_cnt_fops;
++	const struct file_operations ipg_fops;
+ 	char *cpu_code_cnt_buf;
+ 	/* serialize access to cpu_code_cnt_buf */
+ 	struct mutex cpu_code_cnt_buf_mtx;
+@@ -51,6 +59,12 @@ static struct prestera_debugfs prestera_debugfs = {
+ 		.open = simple_open,
+ 		.llseek = default_llseek,
+ 	},
++	.ipg_fops = {
++		.read = prestera_ipg_read,
++		.write = prestera_ipg_write,
++		.open = simple_open,
++		.llseek = default_llseek,
++	},
+ };
+ 
+ enum {
+@@ -59,6 +73,21 @@ enum {
+ 	CPU_CODE_CNT_TYPE_SW_TRAP = CPU_CODE_CNT_TYPE_HW_TRAP + 1,
+ };
+ 
++int prestera_debugfs_ipg_init(struct prestera_switch *sw)
++{
++	struct prestera_debugfs *debugfs = &prestera_debugfs;
++	const struct file_operations *fops =
++		&prestera_debugfs.ipg_fops;
++	struct dentry *debugfs_file;
++
++	debugfs_file = debugfs_create_file("ipg", 0644, debugfs->root_dir, NULL,
++					   fops);
++	if (PTR_ERR_OR_ZERO(debugfs_file))
++		return (int)PTR_ERR(debugfs_file);
++
++	return 0;
++}
++
+ int prestera_debugfs_init(struct prestera_switch *sw)
+ {
+ 	struct prestera_debugfs *debugfs = &prestera_debugfs;
+@@ -188,10 +217,14 @@ int prestera_debugfs_init(struct prestera_switch *sw)
+ 	if (PTR_ERR_OR_ZERO(debugfs_file))
+ 		goto err_single_file_creation;
+ 
++	if ((err = prestera_debugfs_ipg_init(sw)))
++		goto err_ipg_init;
++
+ 	return 0;
+ 
+ err_single_file_creation:
+ 	err = (int)PTR_ERR(debugfs_file);
++err_ipg_init:
+ err_subdir_alloc:
+ 	/*
+ 	 * Removing root directory would result in recursive
+@@ -285,3 +318,46 @@ static ssize_t prestera_cnt_read(struct file *file, char __user *ubuf,
+ 
+ 	return ret;
+ }
++
++static ssize_t
++prestera_ipg_write(struct file *file, const char __user *ubuf,
++		   size_t count, loff_t *ppos)
++{
++	struct prestera_debugfs *debugfs = &prestera_debugfs;
++	char buf[128] = { 0 };
++	u32 ipg;
++	int ret;
++
++	ret = simple_write_to_buffer(buf, sizeof(buf) - 1, ppos, ubuf, count);
++	if (ret < 0)
++		return -EINVAL;
++
++	if (kstrtou32(buf, 0, &ipg) || !ipg || ipg % PRESTERA_IPG_ALIGN_VALUE)
++		return -EINVAL;
++
++	ret = prestera_hw_ipg_set(debugfs->sw, ipg);
++	if (ret)
++		return ret;
++
++	return count;
++}
++
++static ssize_t
++prestera_ipg_read(struct file *file, char __user *ubuf,
++		  size_t count, loff_t *ppos)
++{
++	struct prestera_debugfs *debugfs = &prestera_debugfs;
++	char buf[128] = { 0 };
++	/* as the snprintf doesn't count for \0, start with 1 */
++	int buf_len = 1;
++	int ret;
++	u32 ipg;
++
++	ret = prestera_hw_ipg_get(debugfs->sw, &ipg);
++	if (ret)
++		return ret;
++
++	buf_len += snprintf(buf, sizeof(buf) - 1, "ipg: %u\n", ipg);
++
++	return simple_read_from_buffer(ubuf, count, ppos, buf, buf_len);
++}
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_drv_ver.h b/drivers/net/ethernet/marvell/prestera/prestera_drv_ver.h
+index 2c0d754..d17c4d6 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_drv_ver.h
++++ b/drivers/net/ethernet/marvell/prestera/prestera_drv_ver.h
+@@ -10,7 +10,7 @@
+ #define PRESTERA_DRV_VER_MAJOR	2
+ #define PRESTERA_DRV_VER_MINOR	0
+ #define PRESTERA_DRV_VER_PATCH	0
+-#define PRESTERA_DRV_VER_EXTRA	-v3.1.3
++#define PRESTERA_DRV_VER_EXTRA	-v3.1.4
+ 
+ #define PRESTERA_DRV_VER \
+ 		__stringify(PRESTERA_DRV_VER_MAJOR)  "." \
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_hw.c b/drivers/net/ethernet/marvell/prestera/prestera_hw.c
+index 4c18d3f..2d8c667 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_hw.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_hw.c
+@@ -32,6 +32,9 @@ enum prestera_cmd_type_t {
+ 	PRESTERA_CMD_TYPE_KEEPALIVE_INIT = 0x3,
+ 	PRESTERA_CMD_TYPE_SWITCH_RESET = 0x4,
+ 
++	PRESTERA_CMD_TYPE_IPG_GET = 0xFE,
++	PRESTERA_CMD_TYPE_IPG_SET = 0xFF,
++
+ 	PRESTERA_CMD_TYPE_PORT_ATTR_SET = 0x100,
+ 	PRESTERA_CMD_TYPE_PORT_ATTR_GET = 0x101,
+ 	PRESTERA_CMD_TYPE_PORT_INFO_GET = 0x110,
+@@ -724,6 +727,16 @@ struct prestera_msg_cpu_code_counter_resp {
+ 	u64 packet_count;
+ } __packed __aligned(4);
+ 
++struct prestera_msg_ipg_set_req {
++	struct prestera_msg_cmd cmd;
++	u32 ipg;
++} __packed __aligned(4);
++
++struct prestera_msg_ipg_get_resp {
++	struct prestera_msg_ret ret;
++	u32 ipg;
++} __packed __aligned(4);
++
+ static void fw_reset_wdog(struct prestera_device *dev);
+ 
+ static int prestera_cmd_qid_by_req_type(enum prestera_cmd_type_t type)
+@@ -2599,3 +2612,27 @@ int prestera_hw_switch_reset(struct prestera_switch *sw)
+ 
+ 	return fw_send_req(sw, PRESTERA_CMD_TYPE_SWITCH_RESET, &req);
+ }
++
++int prestera_hw_ipg_set(struct prestera_switch *sw, u32 ipg)
++{
++	struct prestera_msg_ipg_set_req req = {
++		.ipg = ipg,
++	};
++
++	return fw_send_req(sw, PRESTERA_CMD_TYPE_IPG_SET, &req);
++}
++
++int prestera_hw_ipg_get(struct prestera_switch *sw, u32 *ipg)
++{
++	struct prestera_msg_ipg_get_resp resp;
++	struct prestera_msg_common_req req;
++	int err;
++
++	err = fw_send_req_resp(sw, PRESTERA_CMD_TYPE_IPG_GET, &req, &resp);
++	if (err)
++		return err;
++
++	*ipg = resp.ipg;
++
++	return 0;
++}
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_hw.h b/drivers/net/ethernet/marvell/prestera/prestera_hw.h
+index 65fbe0c..7bca372 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_hw.h
++++ b/drivers/net/ethernet/marvell/prestera/prestera_hw.h
+@@ -410,4 +410,8 @@ prestera_hw_cpu_code_counters_get(const struct prestera_switch *sw, u8 code,
+ 				  enum prestera_hw_cpu_code_cnt_t counter_type,
+ 				  u64 *packet_count);
+ 
++/* HW IPG API */
++int prestera_hw_ipg_set(struct prestera_switch *sw, u32 ipg);
++int prestera_hw_ipg_get(struct prestera_switch *sw, u32 *ipg);
++
+ #endif /* _PRESTERA_HW_H_ */
