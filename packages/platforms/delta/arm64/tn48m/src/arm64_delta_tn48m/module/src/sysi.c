@@ -53,6 +53,8 @@ onlp_sysi_platform_get(void)
         return "arm64-delta-tn48m-poe";
     else if (gPlat_id == PID_TN48M2)
         return "arm64-delta-tn48m2";
+    else if (gPlat_id == PID_TN48M2_SWDEV)
+        return "arm64-delta-tn48m2-swdev";
     else if (gPlat_id == PID_TN4810M_PVT || gPlat_id == PID_TN4810M_NONPVT)
         return "arm64-delta-tn4810m";
     else
@@ -71,6 +73,9 @@ onlp_sysi_platform_set(const char* platform)
         return ONLP_STATUS_OK;
     }
     if (strstr(platform, "arm64-delta-tn48m-poe-r0")) {
+        return ONLP_STATUS_OK;
+    }
+    if (strstr(platform, "arm64-delta-tn48m2-swdev-r0")) {
         return ONLP_STATUS_OK;
     }
     if (strstr(platform, "arm64-delta-tn4810m-r0")) {
