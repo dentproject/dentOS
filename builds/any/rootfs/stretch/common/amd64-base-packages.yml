@@ -8,7 +8,6 @@
 - smartmontools
 - grub2
 - onl-upgrade
-- hw-management
 - onl-kernel-4.9-lts-x86-64-all-modules
 - onl-kernel-4.14-lts-x86-64-all-modules
 - onl-kernel-4.19-lts-x86-64-all-modules
