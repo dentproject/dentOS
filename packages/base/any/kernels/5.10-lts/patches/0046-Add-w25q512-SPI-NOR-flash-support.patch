@@ -1,0 +1,43 @@
+From e75e68b14702e2d59c4f032dcf3cc0d985f4c970 Mon Sep 17 00:00:00 2001
+From: "cary.sc.chen" <cary.sc.chen@deltaww.com>
+Date: Mon, 13 Jun 2022 12:46:22 +0800
+Subject: [PATCH 1/2] Add w25q512 SPI NOR flash support
+
+Add support for 64MB SPI NOR flash w25q512
+
+Signed-off-by: cary.sc.chen <cary.sc.chen@deltaww.com>
+---
+ drivers/mtd/spi-nor/core.c    | 2 +-
+ drivers/mtd/spi-nor/winbond.c | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index ad6c79d9a..cf085fadd 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -3418,7 +3418,7 @@ static const struct spi_device_id spi_nor_dev_ids[] = {
+ 	{"m25p40"},	{"m25p80"},	{"m25p16"},	{"m25p32"},
+ 	{"m25p64"},	{"m25p128"},
+ 	{"w25x80"},	{"w25x32"},	{"w25q32"},	{"w25q32dw"},
+-	{"w25q80bl"},	{"w25q128"},	{"w25q256"},
++	{"w25q80bl"},	{"w25q128"},	{"w25q256"},	{"w25q512"},
+ 
+ 	/* Flashes that can't be detected using JEDEC */
+ 	{"m25p05-nonjedec"},	{"m25p10-nonjedec"},	{"m25p20-nonjedec"},
+diff --git a/drivers/mtd/spi-nor/winbond.c b/drivers/mtd/spi-nor/winbond.c
+index e5dfa786f..af32423f9 100644
+--- a/drivers/mtd/spi-nor/winbond.c
++++ b/drivers/mtd/spi-nor/winbond.c
+@@ -91,6 +91,9 @@ static const struct flash_info winbond_parts[] = {
+ 	{ "w25q256", INFO(0xef4019, 0, 64 * 1024, 512,
+ 			  SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ)
+ 	  .fixups = &w25q256_fixups },
++	{ "w25q512", INFO(0xef4020, 0, 64 * 1024, 1024, SECT_4K |
++			    SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
++			    SPI_NOR_4B_OPCODES) },
+ 	{ "w25q256jvm", INFO(0xef7019, 0, 64 * 1024, 512,
+ 			     SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+ 	{ "w25q256jw", INFO(0xef6019, 0, 64 * 1024, 512,
+-- 
+2.17.1
+

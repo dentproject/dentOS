@@ -40,6 +40,7 @@ typedef enum plat_id {
     PID_TN4810M_PVT,
     PID_TN48M2,
     PID_TN4810M_NONPVT,
+    PID_TN48M2_SWDEV,
     PID_UNKNOWN,
 } plat_id_t;
 

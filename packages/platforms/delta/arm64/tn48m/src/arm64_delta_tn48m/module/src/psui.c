@@ -186,6 +186,7 @@ static plat_psu_t* get_plat_psu()
     else if (gPlat_id == PID_TN4810M_NONPVT)
         return plat_tn4810m_nonpvt_psus;
     else
+        /* tn48m2 and tn48m2-swdev shares the same psu configuration */
         return plat_tn48m2_psus;
 }
 
