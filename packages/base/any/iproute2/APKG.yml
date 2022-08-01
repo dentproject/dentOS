@@ -18,6 +18,7 @@ packages:
     files:
       builds/iproute2/etc/iproute2: /etc/iproute2
       builds/iproute2/bridge/bridge : /sbin/
+      builds/iproute2/dcb/dcb : /sbin/
       builds/iproute2/ip/ifcfg : /bin/
       builds/iproute2/ip/ip : /bin/
       builds/iproute2/ip/routef : /usr/bin/
