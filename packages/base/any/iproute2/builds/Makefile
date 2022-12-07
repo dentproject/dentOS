@@ -12,7 +12,7 @@ $(error $$TOOLCHAIN not set)
 endif
 
 CONFIGURE_TOOLCHAIN_OPTIONS := --host $(TOOLCHAIN)
-PKG_CONFIG_DIRS := /usr/aarch64-linux-gnu/lib/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig
+PKG_CONFIG_DIRS := /usr/$(TOOLCHAIN)/lib/pkgconfig:/usr/lib/$(TOOLCHAIN)/pkgconfig
 #
 # All configure options
 #
@@ -26,12 +26,11 @@ build: deps
 	     | cpio -o ) \
 	| ( cd iproute2 && cpio -imd )
 	$(MAKE) patch
-	echo "pkg-config path: $(PKG_CONFIG_DIRS)"
 	echo "configure options: $(CONFIGURE_OPTIONS)"
 	echo "toolchain dir: $(TOOLCHAIN_DIR)"
 	echo "GCC: $(GCC)"
-	cd iproute2 && export PKG_CONFIG_PATH=$(PKG_CONFIG_DIRS) && ./configure --host $(TOOLCHAIN)
-	$(MAKE) V=1 PREFIX=/usr/local CC=$(GCC) -C iproute2
+	cd iproute2 && CC=$(GCC) LD=$(TOOLCHAIN)-ld PKG_CONFIG_PATH=$(PKG_CONFIG_DIRS) ./configure --prefix=/usr/local
+	$(MAKE) V=1 HOSTCC=gcc -C iproute2
 
 SERIES		:= \
   0100-tc-flower-icmp-vlan.patch \
