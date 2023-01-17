@@ -1,0 +1,38 @@
+---
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+
+name: Snyk Scan Node
+
+on:
+  # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  snyk-scan-node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: snyk/actions/setup@master
+        id: snyk
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Setup
+        run: |
+          cd src
+          echo "Node version is: $(node --version)"
+          echo "Yarn version is: $(yarn --version)"
+          echo "Running top level install..."
+          yarn install
+      - name: Snyk version
+        run: echo "${{ steps.snyk.outputs.version }}"
+      - name: Snyk Auth
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+      - name: Scan for Node/Yarn Library Vulnerabilities
+        run: snyk test --file=src/package.json --org=${{ secrets.SNYK_ORG }}
+      - name: Monitor for Node/Yarn Library Vulnerabilities
+        run: snyk monitor --file=src/package.json --org=${{ secrets.SNYK_ORG }}
