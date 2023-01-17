@@ -31,7 +31,7 @@ jobs:
         run: echo "${{ steps.snyk.outputs.version }}"
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
-      - name: Scan for Node/Yarn Library Vulnerabilities
-        run: snyk test --file=src/package.json --org=${{ secrets.SNYK_ORG }}
-      - name: Monitor for Node/Yarn Library Vulnerabilities
-        run: snyk monitor --file=src/package.json --org=${{ secrets.SNYK_ORG }}
+      - name: Scan for Vulnerabilities
+        run: snyk test --org=${{ secrets.SNYK_ORG }}
+      - name: Monitor for Vulnerabilities
+        run: snyk monitor --org=${{ secrets.SNYK_ORG }}
