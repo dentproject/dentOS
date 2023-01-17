@@ -23,7 +23,6 @@ jobs:
           node-version: '16'
       - name: Setup
         run: |
-          cd src
           echo "Node version is: $(node --version)"
           echo "Yarn version is: $(yarn --version)"
           echo "Running top level install..."
