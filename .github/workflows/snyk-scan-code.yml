@@ -34,4 +34,4 @@ jobs:
       - name: Scan for Vulnerabilities
         run: snyk test --org=${{ secrets.SNYK_ORG }} --unmanaged -d
       - name: Monitor for Vulnerabilities
-        run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG }}
+        run: snyk monitor --org=${{ secrets.SNYK_ORG }} --unmanaged
