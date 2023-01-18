@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 import os
 import sys
@@ -126,10 +126,10 @@ logger.debug('arguments: %s\n' % vars(ops))
 
 if ops.pull:
    try:
-      print "Pulling %s..." % ops.image
+      print("Pulling %s..." % ops.image)
       x = subprocess.check_output(('docker', 'pull', ops.image), stderr=subprocess.STDOUT)
-      print "done."
-   except subprocess.CalledProcessError, e:
+      print("done.")
+   except subprocess.CalledProcessError as e:
       sys.stderr.write("** Failed to pull the docker image %s (%d):\n\n%s\n" % (ops.image, e.returncode, e.output))
       sys.exit(1)
 
