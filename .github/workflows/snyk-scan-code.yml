@@ -1,0 +1,31 @@
+---
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+
+name: Snyk Scan Code
+
+on:
+  # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  snyk-scan-node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: snyk/actions/setup@master
+        id: snyk
+      - name: Snyk version
+        run: echo "${{ steps.snyk.outputs.version }}"
+      - name: Snyk Auth
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+      - name: Scan for Vulnerabilities (Docker)
+        # continue on error since the scanner will report exit code 1 when vulnerabilities are found
+        continue-on-error: true
+        run: |
+          echo "Running snyk test and monitor docker images..."
+          snyk container test opennetworklinux/builder10:1.2 --file=docker/images/builder10/1.2/Dockerfile --org=${{ secrets.SNYK_ORG }}
+      - name: Monitor for Vulnerabilities (Docker)
+        run: snyk container monitor opennetworklinux/builder10:1.2 --file=docker/images/builder10/1.2/Dockerfile --org=${{ secrets.SNYK_ORG }}
