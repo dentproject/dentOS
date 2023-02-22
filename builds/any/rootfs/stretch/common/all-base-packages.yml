@@ -91,3 +91,5 @@
 - lsb-release
 - tknos-firmware
 - dbus
+- python-setuptools
+- python3-petunia
