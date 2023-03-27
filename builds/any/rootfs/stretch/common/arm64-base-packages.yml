@@ -5,6 +5,7 @@
 - bash-completion
 - onl-kernel-5.6-lts-arm64-all-modules
 - onl-kernel-5.10-lts-arm64-all-modules
+- onl-kernel-5.15-lts-arm64-all-modules
 - lldpd
 - man-db
 - dnsmasq
@@ -12,3 +13,6 @@
 - mft
 - mrvl-fw-image
 - keepalived
+- hostapd
+- stress-ng
+- python3-pyroute2

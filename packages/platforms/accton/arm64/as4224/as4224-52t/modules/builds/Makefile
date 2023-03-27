@@ -1,5 +1,5 @@
-KERNELS := onl-kernel-5.10-lts-arm64-all:arm64
-KMODULES := $(ONL)/packages/platforms/accton/arm64/as4224/src/modules-5_10/
+KERNELS := onl-kernel-5.15-lts-arm64-all:arm64
+KMODULES := $(ONL)/packages/platforms/accton/arm64/as4224/src/modules/
 VENDOR := accton
 BASENAME := arm64-accton-as4224-52t
 ARCH := arm64

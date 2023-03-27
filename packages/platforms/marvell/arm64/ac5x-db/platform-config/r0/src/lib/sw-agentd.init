@@ -1,0 +1,86 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:        sw-agentd
+# Short-Description: Start sw-agentd Agent
+# Required-Start:    
+# Required-Stop:     $named $network
+# Should-Start:
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+. /lib/lsb/init-functions
+
+DAEMON=/usr/bin/sw-agentd
+PIDFILE=/var/run/sw-agentd.pid
+FAULTD_OPTS="-dr -pid $PIDFILE"
+QUIET=
+
+test -x $DAEMON || exit 5
+
+RUNASUSER=root
+UGID=$(getent passwd $RUNASUSER | cut -f 3,4 -d:) || true
+
+start() {
+        log_daemon_msg "Starting sw agent daemon: "
+        umask 077
+        if cat /proc/cmdline | grep -q "swsAutoStart=0"; then
+                echo "Debug mode - please start sw agent daemon manually"
+        else
+                start-stop-daemon -S -q  \
+                        --exec /usr/bin/sw-agentd -- "$@" -daemon
+	while ! test -f "/dev/prestera_shm"; do
+		sleep 1
+		echo "Still waiting for shm dev to come up..."
+	done
+
+	for i in {1..27}
+	do
+		systemctl enable switchdev-online@swp$i
+	done
+        pid=`pidof appDemo`
+        prlimit -p $pid --core=unlimited
+                if [ -f /etc/init.d/track_appDemo.sh ]
+                then
+                        start-stop-daemon -S -b --exec /etc/init.d/track_appDemo.sh
+                fi
+        fi
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+        log_daemon_msg "Stopping sw agent daemon: "
+	rmmod prestera_shm
+	rmmod prestera
+        start-stop-daemon -K -q --exec /usr/bin/sw-agentd
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+restart() {
+        stop
+        sleep 1
+        start "$@"
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        restart
+        ;;
+  force-reload)
+        restart -R
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|force-reload}"
+        exit 1
+esac
+
+

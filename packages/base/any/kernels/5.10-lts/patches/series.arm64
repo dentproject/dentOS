@@ -35,3 +35,9 @@
 0039-net-sched-fix-infinite-loop-when-trying-to-create-tc.patch
 0040-prestera-switchdev-prestera.patch
 0041-net-prestera-Enable-autoneg-for-1000BASE-X.patch
+0042-net-phylink-sfp-Add-quirk-for-FINISAR-10G-modules.patch
+0043-switchdev-prestera-v3.1.1.patch
+0044-prestera-switchdev-prestera-slim.patch
+0045-Marvell-add-support-for-AC5x.patch
+0046-marvell-Kconfig-shm.patch
+0047-ac5x-db-slim-dts.patch

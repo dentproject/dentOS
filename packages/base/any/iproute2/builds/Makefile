@@ -12,7 +12,7 @@ $(error $$TOOLCHAIN not set)
 endif
 
 CONFIGURE_TOOLCHAIN_OPTIONS := --host $(TOOLCHAIN)
-PKG_CONFIG_DIRS := /usr/aarch64-linux-gnu/lib/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig
+PKG_CONFIG_DIRS := /usr/$(TOOLCHAIN)/lib/pkgconfig:/usr/lib/$(TOOLCHAIN)/pkgconfig
 #
 # All configure options
 #
@@ -26,20 +26,14 @@ build: deps
 	     | cpio -o ) \
 	| ( cd iproute2 && cpio -imd )
 	$(MAKE) patch
-	echo "pkg-config path: $(PKG_CONFIG_DIRS)"
 	echo "configure options: $(CONFIGURE_OPTIONS)"
 	echo "toolchain dir: $(TOOLCHAIN_DIR)"
 	echo "GCC: $(GCC)"
-	cd iproute2 && export PKG_CONFIG_PATH=$(PKG_CONFIG_DIRS) && ./configure --host $(TOOLCHAIN)
-	$(MAKE) V=1 PREFIX=/usr/local CC=$(GCC) -C iproute2
+	cd iproute2 && CC=$(GCC) LD=$(TOOLCHAIN)-ld PKG_CONFIG_PATH=$(PKG_CONFIG_DIRS) ./configure --prefix=/usr/local
+	$(MAKE) V=1 HOSTCC=gcc -C iproute2
 
 SERIES		:= \
-  0001-lib-Move-print_rate-from-tc-here-modernize.patch \
-  0002-lib-Move-sprint_size-from-tc-here-add-print_size.patch \
-  0003-police-Add-support-for-json-output.patch \
-  0004-sync-iptables-header.patch \
   0100-tc-flower-icmp-vlan.patch \
-  0101-devlink-add.patch \
   # THIS LINE INTENTIONALLY LEFT BLANK
 
 patch:
@@ -50,17 +44,10 @@ patch:
 	done
 
 BUILD_DEPS	:= \
-  libmnl-dev \
-  libelf-dev \
-  libcap-dev \
-  libxtables-dev \
-  libdb-dev \
   # THIS LINE INTENTIONALLY LEFT BLANK
 
 deps-arm64:
-	sudo xapt -a arm64 $(BUILD_DEPS)
 
 deps-amd64:
-	sudo apt-get -y install $(BUILD_DEPS)
 
 deps: deps-$(ARCH)
