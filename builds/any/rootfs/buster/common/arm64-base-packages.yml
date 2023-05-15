@@ -1,1 +1,11 @@
 - u-boot-tools
+- onl-kernel-5.15-lts-arm64-all-modules
+- frr
+- mrvl-fw-image
+- bridge-utils
+- bash-completion
+- man-db
+- dnsmasq
+- dnsutils
+- keepalived
+- lldpd
