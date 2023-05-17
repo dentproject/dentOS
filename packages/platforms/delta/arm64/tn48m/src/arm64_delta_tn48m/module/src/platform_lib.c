@@ -109,7 +109,7 @@ plat_info_t gPlat_info[] = {
 
         .thermal_count  = 11,
         .fan_count = 3,
-        .psu_count = 2,
+        .psu_count = 3,
         .led_count = 3,
 
         .sfp_start_idx = 49,
