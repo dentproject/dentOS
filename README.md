@@ -19,3 +19,19 @@ Documentation
     Instructions for building ONL from scratch.
 
 Please see the docs directory for additional information. 
+
+Release Artifacts:
+-----------------
+[DentOS releases](https://repos.refinery.dev/service/rest/repository/browse/dent/releases/org/dent/)
+
+Snapshots Artifacts:
+-------------------
+
+[dentos-2.x](https://repos.refinery.dev/service/rest/repository/browse/dent/snapshots/org/dent/dentos/dentos-merge-2.x/)
+
+[dentos-main](https://repos.refinery.dev/service/rest/repository/browse/dent/snapshots/org/dent/dentos/dentos-merge-main/)
+
+[dentos-verify-2.x (Created per Pull request)](https://repos.refinery.dev/service/rest/repository/browse/dent/snapshots/org/dent/dentos/dentos-verify-2.x/)
+
+[dentos-verify-main (Created per Pull request)](https://repos.refinery.dev/service/rest/repository/browse/dent/snapshots/org/dent/dentos/dentos-verify-main/)
+
