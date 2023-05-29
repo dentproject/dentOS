@@ -9,3 +9,7 @@
 - dnsutils
 - keepalived
 - lldpd
+- mstpd
+- hostapd
+- stress-ng
+- python3-pyroute2
