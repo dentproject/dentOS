@@ -116,6 +116,18 @@ enum sysfs_fan_attributes {
 	FAN5_FAULT,
 	FAN6_FAULT,
 	FAN_MAX_RPM,
+	FAN1_SPEED_MAX,
+	FAN2_SPEED_MAX,
+	FAN3_SPEED_MAX,
+	FAN4_SPEED_MAX,
+	FAN5_SPEED_MAX,
+	FAN6_SPEED_MAX,
+	FAN1_SPEED_MIN,
+	FAN2_SPEED_MIN,
+	FAN3_SPEED_MIN,
+	FAN4_SPEED_MIN,
+	FAN5_SPEED_MIN,
+	FAN6_SPEED_MIN,
 	FAN_COUNT,
 	WTD_CLOCK,
 	WTD_COUNTER,
@@ -151,18 +163,24 @@ static struct attribute *fan_attributes_common[] = {
 #define FAN_ATTRS_COMMON() { .attrs = fan_attributes_common }
 
 #define FAN_ATTRS(fid) \
-static SENSOR_DEVICE_ATTR(fan##fid##_duty_cycle_percentage, \
-	S_IWUSR | S_IRUGO, fan_show_value, set_duty_cycle, \
-	FAN##fid##_PWM); \
-static SENSOR_DEVICE_ATTR(fan##fid##_input, S_IRUGO, fan_show_value, \
-	NULL, FAN##fid##_SPEED_RPM); \
-static SENSOR_DEVICE_ATTR(fan##fid##_fault, S_IRUGO, fan_show_value, \
-	NULL, FAN##fid##_FAULT); \
-static struct attribute *fan_attributes##fid[] = { \
-	&sensor_dev_attr_fan##fid##_duty_cycle_percentage.dev_attr.attr, \
-	&sensor_dev_attr_fan##fid##_input.dev_attr.attr, \
-	&sensor_dev_attr_fan##fid##_fault.dev_attr.attr, \
-	NULL \
+	static SENSOR_DEVICE_ATTR(fan##fid##_duty_cycle_percentage, \
+		S_IWUSR | S_IRUGO, fan_show_value, set_duty_cycle, \
+		FAN##fid##_PWM); \
+	static SENSOR_DEVICE_ATTR(fan##fid##_input, S_IRUGO, fan_show_value, \
+		NULL, FAN##fid##_SPEED_RPM); \
+	static SENSOR_DEVICE_ATTR(fan##fid##_fault, S_IRUGO, fan_show_value, \
+		NULL, FAN##fid##_FAULT); \
+	static SENSOR_DEVICE_ATTR(fan##fid##_max, S_IRUGO, fan_show_value, \
+		NULL, FAN##fid##_SPEED_MAX); \
+	static SENSOR_DEVICE_ATTR(fan##fid##_min, S_IRUGO, fan_show_value, \
+		NULL, FAN##fid##_SPEED_MIN); \
+	static struct attribute *fan_attributes##fid[] = { \
+		&sensor_dev_attr_fan##fid##_duty_cycle_percentage.dev_attr.attr, \
+		&sensor_dev_attr_fan##fid##_input.dev_attr.attr, \
+		&sensor_dev_attr_fan##fid##_fault.dev_attr.attr, \
+		&sensor_dev_attr_fan##fid##_max.dev_attr.attr, \
+		&sensor_dev_attr_fan##fid##_min.dev_attr.attr, \
+		NULL \
 }
 
 FAN_ATTRS(1);
@@ -293,7 +311,21 @@ static ssize_t fan_show_value(struct device *dev, struct device_attribute *da,
 				is_fan_fault(data, attr->index - FAN1_FAULT));
 			break;
 		case FAN_MAX_RPM:
+		case FAN1_SPEED_MAX:
+		case FAN2_SPEED_MAX:
+		case FAN3_SPEED_MAX:
+		case FAN4_SPEED_MAX:
+		case FAN5_SPEED_MAX:
+		case FAN6_SPEED_MAX:
 			ret = sprintf(buf, "%d\n", MAX_FAN_SPEED_RPM);
+			break;
+		case FAN1_SPEED_MIN:
+		case FAN2_SPEED_MIN:
+		case FAN3_SPEED_MIN:
+		case FAN4_SPEED_MIN:
+		case FAN5_SPEED_MIN:
+		case FAN6_SPEED_MIN:
+			ret = sprintf(buf, "0\n");
 			break;
 		case FAN_COUNT:
 			ret = sprintf(buf, "%d\n", data->fan_count);
@@ -510,23 +542,31 @@ static int as4224_fan_probe(struct platform_device *pdev)
 	int status = -1;
 	int i = 0;
 
+	data->hwmon_dev = hwmon_device_register_with_groups(&pdev->dev,
+											DRVNAME, NULL, NULL);
+	if (IS_ERR(data->hwmon_dev)) {
+		status = PTR_ERR(data->hwmon_dev);
+		return status;
+	}
+
 	/* Register sysfs hooks */
 	for (i = 0; i < (data->fan_count + 1); i++) {
 		/* Register sysfs hooks */
-		status = sysfs_create_group(&pdev->dev.kobj, &fan_group[i]);
+		status = sysfs_create_group(&data->hwmon_dev->kobj, &fan_group[i]);
 		if (status) {
 			goto exit;
 		}
 	}
 
 	dev_info(&pdev->dev, "device created\n");
-
 	return 0;
 
 exit:
 	for (--i; i >= 0; i--) {
 		sysfs_remove_group(&pdev->dev.kobj, &fan_group[i]);
 	}
+
+	hwmon_device_unregister(data->hwmon_dev);
 	return status;
 }
 
@@ -538,6 +578,7 @@ static int as4224_fan_remove(struct platform_device *pdev)
 		sysfs_remove_group(&pdev->dev.kobj, &fan_group[i]);
 	}
 
+	hwmon_device_unregister(data->hwmon_dev);
 	return 0;
 }
 
