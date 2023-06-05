@@ -13,3 +13,6 @@
 - mft
 - mrvl-fw-image
 - keepalived
+- hostapd
+- stress-ng
+- python3-pyroute2
