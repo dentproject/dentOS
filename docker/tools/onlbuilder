@@ -174,7 +174,7 @@ else:
    g_docker_arguments = "docker run --privileged %(interactive)s -t -e DOCKER_IMAGE=%(image)s  --name %(name)s %(ssh_options)s %(volume_options)s  " % g_arg_d
 
    if ops.isolate is not None:
-      if len(ops.isolate) is 0:
+      if len(ops.isolate) == 0:
          ops.isolate.append(os.getcwd())
 
       isolates = [ os.path.abspath(i) for i in ops.isolate ]
