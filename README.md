@@ -15,10 +15,8 @@ Licenses for the software are described under the [LICENSE](LICENSE) file.  Down
 Documentation
 -------------
 
-* [docs/Building.md](docs/Building.md)
-    Instructions for building ONL from scratch.
-
-Please see the docs directory for additional information. 
+* [Build procedure](https://github.com/dentproject/dentOS/wiki/Building)
+    Instructions for building DentOS
 
 Release Artifacts:
 -----------------
