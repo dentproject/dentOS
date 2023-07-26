@@ -28,7 +28,7 @@
 - nfs-common
 - netbase
 - bsdmainutils
-- ifupdown
+- ifupdown2
 - psmisc
 - make
 - python-cherrypy3
@@ -85,3 +85,6 @@
 - htop
 - tree
 - memtester
+- lsb-release
+- dbus
+- python3-setuptools
