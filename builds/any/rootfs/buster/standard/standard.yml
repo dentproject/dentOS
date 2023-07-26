@@ -24,21 +24,21 @@ Multistrap:
     noauth: true
     explicitsuite: false
     unpack: true
-    debootstrap: Debian-Local Local-All Local-Arch
-    aptsources: Debian
+    debootstrap: Debian-Local Local-All Local-Arch ONL-Local Security-Local FRR-Local
+    aptsources: Debian ONL Security
 
   Debian:
     packages: *Packages
     source: http://${DEBIAN_MIRROR}
     suite: ${ONL_DEBIAN_SUITE}
-#    keyring: debian-archive-keyring
+    keyring: debian-archive-keyring
     omitdebsrc: true
 
   Debian-Local:
     packages: *Packages
     source: http://${APT_CACHE}${DEBIAN_MIRROR}
     suite: ${ONL_DEBIAN_SUITE}
- #   keyring: debian-archive-keyring
+    keyring: debian-archive-keyring
     omitdebsrc: true
 
   ONL:
@@ -55,6 +55,20 @@ Multistrap:
     omitdebsrc: true
     arches: amd64, arm64, armel
 
+  Security:
+    packages: *Packages
+    source: http://security.debian.org/debian-security
+    suite: buster/updates
+    omitdebsrc: true
+    arches: amd64, arm64, armel
+
+  Security-Local:
+    packages: *Packages
+    source: http://${APT_CACHE}security.debian.org/debian-security
+    suite: buster/updates
+    omitdebsrc: true
+    arches: amd64, arm64, armel
+
   Local-All:
     source: ${ONLPM_OPTION_REPO}/${ONL_DEBIAN_SUITE}/packages/binary-all
     omitdebsrc: true
@@ -62,6 +76,20 @@ Multistrap:
   Local-Arch:
     source: ${ONLPM_OPTION_REPO}/${ONL_DEBIAN_SUITE}/packages/binary-${ARCH}
     omitdebsrc: true
+
+  FRR:
+    packages: *Packages
+    source: http://deb.frrouting.org/frr
+    suite: buster frr-stable
+    omitdebsrc: true
+    arches: amd64, arm64
+
+  FRR-Local:
+    packages: *Packages
+    source: http://${APT_CACHE}deb.frrouting.org/frr
+    suite: buster frr-stable
+    omitdebsrc: true
+    arches: amd64, arm64
 
 Configure:
   overlays:
