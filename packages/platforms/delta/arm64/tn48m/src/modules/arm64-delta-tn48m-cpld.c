@@ -53,6 +53,7 @@
 #define TN48M_CPLD_BIT_PSU2_PRESENT     1
 #define TN48M_CPLD_BIT_PSU1_PG          2
 #define TN48M_CPLD_BIT_PSU2_PG          3
+#define TN48M_CPLD_BIT_DCIN_PG          6
 
 #define I2C_RW_RETRY_COUNT              10
 #define I2C_RW_RETRY_INTERVAL           60      /* ms */
@@ -124,6 +125,7 @@ enum tn48m_cpld_sysfs_attributes {
     PSU2_PRESENT,
     PSU1_PG,
     PSU2_PG,
+    DCIN_PG,
     MODULE_PRESENT_ALL,
     MODULE_RX_LOS_ALL,
     MODULE_TX_DIS_ALL,
@@ -410,6 +412,9 @@ static ssize_t show_psu_status_bit(struct device *dev,
     case PSU2_PG:
         bit = !!(data->psu_status & BIT(TN48M_CPLD_BIT_PSU2_PG));
         break;
+    case DCIN_PG:
+        bit = !!(data->psu_status & BIT(TN48M_CPLD_BIT_DCIN_PG));
+        break;
     default:
         bit = 0;
         dev_err(dev, "Unknown case %d in show_psu_status_bit.\n", attr->index);
@@ -423,6 +428,7 @@ static SENSOR_DEVICE_ATTR(psu1_present, S_IRUGO, show_psu_status_bit, NULL, PSU1
 static SENSOR_DEVICE_ATTR(psu2_present, S_IRUGO, show_psu_status_bit, NULL, PSU2_PRESENT);
 static SENSOR_DEVICE_ATTR(psu1_powergood, S_IRUGO, show_psu_status_bit, NULL, PSU1_PG);
 static SENSOR_DEVICE_ATTR(psu2_powergood, S_IRUGO, show_psu_status_bit, NULL, PSU2_PG);
+static SENSOR_DEVICE_ATTR(dcin_powergood, S_IRUGO, show_psu_status_bit, NULL, DCIN_PG);
 
 static ssize_t show_module_status_all(struct device *dev,
                                       struct device_attribute *devattr,
@@ -646,6 +652,7 @@ static struct attribute *tn48m_cpld_attributes[] = {
     &sensor_dev_attr_psu2_present.dev_attr.attr,
     &sensor_dev_attr_psu1_powergood.dev_attr.attr,
     &sensor_dev_attr_psu2_powergood.dev_attr.attr,
+    &sensor_dev_attr_dcin_powergood.dev_attr.attr,
     /* tn48m transceiver attributes */
     &sensor_dev_attr_module_tx_dis_all.dev_attr.attr,
     &sensor_dev_attr_module_present_all.dev_attr.attr,
