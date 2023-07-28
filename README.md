@@ -15,7 +15,21 @@ Licenses for the software are described under the [LICENSE](LICENSE) file.  Down
 Documentation
 -------------
 
-* [docs/Building.md](docs/Building.md)
-    Instructions for building ONL from scratch.
+* [Build procedure](https://github.com/dentproject/dentOS/wiki/Building)
+    Instructions for building DentOS
 
-Please see the docs directory for additional information. 
+Release Artifacts:
+-----------------
+[DentOS releases](https://repos.refinery.dev/service/rest/repository/browse/dent/releases/org/dent/)
+
+Snapshots Artifacts:
+-------------------
+
+[dentos-2.x](https://repos.refinery.dev/service/rest/repository/browse/dent/snapshots/org/dent/dentos/dentos-merge-2.x/)
+
+[dentos-main](https://repos.refinery.dev/service/rest/repository/browse/dent/snapshots/org/dent/dentos/dentos-merge-main/)
+
+[dentos-verify-2.x (Created per Pull request)](https://repos.refinery.dev/service/rest/repository/browse/dent/snapshots/org/dent/dentos/dentos-verify-2.x/)
+
+[dentos-verify-main (Created per Pull request)](https://repos.refinery.dev/service/rest/repository/browse/dent/snapshots/org/dent/dentos/dentos-verify-main/)
+
