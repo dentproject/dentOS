@@ -31,14 +31,14 @@ Multistrap:
     packages: *Packages
     source: http://${DEBIAN_MIRROR}
     suite: ${ONL_DEBIAN_SUITE}
-    keyring: debian-archive-keyring
+    keyring: debian-keyring
     omitdebsrc: true
 
   Debian-Local:
     packages: *Packages
     source: http://${APT_CACHE}${DEBIAN_MIRROR}
     suite: ${ONL_DEBIAN_SUITE}
-    keyring: debian-archive-keyring
+    keyring: debian-keyring
     omitdebsrc: true
 
   ONL:
@@ -120,12 +120,23 @@ Configure:
     - 'watchdog defaults'
     - 'wd_keepalive remove'
 
+  sytctl:
+    - 'disable rpcbind'
+
   options:
     clean: True
     securetty: False
     ttys: False
     console: True
     PermitRootLogin: 'yes'
+
+  modules:
+    - 'cls_basic'
+    - 'cls_flower'
+    - 'cls_u32'
+    - 'sch_ingress'
+    - 'act_police'
+    - 'act_gact'
 
   users:
     root:
