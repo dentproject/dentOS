@@ -120,8 +120,9 @@ Configure:
     - 'watchdog defaults'
     - 'wd_keepalive remove'
 
-  sytctl:
+  sysctl:
     - 'disable rpcbind'
+    - 'disable hostapd'
 
   options:
     clean: True
