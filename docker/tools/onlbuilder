@@ -20,7 +20,6 @@ g_timestamp = datetime.datetime.now().strftime("%Y-%m-%d.%H%M%S")
 g_builders = {
    'default' : 9,
    'builders' : {
-      8  : ('jessie',  'opennetworklinux/builder8:1.11'),
       9  : ('stretch', 'dentproject/builder9:1.8' ),
       10 : ('buster',  'dentproject/builder10:1.5'),
       },
