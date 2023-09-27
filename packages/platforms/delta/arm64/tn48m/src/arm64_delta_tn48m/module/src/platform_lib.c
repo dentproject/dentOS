@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <onlplib/file.h>
+#include <onlplib/onie.h>
 #include "platform_lib.h"
 
 plat_id_t gPlat_id = PID_UNKNOWN;
@@ -108,7 +109,23 @@ plat_info_t gPlat_info[] = {
 
         .thermal_count  = 11,
         .fan_count = 3,
-        .psu_count = 2,
+        .psu_count = 3,
+        .led_count = 3,
+
+        .sfp_start_idx = 49,
+        .sfp_end_idx = 52,
+    },
+    [PID_TN48M2_SWDEV] = {
+        .name = "arm64-delta-tn48m2-swdev",
+
+        .onie_eeprom_path = "/sys/bus/i2c/devices/1-0056/eeprom",
+
+        .cpld_bus = 0,
+        .cpld_path = "/sys/bus/i2c/devices/0-0041",
+
+        .thermal_count  = 11,
+        .fan_count = 3,
+        .psu_count = 3,
         .led_count = 3,
 
         .sfp_start_idx = 49,
@@ -119,12 +136,14 @@ plat_info_t gPlat_info[] = {
 plat_id_t get_platform_id(void)
 {
     int len;
+    int rc;
     int pid = PID_UNKNOWN;
     int cpld_bus = 0;
     char buf[4] = {0};
     char pid_fullpath[PATH_MAX] = {0};
     plat_info_t *tn48m_info = &gPlat_info[PID_TN48M];
     plat_info_t *tn4810m_pvt_info = &gPlat_info[PID_TN4810M_PVT];
+    onlp_onie_info_t onie_syseeprom;
 
     if (plat_os_file_is_existed(tn48m_info->cpld_path)) {
         sprintf(pid_fullpath, "%s/platform_id", tn48m_info->cpld_path);
@@ -147,6 +166,13 @@ plat_id_t get_platform_id(void)
     /* Special case to check the TN4810M non-PVT platform */
     if (pid == PID_TN4810M_PVT && cpld_bus == 0)
         pid = PID_TN4810M_NONPVT;
+
+    /* Special case to check TN48M2-SWDEV platform */
+    if (pid == PID_TN48M2) {
+        rc = onlp_onie_decode_file(&onie_syseeprom, tn48m_info->onie_eeprom_path);
+        if (rc >= 0 && onie_syseeprom.device_version >= 4)
+            pid = PID_TN48M2_SWDEV;
+    }
 
     return pid;
 }
