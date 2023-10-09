@@ -4,6 +4,7 @@ K_PATCH_LEVEL := 15
 K_SUB_LEVEL := 11
 K_SUFFIX :=
 K_PATCH_DIR := $(THIS_DIR)/patches
+K_FILES_DIR := $(THIS_DIR)/files
 K_MODSYNCLIST := tools/objtool
 K_GIT := 1
 K_GIT_URL := https://github.com/dentproject/linux.git

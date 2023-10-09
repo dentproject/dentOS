@@ -1,0 +1,252 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree For AC5_db.
+ *
+ * Copyright (C) 2021 Marvell
+ *
+ */
+/*
+ * Device Tree file for Marvell Alleycat 5 development board
+ * This board file supports the B configuration of the board
+ */
+#include "ac5.dtsi"
+
+/ {
+	sfp1: sfp-1 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp0>;
+		maximum-power-milliwatt = <2000>;
+		los-gpio = <&pca9555_0 8 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&pca9555_1 0 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&pca9555_0 0 GPIO_ACTIVE_HIGH>;
+
+	};
+
+	sfp2: sfp-2 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp1>;
+		los-gpio = <&pca9555_0 9 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&pca9555_1 1 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&pca9555_0 1 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <2000>;
+	};
+
+	sfp3: sfp-3 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp2>;
+		los-gpio = <&pca9555_0 10 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&pca9555_1 2 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&pca9555_0 2 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <2000>;
+	};
+
+	sfp4: sfp-4 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp3>;
+		los-gpio = <&pca9555_0 11 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&pca9555_1 3 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&pca9555_0 3 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <2000>;
+	};
+
+	sfp5: sfp-5 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp4>;
+		los-gpio = <&pca9555_0 12 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&pca9555_1 4 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&pca9555_0 4 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <2000>;
+	};
+
+	sfp6: sfp-6 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp5>;
+		los-gpio = <&pca9555_0 13 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&pca9555_1 5 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&pca9555_0 5 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <2000>;
+	};
+
+	sfp7: sfp-7 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp6>;
+		los-gpio = <&pca9555_0 14 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&pca9555_1 6 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&pca9555_0 6 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <2000>;
+	};
+
+	sfp8: sfp-8 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp7>;
+		los-gpio = <&pca9555_0 15 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&pca9555_1 7 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&pca9555_0 7 GPIO_ACTIVE_HIGH>;
+		maximum-power-milliwatt = <2000>;
+	};
+
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+	i2cmux@70 {
+		compatible = "nxp,pca9548";
+		reg = <0x70>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	i2c-mux-idle-disconnect;
+
+		i2c0_sfp0: i2c@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			pca9555_0: pca9555@20 {
+				compatible = "nxp,pca9555";
+				gpio-controller;
+				#gpio-cells = <2>;
+				reg = <0x20>;
+			};
+
+			pca9555_1: pca9555@21 {
+				compatible = "nxp,pca9555";
+				gpio-controller;
+				#gpio-cells = <2>;
+				reg = <0x21>;
+			};
+
+		};
+		i2c0_sfp1: i2c@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+		i2c0_sfp2: i2c@2 {
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+		i2c0_sfp3: i2c@3 {
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+		i2c0_sfp4: i2c@4 {
+			reg = <4>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+		i2c0_sfp5: i2c@5 {
+			reg = <5>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+		i2c0_sfp6: i2c@6 {
+			reg = <6>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+		i2c0_sfp7: i2c@7 {
+			reg = <7>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+&eth0 {
+	status = "okay";
+	phy = <&phy0>;
+};
+
+&eth1 {
+	status = "okay";
+};
+
+&usb1 {
+	compatible = "chipidea,usb2";
+	phys = <&usb1phy>;
+	phy-names = "usb-phy";
+	dr_mode = "peripheral";
+};
+
+&prestera {
+	compatible = "marvell,prestera";
+	status = "okay";
+	reg = <0x0 0x7F900000 0x0 0x40000>;
+	ports {
+		port1 {
+			prestera,port-num = <1>;
+			sfp = <&sfp1>;
+		};
+		port2 {
+			prestera,port-num = <2>;
+			sfp = <&sfp2>;
+		};
+
+		port3 {
+			prestera,port-num = <3>;
+			sfp = <&sfp3>;
+		};
+
+		port4 {
+			prestera,port-num = <4>;
+			sfp = <&sfp4>;
+		};
+
+		port5 {
+			prestera,port-num = <5>;
+			sfp = <&sfp5>;
+		};
+
+		port6 {
+			prestera,port-num = <6>;
+			sfp = <&sfp6>;
+		};
+
+		port7 {
+			prestera,port-num = <7>;
+			sfp = <&sfp7>;
+		};
+
+		port8 {
+			prestera,port-num = <8>;
+			sfp = <&sfp8>;
+		};
+
+	};
+};
+
+&sfp1 {
+	status = "okay";
+};
+
+&sfp2 {
+	status = "okay";
+};
+
+&sfp3 {
+	status = "okay";
+};
+
+&sfp4 {
+	status = "okay";
+};
+
+&sfp5 {
+	status = "okay";
+};
+
+&sfp6 {
+	status = "okay";
+};
+
+&sfp7 {
+	status = "okay";
+};
+
+&sfp8 {
+	status = "okay";
+};
+
