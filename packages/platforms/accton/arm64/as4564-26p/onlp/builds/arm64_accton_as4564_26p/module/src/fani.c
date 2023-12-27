@@ -69,7 +69,7 @@ onlp_fani_get_fan_attr_int(int fid, char *fmt, int *value)
 {
     char attr_name[32] = {0};
     sprintf(attr_name, fmt, fid);
-    return onlp_file_read_int(value, "%s%s", FAN_SYSFS_PATH, attr_name);
+    return onlp_file_read_int(value, "%s*%s", FAN_SYSFS_PATH, attr_name);
 }
 
 int
@@ -77,7 +77,7 @@ onlp_fani_set_fan_attr_int(int fid, char *fmt, int value)
 {
     char attr_name[32] = {0};
     sprintf(attr_name, fmt, fid);
-    return onlp_file_write_int(value, "%s%s", FAN_SYSFS_PATH, attr_name);
+    return onlp_file_write_int(value, "%s*%s", FAN_SYSFS_PATH, attr_name);
 }
 
 static int
@@ -119,7 +119,7 @@ _onlp_fani_info_get_fan(int fid, onlp_fan_info_t* info)
 
     /* get speed percentage from rpm
      */
-    ret = onlp_file_read_int(&value, "%s%s", FAN_SYSFS_PATH, "fan_max_rpm");
+    ret = onlp_file_read_int(&value, "%s*%s", FAN_SYSFS_PATH, "fan_max_rpm");
     if (ret < 0) {
         return ONLP_STATUS_E_INTERNAL;
     }

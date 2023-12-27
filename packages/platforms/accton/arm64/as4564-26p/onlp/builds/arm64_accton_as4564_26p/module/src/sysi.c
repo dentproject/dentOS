@@ -200,7 +200,7 @@ sysi_fanctrl_thermal_sensor_policy(onlp_fan_info_t fi[CHASSIS_FAN_COUNT],
 
     *adjusted = 0;
 
-    if (onlp_file_read_int(&fanduty, "%s%s", FAN_SYSFS_PATH, "fan1_pwm") < 0) {
+    if (onlp_file_read_int(&fanduty, "%s*%s", FAN_SYSFS_PATH, "fan1_pwm") < 0) {
         *adjusted = 1;
         return sysi_fanctrl_fan_set_duty(FAN_DUTY_MAX, num_of_fan);
     }

@@ -55,7 +55,7 @@ int platform_fan_count(void)
 {
     int ret   = 0;
     int value = 0;
-    ret = onlp_file_read_int(&value, "%s%s", FAN_SYSFS_PATH, "fan_count");
+    ret = onlp_file_read_int(&value, "%s*%s", FAN_SYSFS_PATH, "fan_count");
     return (ret < 0) ? 0 : value;
 }
 
