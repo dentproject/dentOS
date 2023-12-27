@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree For AC5X.
+ *
+ * Copyright (C) 2021 Marvell
+ *
+ */
+/*
+ * Device Tree file for Marvell Alleycat 5X development board
+ * This board file supports the B configuration of the board
+ */
+
+#include "ac5.dtsi"
+
+&eth0 {
+	status = "okay";
+	phy = <&phy0>;
+};
+
+&usb1 {
+	compatible = "chipidea,usb2";
+	phys = <&usb1phy>;
+	phy-names = "usb-phy";
+	dr_mode = "peripheral";
+};
+

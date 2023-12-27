@@ -145,6 +145,9 @@ ksource: $(K_SOURCE_DIR)/Makefile
 # The patched kernel sources
 #
 $(K_SOURCE_DIR)/.PATCHED: $(K_SOURCE_DIR)/Makefile
+ifdef K_FILES_DIR
+	cp -fpR $(K_FILES_DIR)/* $(K_SOURCE_DIR)
+endif
 	$(ONL)/tools/scripts/apply-patches.sh $(K_SOURCE_DIR) $(K_PATCH_DIR) $(K_PATCH_SERIES_FILE)
 	touch $(K_SOURCE_DIR)/.PATCHED
 

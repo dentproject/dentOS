@@ -1,0 +1,368 @@
+/*
+ * Delta TN48M/TN48M2/TN48M-POE Device Tree Source
+ *
+ * Copyright (C) 2016 Marvell Technology Group Ltd.
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPLv2 or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include "armada-7040.dtsi"
+
+/ {
+	model = "delta,tn48m";
+	compatible = "delta,tn48m";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x80000000>;
+	};
+
+	aliases {
+		ethernet0 = &cp0_eth0;
+		ethernet1 = &cp0_eth1;
+		ethernet2 = &cp0_eth2;
+	};
+
+	switch-cpu {
+		compatible = "marvell,prestera-switch-rxtx-sdma";
+		status = "okay";
+	};
+
+	sfp49: sfp-49 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c1_sfp1>;
+		los-gpio = <&tn48xxm_cpld 0 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&tn48xxm_cpld 1 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&tn48xxm_cpld 2 GPIO_ACTIVE_HIGH>;
+	};
+	sfp50: sfp-50 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c1_sfp2>;
+		los-gpio = <&tn48xxm_cpld 3 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&tn48xxm_cpld 4 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&tn48xxm_cpld 5 GPIO_ACTIVE_HIGH>;
+	};
+	sfp51: sfp-51 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c1_sfp3>;
+		los-gpio = <&tn48xxm_cpld 6 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&tn48xxm_cpld 7 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&tn48xxm_cpld 8 GPIO_ACTIVE_HIGH>;
+	};
+	sfp52: sfp-52 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c1_sfp4>;
+		los-gpio = <&tn48xxm_cpld 9 GPIO_ACTIVE_HIGH>;
+		mod-def0-gpio = <&tn48xxm_cpld 10 GPIO_ACTIVE_LOW>;
+		tx-disable-gpio = <&tn48xxm_cpld 11 GPIO_ACTIVE_HIGH>;
+	};
+
+	i2cmux {
+		compatible = "i2c-mux-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		mux-gpios = <&cp0_gpio2 22 0 &cp0_gpio2 23 0>;
+		i2c-parent = <&cp0_i2c1>;
+
+		i2c1_sfp1: i2c@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c1_sfp2: i2c@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c1_sfp3: i2c@2 {
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+		i2c1_sfp4: i2c@3 {
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+
+	prestera {
+		compatible = "marvell,prestera";
+		status = "okay";
+
+		ports {
+			port49 {
+				prestera,port-num = <49>;
+				sfp = <&sfp49>;
+			};
+			port50 {
+				prestera,port-num = <50>;
+				sfp = <&sfp50>;
+			};
+			port51 {
+				prestera,port-num = <51>;
+				sfp = <&sfp51>;
+			};
+			port52 {
+				prestera,port-num = <52>;
+				sfp = <&sfp52>;
+			};
+		};
+	};
+
+	onie_eeprom: onie-eeprom {
+		compatible = "onie-nvmem-cells";
+		status = "okay";
+
+		nvmem = <&eeprom_at24>;
+	};
+
+	prestera {
+		compatible = "marvell,prestera";
+		status = "okay";
+
+		base-mac-provider = <&onie_eeprom>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	tn48xxm_cpld: tn48xxm-cpld@41 {
+		compatible = "dni,tn48m_cpld";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		reg = <0x41>;  /* CPLD/MUX I2C address */
+
+		gpio-map {
+			/* sfp1 */
+			sfp01_gpio00_loss {
+				reg-map = <0x40 (1 << 0)>; /* 0x40=register in the CPLD, (1 << 0)=Selected bit */
+				gpio-num = <0>;  /* Logical number used by: los-gpio, mod-def0-gpio and tx-disable-gpio */
+			};
+			sfp01_gpio01_pres {
+				reg-map = <0x3a (1 << 0)>; /* reg mask */
+				gpio-num = <1>;
+			};
+			sfp01_gpio02_tx_dis {
+				reg-map = <0x31 (1 << 0)>; /* reg mask */
+				gpio-num = <2>;
+			};
+			/* sfp2 */
+			sfp02_gpio00_sfp_loss {
+				reg-map = <0x40 (1 << 1)>; /* reg mask */
+				gpio-num = <3>;
+			};
+			sfp02_gpio01_sfp_pres {
+				reg-map = <0x3a (1 << 1)>; /* reg mask */
+				gpio-num = <4>;
+			};
+			sfp02_gpio02_tx_dis {
+				reg-map = <0x31 (1 << 1)>; /* reg mask */
+				gpio-num = <5>;
+			};
+			/* sfp3 */
+			sfp03_gpio00_loss {
+				reg-map = <0x40 (1 << 2)>; /* reg mask */
+				gpio-num = <6>;
+			};
+			sfp03_gpio01_pres {
+				reg-map = <0x3a (1 << 2)>; /* reg mask */
+				gpio-num = <7>;
+			};
+			sfp03_gpio02_tx_dis {
+				reg-map = <0x31 (1 << 2)>; /* reg mask */
+				gpio-num = <8>;
+			};
+			/* sfp4 */
+			sfp04_gpio00_loss {
+				reg-map = <0x40 (1 << 3)>; /* reg mask */
+				gpio-num = <9>;
+			};
+			sfp04_gpio01_sfp_pres {
+				reg-map = <0x3a (1 << 3)>; /* reg mask */
+				gpio-num = <10>;
+			};
+			sfp04_gpio02_tx_dis {
+				reg-map = <0x31 (1 << 3)>; /* reg mask */
+				gpio-num = <11>;
+			};
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+
+	tpm0: slb9670@0 {
+		compatible = "infineon,slb9670";
+		reg = <0>;
+		spi-max-frequency = <38000000>;
+		status = "okay";
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&cp0_i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	eeprom_at24: at24@56 {
+		compatible = "atmel,24c64";
+		reg = <0x56>;
+	};
+};
+
+&cp0_i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&cp0_spi0 {
+	status = "okay";
+
+	spi-flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0x0>;
+		spi-max-frequency = <20000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "uboot";
+				reg = <0x0 0x3f0000>;
+			};
+
+			partition@3f0000 {
+				label = "uboot-env";
+				reg = <0x3f0000 0x010000>;
+			};
+
+			partition@400000 {
+				label = "ONIE";
+				reg = <0x400000 0xc00000>;
+			};
+		};
+	};
+};
+
+&cp0_sata0 {
+	status = "okay";
+};
+
+&cp0_usb3_0 {
+	status = "okay";
+};
+
+&cp0_usb3_1 {
+	status = "okay";
+};
+
+&ap_sdhci0 {
+	status = "okay";
+	bus-width = <4>;
+	no-1-8-v;
+	non-removable;
+};
+
+&cp0_sdhci0 {
+	status = "okay";
+	bus-width = <4>;
+	no-1-8-v;
+	non-removable;
+};
+
+&cp0_mdio {
+	status = "okay";
+
+	OOB_E1512_PHY: ethernet-phy@1 {
+		reg = <0x0>;
+	};
+};
+
+&cp0_ethernet {
+	status = "okay";
+};
+
+&cp0_eth0 {
+	status = "disabled";
+};
+
+&cp0_eth1 {
+	status = "disabled";
+};
+
+&cp0_eth2 {
+	status = "okay";
+
+	phy-mode = "sgmii";
+	phy = <&OOB_E1512_PHY>;
+	phys = <&cp0_comphy5 2>;
+};
+
+&cp0_crypto {
+	status = "disabled";
+};
+
+&cp0_pcie0 {
+	dma-ranges = <0x42000000 0x0 0x00000000 0x0 0x00000000 0x0 0x40000000>;
+	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
+		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x0f00000
+		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
+	phys = <&cp0_comphy0 0>;
+	status = "okay";
+};
+

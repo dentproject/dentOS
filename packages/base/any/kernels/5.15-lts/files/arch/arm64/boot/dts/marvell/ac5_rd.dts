@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree For AC5X.
+ *
+ * Copyright (C) 2016 Marvell
+ *
+ */
+/*
+ * Device Tree file for Marvell Armada 7040 development board
+ * This board file supports the B configuration of the board
+ */
+
+#include "ac5.dtsi"
+
+&pcie0 {
+	status = "okay";
+};
+
+&usb1 {
+	compatible = "marvell,ac5-ehci", "marvell,orion-ehci";
+};
