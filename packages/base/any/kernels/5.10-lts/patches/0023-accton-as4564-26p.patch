@@ -1,9 +1,9 @@
 diff --git a/arch/arm64/boot/dts/marvell/accton-as4564-26p.dts b/arch/arm64/boot/dts/marvell/accton-as4564-26p.dts
 new file mode 100644
-index 000000000..9852aa3b6
+index 0000000..cee3779
 --- /dev/null
 +++ b/arch/arm64/boot/dts/marvell/accton-as4564-26p.dts
-@@ -0,0 +1,394 @@
+@@ -0,0 +1,399 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright (C) 2016 Marvell Technology Group Ltd.
@@ -221,6 +221,7 @@ index 000000000..9852aa3b6
 +};
 +
 +&cp0_pcie0 {
++	dma-ranges = <0x42000000 0x0 0x00000000 0x0 0x00000000 0x0 0x40000000>;
 +	ranges = <0x81000000 0x0 0xfb000000 0x0 0xfb000000 0x0 0xf0000
 +		0x82000000 0x0 0xf6000000 0x0 0xf6000000 0x0 0x2000000
 +		0x82000000 0x0 0xf9000000 0x0 0xf9000000 0x0 0x100000>;
@@ -328,13 +329,17 @@ index 000000000..9852aa3b6
 +	};
 +};
 +
++&cp0_comphy1 {
++   phy-skip-config;
++};
++
 +&cp0_sata0 {
 +	status = "okay";
 +
 +	sata-port@1 {
 +		status = "okay";
 +		/* Generic PHY, providing serdes lanes */
-+		phys = <&cp0_comphy1 0>;
++		//phys = <&cp0_comphy1 0>;
 +	};
 +};
 +
