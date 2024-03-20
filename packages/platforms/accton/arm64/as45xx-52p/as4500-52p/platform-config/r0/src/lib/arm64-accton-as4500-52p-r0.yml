@@ -1,0 +1,38 @@
+---
+
+######################################################################
+#
+# platform-config for AS4500-52P
+#
+######################################################################
+
+arm64-accton-as4500-52p-r0:
+  flat_image_tree:
+    kernel:
+      <<: *arm64-kernel-5-15
+    dtb:
+      =: accton-as4500-52p.dtb
+      <<: *arm64-kernel-5-15-package
+    itb:
+      <<: *arm64-itb
+
+  loader:
+    device: /dev/mmcblk0
+    ##partition: /dev/sda1
+    loadaddr: 0x220000000
+    nos_bootcmds: *mmc_bootcmds
+
+    setenv:
+    - bootargs: >-
+        console=ttyS0,115200
+        onl_platform=$onl_platform
+        arm-smmu.disable_bypass=n
+        maxcpus=8
+        pci=pcie_bus_perf
+        cpuidle.off=1
+
+    environment:
+    - device: /dev/mmcblk0boot0
+      env_offset: 0x001e0000
+      env_size: 0x00010000
+      sector_size: 0x00010000
