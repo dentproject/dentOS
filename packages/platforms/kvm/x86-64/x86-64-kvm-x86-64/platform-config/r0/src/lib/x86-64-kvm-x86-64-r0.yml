@@ -18,7 +18,7 @@ x86-64-kvm-x86-64-r0:
       --stop=1
 
     kernel:
-      <<: *kernel-5-6
+      <<: *kernel-5-15
 
     args: >-
       console=ttyS0,115200n8
