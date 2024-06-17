@@ -28,11 +28,13 @@
 
 #include "arm64_accton_as45xx_52p_log.h"
 
-#define CHASSIS_THERMAL_COUNT 4
+#define CHASSIS_THERMAL_COUNT_AS4500 4
+#define CHASSIS_THERMAL_COUNT_AS4581 6
 #define CHASSIS_LED_COUNT     6
 #define CHASSIS_PSU_COUNT     2
 #define CHASSIS_FAN_COUNT     4
 #define CHASSIS_CPLD_COUNT    2
+#define NUM_OF_THERMAL_PER_PSU 3
 
 #define PSU1_ID 1
 #define PSU2_ID 2
@@ -61,7 +63,8 @@
 typedef enum as45xx_52p_platform_id {
     AS4500_52P,
     AS4581_52PL,
-    PID_UNKNOWN
+    PID_UNKNOWN,
+    PLATFORM_COUNT = AS4581_52PL+1
 } as45xx_52p_platform_id_t;
 
 enum onlp_thermal_id {
@@ -70,12 +73,20 @@ enum onlp_thermal_id {
     THERMAL_2_ON_MAIN_BROAD,
     THERMAL_3_ON_MAIN_BROAD,
     THERMAL_4_ON_MAIN_BROAD,
+    THERMAL_ASC,
+    THERMAL_CPU_CORE,
     THERMAL_1_ON_PSU1,
-    THERMAL_1_ON_PSU2
+    THERMAL_2_ON_PSU1,
+    THERMAL_3_ON_PSU1,
+    THERMAL_1_ON_PSU2,
+    THERMAL_2_ON_PSU2,
+    THERMAL_3_ON_PSU2,
+    MAX_THERMAL_ID
 };
 
 typedef enum psu_type {
     PSU_TYPE_UNKNOWN,
+    PSU_TYPE_G1482_0920WNA_F2B,
     PSU_TYPE_G1482_1600WNA_F2B
 } psu_type_t;
 
@@ -86,6 +97,7 @@ int psu_eeprom_str_get(int id, char *data_buf, int data_len, char *data_name);
 int psu_pmbus_info_get(int id, char *node, int *value);
 int get_cpld_attr_int(char* cpld_fmt, char *attr, int *value);
 int set_cpld_attr_int(char* cpld_fmt, char *attr, int value);
+int chassis_thermal_count(void);
 
 #define AIM_FREE_IF_PTR(p) \
     do \

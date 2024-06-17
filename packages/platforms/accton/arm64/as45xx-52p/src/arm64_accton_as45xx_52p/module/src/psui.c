@@ -74,7 +74,8 @@ static int
 psu_g1482_info_get(onlp_psu_info_t* info)
 {
     int val   = 0;
-    int index = ONLP_OID_ID_GET(info->hdr.id);
+    int thermal_count = 0;
+    int pid = ONLP_OID_ID_GET(info->hdr.id);
 
     /* Set capability
      */
@@ -84,41 +85,44 @@ psu_g1482_info_get(onlp_psu_info_t* info)
         return ONLP_STATUS_OK;
 
     /* Set the associated oid_table */
-    info->hdr.coids[0] = ONLP_FAN_ID_CREATE(index + CHASSIS_FAN_COUNT);
-    info->hdr.coids[1] = ONLP_THERMAL_ID_CREATE(index + CHASSIS_THERMAL_COUNT);
+    thermal_count = chassis_thermal_count();
+    info->hdr.coids[0] = ONLP_FAN_ID_CREATE(pid + CHASSIS_FAN_COUNT);
+    info->hdr.coids[1] = ONLP_THERMAL_ID_CREATE(thermal_count + (pid-1)*NUM_OF_THERMAL_PER_PSU + 1);
+    info->hdr.coids[2] = ONLP_THERMAL_ID_CREATE(thermal_count + (pid-1)*NUM_OF_THERMAL_PER_PSU + 2);
+    info->hdr.coids[3] = ONLP_THERMAL_ID_CREATE(thermal_count + (pid-1)*NUM_OF_THERMAL_PER_PSU + 3);
 
     /* Read voltage, current and power */
-    if (psu_pmbus_info_get(index, "psu_v_in", &val) == 0) {
+    if (psu_pmbus_info_get(pid, "psu_v_in", &val) == 0) {
         info->mvin = val;
         info->caps |= ONLP_PSU_CAPS_VIN;
     }
 
-    if (psu_pmbus_info_get(index, "psu_v_out", &val) == 0) {
+    if (psu_pmbus_info_get(pid, "psu_v_out", &val) == 0) {
         info->mvout = val;
         info->caps |= ONLP_PSU_CAPS_VOUT;
     }
 
-    if (psu_pmbus_info_get(index, "psu_i_in", &val) == 0) {
+    if (psu_pmbus_info_get(pid, "psu_i_in", &val) == 0) {
         info->miin = val;
         info->caps |= ONLP_PSU_CAPS_IIN;
     }
 
-    if (psu_pmbus_info_get(index, "psu_i_out", &val) == 0) {
+    if (psu_pmbus_info_get(pid, "psu_i_out", &val) == 0) {
         info->miout = val;
         info->caps |= ONLP_PSU_CAPS_IOUT;
     }
 
-    if (psu_pmbus_info_get(index, "psu_p_in", &val) == 0) {
+    if (psu_pmbus_info_get(pid, "psu_p_in", &val) == 0) {
         info->mpin = val;
         info->caps |= ONLP_PSU_CAPS_PIN;
     }
 
-    if (psu_pmbus_info_get(index, "psu_p_out", &val) == 0) {
+    if (psu_pmbus_info_get(pid, "psu_p_out", &val) == 0) {
         info->mpout = val;
         info->caps |= ONLP_PSU_CAPS_POUT;
     }
 
-    psu_eeprom_str_get(index, info->serial, sizeof(info->serial), "psu_serial_number");
+    psu_eeprom_str_get(pid, info->serial, sizeof(info->serial), "psu_serial_number");
 
     return ONLP_STATUS_OK;
 }
@@ -164,6 +168,7 @@ onlp_psui_info_get(onlp_oid_t id, onlp_psu_info_t* info)
     psu_type = get_psu_type(index, info->model, sizeof(info->model));
 
     switch (psu_type) {
+        case PSU_TYPE_G1482_0920WNA_F2B:
         case PSU_TYPE_G1482_1600WNA_F2B:
             ret = psu_g1482_info_get(info);
             break;

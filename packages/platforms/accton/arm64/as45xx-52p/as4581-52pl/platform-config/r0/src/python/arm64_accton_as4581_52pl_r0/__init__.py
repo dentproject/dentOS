@@ -16,7 +16,7 @@ class OnlPlatform_arm64_accton_as4581_52pl_r0(OnlPlatformAccton,
         self.insmod('dps850')
 
         # Insert platform drivers
-        for m in [ 'mux', 'cpld', 'psu' ]:
+        for m in [ 'mux', 'cpld', 'psu', 'asc' ]:
             self.insmod("arm64-accton-as45xx-52p-%s" % m)
 
         ########### initialize I2C bus 1 ###########
@@ -37,7 +37,11 @@ class OnlPlatform_arm64_accton_as4581_52pl_r0(OnlPlatformAccton,
                 ('tmp175', 0x49, 16),
                 ('tmp175', 0x4b, 16),
                 ('tmp175', 0x4c, 16),
-                ('24c64', 0x54, 15)
+                ('24c64', 0x54, 15),
+
+                # initialize ASC
+                ('pca9548', 0x70, 0), # i2c-23 ~ i2c-30
+                ('as45xx_asc', 0x60, 26)
                 ]
             )
 

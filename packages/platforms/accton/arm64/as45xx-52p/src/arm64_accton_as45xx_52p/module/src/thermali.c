@@ -42,7 +42,11 @@ static char* devfiles_as4500[] =  /* must map with onlp_thermal_id */
     "/sys/bus/i2c/devices/10-004b*temp1_input",
     "/sys/bus/i2c/devices/10-004c*temp1_input",
     "/sys/bus/i2c/devices/6-0058*psu_temp1_input",
-    "/sys/bus/i2c/devices/5-0059*psu_temp1_input"
+    "/sys/bus/i2c/devices/6-0058*psu_temp2_input",
+    "/sys/bus/i2c/devices/6-0058*psu_temp3_input",
+    "/sys/bus/i2c/devices/5-0059*psu_temp1_input",
+    "/sys/bus/i2c/devices/5-0059*psu_temp2_input",
+    "/sys/bus/i2c/devices/5-0059*psu_temp3_input"
 };
 
 static char* devfiles_as4581[] =  /* must map with onlp_thermal_id */
@@ -52,8 +56,25 @@ static char* devfiles_as4581[] =  /* must map with onlp_thermal_id */
     "/sys/bus/i2c/devices/16-0049*temp1_input",
     "/sys/bus/i2c/devices/16-004b*temp1_input",
     "/sys/bus/i2c/devices/16-004c*temp1_input",
+    "/sys/bus/i2c/devices/26-0060*temp1_input",
+    NULL, /* CPU_CORE files */
     "/sys/bus/i2c/devices/12-0058*psu_temp1_input",
-    "/sys/bus/i2c/devices/11-0059*psu_temp1_input"
+    "/sys/bus/i2c/devices/12-0058*psu_temp2_input",
+    "/sys/bus/i2c/devices/12-0058*psu_temp3_input",
+    "/sys/bus/i2c/devices/11-0059*psu_temp1_input",
+    "/sys/bus/i2c/devices/11-0059*psu_temp2_input",
+    "/sys/bus/i2c/devices/11-0059*psu_temp3_input"
+};
+
+static char* cpu_coretemp_files_as4581[] = {
+    "/sys/class/thermal/thermal_zone0*temp1_input",
+    "/sys/class/thermal/thermal_zone1*temp1_input",
+    "/sys/class/thermal/thermal_zone2*temp1_input",
+    "/sys/class/thermal/thermal_zone3*temp1_input",
+    "/sys/class/thermal/thermal_zone4*temp1_input",
+    "/sys/class/thermal/thermal_zone5*temp1_input",
+    "/sys/class/thermal/thermal_zone6*temp1_input",
+    NULL
 };
 
 char* onlp_thermal_get_devfiles(int tid)
@@ -69,32 +90,40 @@ char* onlp_thermal_get_devfiles(int tid)
 }
 
 /* Static values */
-static onlp_thermal_info_t linfo[] = {
+static onlp_thermal_info_t linfo = {
+    { 0, {0}, 0, {0} },
+      ONLP_THERMAL_STATUS_PRESENT,
+      ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
+};
+
+onlp_oid_hdr_t hdr_as4500[] = {
     { }, /* Not used */
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_MAIN_BROAD), "NST175-1-48", 0, {0} },
-            ONLP_THERMAL_STATUS_PRESENT,
-            ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
-        },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_MAIN_BROAD), "NST175-2-49", 0, {0} },
-            ONLP_THERMAL_STATUS_PRESENT,
-            ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
-        },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_MAIN_BROAD), "NST175-3-4B", 0, {0} },
-            ONLP_THERMAL_STATUS_PRESENT,
-            ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
-        },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_4_ON_MAIN_BROAD), "NST175-4-4C", 0, {0} },
-            ONLP_THERMAL_STATUS_PRESENT,
-            ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
-        },
-    {   { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_PSU1), "PSU-1 Thermal Sensor 1", ONLP_PSU_ID_CREATE(PSU1_ID), {0} },
-            ONLP_THERMAL_STATUS_PRESENT,
-            ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
-    },
-    {   { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_PSU2), "PSU-2 Thermal Sensor 1", ONLP_PSU_ID_CREATE(PSU2_ID), {0} },
-            ONLP_THERMAL_STATUS_PRESENT,
-            ONLP_THERMAL_CAPS_ALL, 0, ONLP_THERMAL_THRESHOLD_INIT_DEFAULTS
-    }
+    { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_MAIN_BROAD), "NST175-1-48", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_MAIN_BROAD), "NST175-2-49", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_MAIN_BROAD), "NST175-3-4B", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_4_ON_MAIN_BROAD), "NST175-4-4C", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_PSU1-2), "PSU-1 Thermal Sensor 1", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_PSU1-2), "PSU-1 Thermal Sensor 2", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_PSU1-2), "PSU-1 Thermal Sensor 3", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_PSU2-2), "PSU-2 Thermal Sensor 1", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_PSU2-2), "PSU-2 Thermal Sensor 2", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_PSU2-2), "PSU-2 Thermal Sensor 3", 0, {0} }
+};
+
+onlp_oid_hdr_t hdr_as4581[] = {
+    { }, /* Not used */
+    { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_MAIN_BROAD), "NST175-1-48", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_MAIN_BROAD), "NST175-2-49", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_MAIN_BROAD), "NST175-3-4B", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_4_ON_MAIN_BROAD), "NST175-4-4C", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_ASC), "ASC10-1", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_CPU_CORE), "CPU Core", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_PSU1), "PSU-1 Thermal Sensor 1", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_PSU1), "PSU-1 Thermal Sensor 2", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_PSU1), "PSU-1 Thermal Sensor 3", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_1_ON_PSU2), "PSU-2 Thermal Sensor 1", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_2_ON_PSU2), "PSU-2 Thermal Sensor 2", 0, {0} },
+    { ONLP_THERMAL_ID_CREATE(THERMAL_3_ON_PSU2), "PSU-2 Thermal Sensor 3", 0, {0} }
 };
 
 /*
@@ -121,10 +150,20 @@ onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
 {
     int   tid;
     VALIDATE(id);
+    as45xx_52p_platform_id_t pid;
 
     tid = ONLP_OID_ID_GET(id);
 
     /* Set the onlp_oid_hdr_t and capabilities */
-    *info = linfo[tid];
+    *info = linfo;
+
+    pid = get_platform_id();
+    info->hdr = (pid == AS4581_52PL) ? hdr_as4581[tid] :
+                                       hdr_as4500[tid] ;
+
+    if ((pid == AS4581_52PL) && (tid == THERMAL_CPU_CORE)) {
+        return onlp_file_read_int_max(&info->mcelsius, cpu_coretemp_files_as4581);
+    }
+
     return onlp_file_read_int(&info->mcelsius, onlp_thermal_get_devfiles(tid));
 }

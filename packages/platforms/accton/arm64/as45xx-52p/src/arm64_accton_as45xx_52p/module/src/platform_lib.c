@@ -74,6 +74,8 @@ psu_type_t get_psu_type(int id, char *data_buf, int data_len)
     /* Check AC model name */
     if (strncmp(data_buf, "G1482-1600WNA", strlen("G1482-1600WNA")) == 0)
         ptype = PSU_TYPE_G1482_1600WNA_F2B;
+    if (strncmp(data_buf, "G1482-0920WNA", strlen("G1482-0920WNA")) == 0)
+        ptype = PSU_TYPE_G1482_0920WNA_F2B;
 
     return ptype;
 }
@@ -134,4 +136,19 @@ int psu_pmbus_info_get(int id, char *node, int *value)
         return ONLP_STATUS_E_INTERNAL;
 
     return onlp_file_read_int(value, "%s%s", path, node);
+}
+
+int chassis_thermal_count(void)
+{
+    as45xx_52p_platform_id_t pid;
+    int count[PLATFORM_COUNT] = {
+        [AS4500_52P] = CHASSIS_THERMAL_COUNT_AS4500,
+        [AS4581_52PL] = CHASSIS_THERMAL_COUNT_AS4581
+    };
+
+    pid = get_platform_id();
+    if (pid >= PID_UNKNOWN)
+        return 0;
+
+    return count[pid];
 }
