@@ -1,0 +1,47 @@
+---
+
+######################################################################
+#
+# platform-config for AS4581-52PL
+#
+######################################################################
+
+arm64-accton-as4581-52pl-r0:
+  flat_image_tree:
+    kernel:
+      <<: *arm64-kernel-5-15
+    dtb:
+      =: accton-as4581-52pl.dtb
+      <<: *arm64-kernel-5-15-package
+    itb:
+      <<: *arm64-itb
+
+  loader:
+    device: /dev/sda
+    ##partition: /dev/sda1
+    loadaddr: 0xa0000000
+    nos_bootcmds:
+      - scsi reset
+      - sf read 0x80d00000 0xd00000 0x100000
+      - fsl_mc lazyapply dpl 0x80d00000
+      - ext2load scsi 0:1 $onl_loadaddr $onl_itb
+      - "bootm $onl_loadaddr#$onl_platform"
+
+    setenv:
+    - bootargs: >-
+        console=ttyAMA0,115200
+        onl_platform=$onl_platform
+        arm-smmu.disable_bypass=n
+        maxcpus=8
+        pci=pcie_bus_perf
+
+    environment:
+    - device: /dev/mtd1
+      env_offset: 0x00000000
+      env_size: 0x00004000
+      sector_size: 0x00010000
+
+  network:
+    interfaces:
+      ma1:
+        name: eth0
