@@ -1,0 +1,693 @@
+From ec2778a9a3c83b73bb9ea3ad996de417b8d84fa8 Mon Sep 17 00:00:00 2001
+From: Vlad GEORGESCU <vlaggeor@amazon.com>
+Date: Wed, 28 Aug 2024 10:10:48 +0000
+Subject: [PATCH] feat: Add /dev/mvsw_fw_comm_debug device for FW debugging
+
+This commit allows users to send commands to the secondary CPU for debugging purposes.
+
+By executing specific commands, users can inspect the current status of the firmware
+and gather information useful for debugging firmware-related issues.
+
+Signed-off-by: Vlad GEORGESCU <vlaggeor@amazon.com>
+---
+ .../net/ethernet/marvell/prestera/Makefile    |   2 +-
+ .../net/ethernet/marvell/prestera/prestera.h  |   5 +
+ .../marvell/prestera/prestera_fw_comm.c       | 352 ++++++++++++++++++
+ .../marvell/prestera/prestera_fw_comm.h       |  65 ++++
+ .../ethernet/marvell/prestera/prestera_hw.c   |  98 +++++
+ .../ethernet/marvell/prestera/prestera_hw.h   |   4 +
+ .../ethernet/marvell/prestera/prestera_main.c |   9 +
+ 7 files changed, 534 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/net/ethernet/marvell/prestera/prestera_fw_comm.c
+ create mode 100644 drivers/net/ethernet/marvell/prestera/prestera_fw_comm.h
+
+diff --git a/drivers/net/ethernet/marvell/prestera/Makefile b/drivers/net/ethernet/marvell/prestera/Makefile
+index e8db3533b..0d48addb8 100644
+--- a/drivers/net/ethernet/marvell/prestera/Makefile
++++ b/drivers/net/ethernet/marvell/prestera/Makefile
+@@ -7,7 +7,7 @@ prestera-objs		:= prestera_main.o prestera_hw.o prestera_dsa.o \
+ 			   prestera_router.o prestera_router_hw.o prestera_matchall.o \
+ 			   prestera_ct.o prestera_dcb.o prestera_qdisc.o \
+ 			   prestera_fw.o prestera_debugfs.o prestera_fw_log.o \
+-			   prestera_nve.o
++			   prestera_nve.o prestera_fw_comm.o
+ 
+ prestera-$(CONFIG_MRVL_PRESTERA_DEBUG) += prestera_log.o
+ ccflags-$(CONFIG_MRVL_PRESTERA_DEBUG) += -DCONFIG_MRVL_PRESTERA_DEBUG
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera.h b/drivers/net/ethernet/marvell/prestera/prestera.h
+index 7038abc97..aee5afdb0 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera.h
++++ b/drivers/net/ethernet/marvell/prestera/prestera.h
+@@ -21,6 +21,7 @@
+ 
+ #define PRESTERA_MSG_MAX_SIZE 1500
+ #define PRESTERA_MSG_CHUNK_SIZE 1024
++#define PRESTERA_MSG_DEBUG_INFRA_CHUNK_SIZE    1450
+ 
+ #define PRESTERA_DEFAULT_VID 1
+ 
+@@ -35,6 +36,8 @@
+ 
+ #define PRESTERA_QOS_SP_COUNT 8
+ 
++#define PRESTERA_DEBUG_RESPONSE_MAX_SIZE 1024
++
+ #define PRESTERA_IPG_DEFAULT_VALUE (12)
+ #define PRESTERA_IPG_ALIGN_VALUE (4)
+ 
+@@ -395,6 +398,7 @@ struct prestera_router;
+ struct prestera_rif;
+ struct prestera_trap_data;
+ struct prestera_rxtx;
++struct prestera_fw_comm;
+ 
+ #define PRESTERA_DEV_ID_TYPE_AC5	0xB400
+ #define PRESTERA_DEV_ID_TYPE_AC5X	0x9800
+@@ -433,6 +437,7 @@ struct prestera_switch {
+ 	struct prestera_rxtx *rxtx;
+ 	struct prestera_counter *counter;
+ 	struct list_head sched_list;
++	struct prestera_fw_comm *fw_comm;
+ };
+ 
+ struct prestera_router {
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_fw_comm.c b/drivers/net/ethernet/marvell/prestera/prestera_fw_comm.c
+new file mode 100644
+index 000000000..3f727c6db
+--- /dev/null
++++ b/drivers/net/ethernet/marvell/prestera/prestera_fw_comm.c
+@@ -0,0 +1,352 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
++/* Copyright (c) 2019-2021 Marvell International Ltd. All rights reserved */
++
++#include <linux/ctype.h>
++#include <linux/device.h>
++#include <linux/fs.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++
++#include "prestera_fw_comm.h"
++#include "prestera_hw.h"
++#include "prestera.h"
++
++static const char *pr_fw_comm_msg_id_to_str[PRESTERA_FW_COMM_TYPE_MAX] = {
++	[PRESTERA_FW_COMM_TYPE_HELP] = "help",
++	[PRESTERA_FW_COMM_TYPE_SYS_METRICS] = "system_metrics",
++	[PRESTERA_FW_COMM_TYPE_KERNEL_LOGS] = "kernel_logs",
++	[PRESTERA_FW_COMM_TYPE_CPSS_LOGS] = "cpss_logs",
++	[PRESTERA_FW_COMM_TYPE_EXEC_LUACLI] = "exec_luacli"
++};
++
++static const char *pr_fw_err_code_to_str[PRESTERA_FW_COMM_ERR_CODE_MAX] = {
++	[PRESTERA_FW_COMM_ERR_CODE_PIPE] =
++		"[DbgInfra] FW-CPU: Error when running pipe()",
++	[PRESTERA_FW_COMM_ERR_CODE_FORK] =
++		"[DbgInfra] FW-CPU: Error when running fork()",
++	[PRESTERA_FW_COMM_ERR_CODE_MAIN_TIMEOUT] =
++		"[DbgInfra] FW-CPU: Child process timeout while executing command",
++	[PRESTERA_FW_COMM_ERR_CODE_READ] =
++		"[DbgInfra] FW-CPU: Error when running read()",
++	[PRESTERA_FW_COMM_ERR_CODE_OPEN] =
++		"[DbgInfra] FW-CPU: Error when running open()",
++	[PRESTERA_FW_COMM_ERR_CODE_SEEK] =
++		"[DbgInfra] FW-CPU: Error when running lseek()",
++	[PRESTERA_FW_COMM_ERR_CODE_INVALID_REQ] =
++		"[DbgInfra] FW-CPU: Invalid request",
++	[PRESTERA_FW_COMM_ERR_CODE_CHILD_FAIL] =
++		"[DbgInfra] FW-CPU: Child process returned an error",
++	[PRESTERA_FW_COMM_ERR_CODE_OFFSET_OVERFLOW] =
++		"[DbgInfra] FW-CPU: File offset overflow. Resetting pointer."
++};
++
++static const char pr_fw_comm_help_prompt[] = \
++"Available commands:\n \
++help - shows this prompt\n \
++system_metrics - shows system metrics from FW CPU\n \
++kernel_logs  - shows logs from kernel ring buffer\n \
++cpss_logs - shows logs of appDemo service\n \
++kernel_logs/cpss_logs <reset> - resets the pointer to the beginning of the logs\n \
++exec_luacli <command> - executes <command> in luaCLI in FW CPU\n\0";
++
++/**
++ * pr_fw_communication_parse_request() - Method parsing the string
++ *   received from the user space.
++ * @request: pointer to the string
++ * @msg_type: message type
++ * @msg_args: message arguments
++ *
++ * The method is splitting the string into type and arguments.
++ * The request must contain at least a type, arguments being
++ * optional for most of the types. Once the string containing
++ * the type is determined, the corresponding enum type
++ * will be found in @pr_fw_comm_msg_id_to_str.
++ *
++ * Return: 0 if successful, error code otherwise. Returns message type
++ * through @msg_type and message arguments through @msg_args.
++ */
++static int pr_fw_communication_parse_request(char *request, int *msg_type,
++					     char *msg_args)
++{
++	char msg_type_str[PRESTERA_FW_COMM_MAX_MSG_TYPE_SIZE] = { 0 };
++	char *msg_type_ppos, *args_ppos;
++	char *aux_buf = request;
++	int i, ret = 0;
++
++	*msg_type = PRESTERA_FW_COMM_TYPE_MAX;
++
++	/* Split the request in two: a message type and a string
++	 * containing all the args(if any).
++	 */
++	msg_type_ppos = strsep(&aux_buf, " \t\0");
++	args_ppos = strsep(&aux_buf, "\0");
++
++	/* Message type is mandatory. Args can be skipped.
++	 */
++	if (!msg_type_ppos) {
++		ret = -EINVAL;
++		goto out;
++	}
++
++	/* Make sure that the strings are valid.
++	 */
++	if (iscntrl(msg_type_ppos[0]) || isspace(msg_type_ppos[0]) ||
++	    msg_type_ppos[0] == '\0' ||
++				strlen(msg_type_ppos) > PRESTERA_FW_COMM_MAX_MSG_TYPE_SIZE) {
++		ret = -EINVAL;
++		goto out;
++	}
++
++	strcpy(msg_type_str, msg_type_ppos);
++
++	if (args_ppos) {
++		if (iscntrl(args_ppos[0]) || isspace(args_ppos[0]) ||
++		    args_ppos[0] == '\0' ||
++			strlen(args_ppos) > PRESTERA_FW_COMM_MAX_ARGS_SIZE) {
++			ret = -EINVAL;
++			goto out;
++		}
++		strcpy(msg_args, args_ppos);
++	}
++
++	/* Try to match the requested message type to an internal message type.
++	 */
++	for (i = 0; i < PRESTERA_FW_COMM_TYPE_MAX; ++i) {
++		if (!strcmp(msg_type_str, pr_fw_comm_msg_id_to_str[i])) {
++			*msg_type = i;
++			break;
++		}
++	}
++
++	/* We expect arguments only for PRESTERA_FW_COMM_TYPE_EXEC_LUACLI
++	 */
++	if ((*msg_type == PRESTERA_FW_COMM_TYPE_MAX) ||
++	    (*msg_type == PRESTERA_FW_COMM_TYPE_EXEC_LUACLI && !args_ppos))
++		ret = -EINVAL;
++
++out:
++	return ret;
++}
++
++/**
++ * pr_fw_communication_reset_buff() - Method clearing the
++ *  output buffer before storing a new request's response.
++ * @fw_comm_data: structure containing the buffer
++ *
++ */
++static void pr_fw_communication_reset_buff(struct prestera_fw_comm *fw_comm_data)
++{
++	memset(fw_comm_data->output_buff, 0, PRESTERA_FW_COMM_DEV_MAX_BUFF_SIZE);
++	fw_comm_data->output_size = 0;
++}
++
++/**
++ * pr_fw_communication_handle_request() - Method handling the incoming requests
++ *
++ * @msg_type: type of the message to filter for
++ * @msg_args: arguments passed in from the console
++ * @fw_comm_data: structure containing the output buffer
++ *
++ * Return: 0 if successful, error code otherwise.
++ */
++static int pr_fw_communication_handle_request(int msg_type,
++					      char *msg_args, struct prestera_fw_comm *fw_comm_data)
++{
++	int ret = 0;
++	unsigned char fw_err_code = PRESTERA_FW_COMM_ERR_CODE_OK;
++	struct prestera_switch *sw = fw_comm_data->sw;
++
++	pr_fw_communication_reset_buff(fw_comm_data);
++
++	switch (msg_type) {
++	case PRESTERA_FW_COMM_TYPE_HELP:
++		fw_comm_data->output_size = sizeof(pr_fw_comm_help_prompt);
++		memcpy(fw_comm_data->output_buff, pr_fw_comm_help_prompt, fw_comm_data->output_size);
++		break;
++	case PRESTERA_FW_COMM_TYPE_SYS_METRICS:
++	case PRESTERA_FW_COMM_TYPE_KERNEL_LOGS:
++	case PRESTERA_FW_COMM_TYPE_CPSS_LOGS:
++	case PRESTERA_FW_COMM_TYPE_EXEC_LUACLI:
++		/* Send a message to the FW CPU */
++		ret = prestera_hw_dbg_req_send(sw, msg_type, msg_args, &fw_err_code);
++		if (fw_err_code > PRESTERA_FW_COMM_ERR_CODE_OK &&
++		    fw_err_code < PRESTERA_FW_COMM_ERR_CODE_MAX)
++			dev_err(sw->dev->dev, pr_fw_err_code_to_str[fw_err_code]);
++			pr_err("ERROR CODE IS : %d\n", fw_err_code);
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++
++	return ret;
++}
++
++/**
++ * pr_fw_communication_open() - Method called every time
++ * the /dev entry is opened(including when reading/writing to the file).
++ *
++ * @inode: kernel-internal structure representing the entry on the disk
++ * @file: kernel-internal structure representing the open /dev entry
++ *
++ * This method is getting the prestera_fw_comm structure from the miscdevice
++ * stored as a private_data in the struct file. Once opened, it sets the IN_USE
++ * bit so no other process can open the driver and send commands.
++ *
++ * Return: 0 if successful, error code otherwise.
++ */
++static int pr_fw_communication_open(struct inode *inode, struct file *file)
++{
++	struct miscdevice *misc_dev = file->private_data;
++	struct prestera_fw_comm *fw_comm_data =
++		container_of(misc_dev, struct prestera_fw_comm, misc_dev);
++
++	file->private_data = fw_comm_data;
++
++	if (test_and_set_bit(PRESTERA_FW_IN_USE_BIT, &fw_comm_data->flags))
++		return -EBUSY;
++
++	return 0;
++}
++
++/**
++ * pr_fw_communication_close() - Method called every time
++ * the /dev entry is closed(including when reading/writing to the file).
++ *
++ * @inode: kernel-internal structure representing the entry on the disk
++ * @file: kernel-internal structure representing the open /dev entry
++ *
++ * Clears the IN_USE bit that blocked clients to open the device driver.
++ *
++ * Return: 0 if successful, error code otherwise.
++ */
++static int pr_fw_communication_release(struct inode *inode, struct file *file)
++{
++	struct miscdevice *misc_dev = file->private_data;
++	struct prestera_fw_comm *fw_comm_data =
++		container_of(misc_dev, struct prestera_fw_comm, misc_dev);
++
++	smp_mb__before_atomic();
++	clear_bit(PRESTERA_FW_IN_USE_BIT, &fw_comm_data->flags);
++	return 0;
++}
++
++/**
++ * pr_fw_communication_read() - Method called when reading
++ * from the /dev entry. This will display the output of a prior request.
++ *
++ * @file: kernel-internal structure representing the open /dev entry
++ * @ubuff: destination buffer in userspace
++ * @size: size of the destination buffer
++ * @offset: offset in the source buffer
++ *
++ *
++ * On success, the number of bytes read is returned and the offset @offset is
++ * advanced by this number, or negative value is returned on error.
++ */
++static ssize_t pr_fw_communication_read(struct file *file,
++					char __user *ubuff, size_t size, loff_t *offset)
++{
++	struct prestera_fw_comm *fw_comm_data = file->private_data;
++	char *kbuff = fw_comm_data->output_buff;
++	size_t kbuff_size = fw_comm_data->output_size;
++
++	return simple_read_from_buffer(ubuff, size, offset, kbuff, kbuff_size);
++}
++
++/**
++ * pr_fw_communication_write() - Method called when writing
++ * to the /dev entry. This will send a request to the FW CPU.
++ *
++ * @file: kernel-internal structure representing the open /dev entry
++ * @ubuff: source buffer present in userspace
++ * @size: size of the source buffer
++ * @offset: offset in the source buffer
++ *
++ *
++ * On success, the number of bytes read from userspace is returned,
++ * or negative value is returned on error.
++ */
++static ssize_t pr_fw_communication_write(struct file *file,
++					 const char __user *ubuff, size_t size, loff_t *offset)
++{
++	struct prestera_fw_comm *fw_comm_data = file->private_data;
++	struct prestera_switch *sw = fw_comm_data->sw;
++	char tmp_buf[PRESTERA_FW_COMM_MAX_CMD_SIZE] = { 0 };
++	char msg_args[PRESTERA_FW_COMM_MAX_ARGS_SIZE] = { 0 };
++	int msg_type;
++	size_t len_to_copy = size - 1;
++	int ret = size;
++
++	if (len_to_copy > PRESTERA_FW_COMM_MAX_CMD_SIZE) {
++		dev_err(sw->dev->dev, "Len is > than max(%zu vs max possible %d)\n",
++			len_to_copy, PRESTERA_FW_COMM_MAX_CMD_SIZE);
++		ret = -ENOSPC;
++		goto out;
++	}
++
++	if (copy_from_user(tmp_buf, ubuff, len_to_copy)) {
++		ret = -EFAULT;
++		goto out;
++	}
++
++	if (pr_fw_communication_parse_request(tmp_buf, &msg_type, msg_args))
++		size = -EINVAL;
++	else if (pr_fw_communication_handle_request(msg_type, msg_args, fw_comm_data))
++		size = -EINVAL;
++
++out:
++	return size;
++}
++
++const struct file_operations pr_fw_comm_fops = {
++	.owner = THIS_MODULE,
++	.open = pr_fw_communication_open,
++	.release = pr_fw_communication_release,
++	.read = pr_fw_communication_read,
++	.write = pr_fw_communication_write,
++};
++
++int pr_fw_communication_init(struct prestera_switch *sw)
++{
++	int ret = 0;
++	struct prestera_fw_comm *fw_comm_data;
++
++	fw_comm_data = kzalloc(sizeof(*fw_comm_data), GFP_KERNEL);
++	if (!fw_comm_data)
++		return -ENOMEM;
++
++	fw_comm_data->output_buff = kzalloc(PRESTERA_FW_COMM_DEV_MAX_BUFF_SIZE, GFP_KERNEL);
++	if (!fw_comm_data->output_buff) {
++		kfree(fw_comm_data);
++		return -ENOMEM;
++	}
++	fw_comm_data->output_size = 0;
++
++	fw_comm_data->misc_dev.minor = MISC_DYNAMIC_MINOR;
++	fw_comm_data->misc_dev.name = PRESTERA_FW_COMM_DRIVER_NAME;
++	fw_comm_data->misc_dev.fops = &pr_fw_comm_fops;
++
++	ret = misc_register(&fw_comm_data->misc_dev);
++	if (ret) {
++		kfree(fw_comm_data->output_buff);
++		kfree(fw_comm_data);
++		dev_err(sw->dev->dev, "Failed at misc_register() step : %d\n", ret);
++		return ret;
++	}
++
++	sw->fw_comm = fw_comm_data;
++	fw_comm_data->sw = sw;
++
++	return 0;
++}
++
++void pr_fw_communication_fini(struct prestera_switch *sw)
++{
++	struct prestera_fw_comm *fw_comm_data = sw->fw_comm;
++
++	misc_deregister(&fw_comm_data->misc_dev);
++	kfree(fw_comm_data->output_buff);
++	kfree(fw_comm_data);
++}
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_fw_comm.h b/drivers/net/ethernet/marvell/prestera/prestera_fw_comm.h
+new file mode 100644
+index 000000000..da34151bf
+--- /dev/null
++++ b/drivers/net/ethernet/marvell/prestera/prestera_fw_comm.h
+@@ -0,0 +1,65 @@
++/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0 */
++/* Copyright (c) 2019-2021 Marvell International Ltd. All rights reserved */
++
++#ifndef _MVSW_PRESTERA_FW_COMM_H_
++#define _MVSW_PRESTERA_FW_COMM_H_
++
++#include <linux/miscdevice.h>
++
++#define PRESTERA_FW_COMM_DRIVER_NAME        "mvsw_fw_comm_debug"
++#define PRESTERA_FW_COMM_HELP_CMD           "help"
++
++#define PRESTERA_FW_COMM_MAX_MINORS         1
++#define PRESTERA_FW_COMM_MAX_MSG_TYPE_SIZE  32
++#define PRESTERA_FW_COMM_MAX_ARGS_SIZE      128
++
++#define PRESTERA_FW_COMM_MAX_CMD_SIZE       (PRESTERA_FW_COMM_MAX_MSG_TYPE_SIZE + \
++											PRESTERA_FW_COMM_MAX_ARGS_SIZE)
++
++#define PRESTERA_FW_IN_USE_BIT              0
++
++/**
++ * Use 512 kB as a buffer
++ */
++#define PRESTERA_FW_COMM_DEV_MAX_BUFF_SIZE  (512 * 1024)
++#define PRESTERA_FW_COMM_MAX_RECV_CHUNKS    (PRESTERA_FW_COMM_DEV_MAX_BUFF_SIZE /  \
++											PRESTERA_MSG_DEBUG_INFRA_CHUNK_SIZE)
++
++enum {
++	PRESTERA_FW_COMM_TYPE_HELP,
++	PRESTERA_FW_COMM_TYPE_SYS_METRICS,
++	PRESTERA_FW_COMM_TYPE_KERNEL_LOGS,
++	PRESTERA_FW_COMM_TYPE_CPSS_LOGS,
++	PRESTERA_FW_COMM_TYPE_EXEC_LUACLI,
++	PRESTERA_FW_COMM_TYPE_MAX
++};
++
++enum {
++	PRESTERA_FW_COMM_ERR_CODE_OK = 0,
++	PRESTERA_FW_COMM_ERR_CODE_PIPE,
++	PRESTERA_FW_COMM_ERR_CODE_FORK,
++	PRESTERA_FW_COMM_ERR_CODE_MAIN_TIMEOUT,
++	PRESTERA_FW_COMM_ERR_CODE_READ,
++	PRESTERA_FW_COMM_ERR_CODE_OPEN,
++	PRESTERA_FW_COMM_ERR_CODE_SEEK,
++	PRESTERA_FW_COMM_ERR_CODE_INVALID_REQ,
++	PRESTERA_FW_COMM_ERR_CODE_CHILD_FAIL,
++	PRESTERA_FW_COMM_ERR_CODE_OFFSET_OVERFLOW,
++	PRESTERA_FW_COMM_ERR_CODE_MAX,
++};
++
++struct prestera_switch;
++
++struct prestera_fw_comm {
++	struct miscdevice misc_dev;
++	struct prestera_switch *sw;
++	unsigned long flags;
++	char *output_buff;
++	int output_size;
++	bool is_locked;
++};
++
++int pr_fw_communication_init(struct prestera_switch *sw);
++void pr_fw_communication_fini(struct prestera_switch *sw);
++
++#endif /* _MVSW_PRESTERA_FW_COMM_H_ */
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_hw.c b/drivers/net/ethernet/marvell/prestera/prestera_hw.c
+index 87dff8771..ad0b64136 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_hw.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_hw.c
+@@ -14,6 +14,7 @@
+ #include "prestera_fw_log.h"
+ #include "prestera_counter.h"
+ #include "prestera_rxtx.h"
++#include "prestera_fw_comm.h"
+ 
+ #define PRESTERA_HW_INIT_TIMEOUT 30000000	/* 30sec */
+ #define PRESTERA_HW_MIN_MTU 64
+@@ -26,6 +27,12 @@
+ #define PRESTERA_FW_KEEPALIVE_WD_MAX_KICKS	15
+ #endif /* PRESTERA_FW_KEEPALIVE_WD_MAX_KICKS */
+ 
++/* FW CPU has a 5s timeout mostly for luaCli commands.
++ * If that timeout doesn't trigger, fall back on this one
++ * and stop waiting for a response after 7s.
++ */
++#define PRESTERA_FW_DEBUG_INFRA_MSG_TIMEOUT    7000
++
+ enum prestera_cmd_type_t {
+ 	PRESTERA_CMD_TYPE_SWITCH_INIT = 0x1,
+ 	PRESTERA_CMD_TYPE_SWITCH_ATTR_SET = 0x2,
+@@ -161,6 +168,8 @@ enum prestera_cmd_type_t {
+ 
+ 	PRESTERA_CMD_TYPE_CPU_CODE_COUNTERS_GET = 0x2000,
+ 
++	PRESTERA_CMD_DEBUG_REQ = 0x2100,
++
+ 	PRESTERA_CMD_TYPE_ACK = 0x10000,
+ 	PRESTERA_CMD_TYPE_MAX
+ };
+@@ -1134,6 +1143,25 @@ static void prestera_hw_build_tests(void)
+ 	BUILD_BUG_ON(sizeof(struct prestera_msg_event_log) != 8);
+ }
+ 
++struct prestera_msg_debug_req {
++       struct prestera_msg_cmd cmd;
++       u8 req_type;
++       char cmd_args[PRESTERA_FW_COMM_MAX_ARGS_SIZE];
++} __packed __aligned(4);
++
++/* If the size of this structure will ever get bigger than PRESTERA_MSG_MAX_SIZE,
++ * consider decreasing PRESTERA_MSG_DEBUG_INFRA_CHUNK_SIZE here and in appDemo
++ * to avoid message drops.
++ */
++struct prestera_msg_debug_resp {
++       struct prestera_msg_ret ret;
++       u8 err_code;
++       u8 has_next;
++       u8 new_chunk_filled;
++       u16 resp_buff_size;
++       char resp_buff[PRESTERA_MSG_DEBUG_INFRA_CHUNK_SIZE];
++} __packed __aligned(4);
++
+ static void fw_reset_wdog(struct prestera_device *dev);
+ 
+ static int prestera_cmd_qid_by_req_type(enum prestera_cmd_type_t type)
+@@ -3488,6 +3516,76 @@ int prestera_hw_mdb_destroy(struct prestera_mdb_entry *mdb)
+ 	return fw_send_req(mdb->sw, PRESTERA_CMD_TYPE_MDB_DESTROY, &req);
+ }
+ 
++
++bool prestera_hw_dbg_req_should_stop(unsigned int chunk_index,
++       struct prestera_msg_debug_resp resp)
++{
++       /* We should stop if:
++        * - we reached the maximum chunk number
++        * - there is no other packet to be sent
++        */
++       return (chunk_index == PRESTERA_FW_COMM_MAX_RECV_CHUNKS - 1) ||
++                       (!resp.has_next);
++}
++
++int prestera_hw_dbg_req_send(struct prestera_switch *sw, u32 req_type, char *args, u8 *fw_err_code)
++{
++       struct prestera_msg_debug_req req;
++       struct prestera_msg_debug_resp resp;
++       char *out_buff = sw->fw_comm->output_buff;
++       int *out_buff_size = &sw->fw_comm->output_size;
++       int err = 0;
++       unsigned int chunk_index = 0;
++
++       *fw_err_code = 0;
++       req.req_type = req_type;
++
++       memset(req.cmd_args, 0, sizeof(req.cmd_args));
++       strcpy(req.cmd_args, args);
++
++       while (1) {
++               err = fw_send_req_resp_wait(sw, PRESTERA_CMD_DEBUG_REQ, &req, &resp,
++                       PRESTERA_FW_DEBUG_INFRA_MSG_TIMEOUT);
++               if (err) {
++                       /* Treat this as a separate error case since we have to keep in
++                        * sync error definition between main and FW CPU.
++                        */
++                       if (err == -EBUSY)
++                               dev_err(sw->dev->dev, "Response from FW CPU timed out\n");
++                       *fw_err_code = resp.err_code;
++                       break;
++               }
++
++               if (resp.resp_buff_size > PRESTERA_MSG_DEBUG_INFRA_CHUNK_SIZE) {
++                       dev_err(sw->dev->dev, "Maximum allowed_buff_size(%d) < received(%d)\n",
++                               PRESTERA_MSG_DEBUG_INFRA_CHUNK_SIZE, resp.resp_buff_size);
++                       return -EINVAL;
++               }
++
++               if (!out_buff) {
++                       dev_dbg(sw->dev->dev, "Output buffer is empty\n");
++                       return -EINVAL;
++               }
++               memcpy(out_buff, resp.resp_buff, resp.resp_buff_size);
++
++               out_buff += resp.resp_buff_size;
++               *out_buff_size += resp.resp_buff_size;
++               chunk_index += resp.new_chunk_filled;
++
++               if (prestera_hw_dbg_req_should_stop(chunk_index, resp)) {
++                       dev_dbg(sw->dev->dev, "Stoppping at chunk_num=%d max_chunks=%d\n",
++                                chunk_index, PRESTERA_FW_COMM_MAX_RECV_CHUNKS);
++                       break;
++               }
++
++               /* Arguments should be sent only for the first request. */
++               memset(req.cmd_args, 0, sizeof(req.cmd_args));
++       }
++
++       return err;
++}
++
++
+ int prestera_hw_ipg_set(struct prestera_switch *sw, u32 ipg)
+ {
+ 	struct prestera_msg_ipg_set_req req = {
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_hw.h b/drivers/net/ethernet/marvell/prestera/prestera_hw.h
+index 2467e2eee..f818dda6f 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_hw.h
++++ b/drivers/net/ethernet/marvell/prestera/prestera_hw.h
+@@ -516,6 +516,10 @@ int prestera_hw_mdb_destroy(struct prestera_mdb_entry *mdb);
+ int prestera_hw_ipg_set(struct prestera_switch *sw, u32 ipg);
+ int prestera_hw_ipg_get(struct prestera_switch *sw, u32 *ipg);
+ 
++ /* Debug Infra API */
++int prestera_hw_dbg_req_send(struct prestera_switch *fw_comm, u32 req_type,
++				char *args, u8 *fw_err_code);
++
+ /* QoS */
+ int prestera_hw_port_qos_mapping_update(const struct prestera_port *port,
+ 					struct dcb_ieee_app_dscp_map *map);
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_main.c b/drivers/net/ethernet/marvell/prestera/prestera_main.c
+index ccaf9e5be..2df162289 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_main.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_main.c
+@@ -33,6 +33,7 @@
+ #include "prestera_span.h"
+ #include "prestera_switchdev.h"
+ #include "prestera_dcb.h"
++#include "prestera_fw_comm.h"
+ #include "prestera_qdisc.h"
+ 
+ #define PRESTERA_DEV_ID_REG		0x004C
+@@ -2306,8 +2307,15 @@ static int prestera_init(struct prestera_switch *sw)
+ 	if (err)
+ 		goto err_debugfs_init;
+ 
++	err = pr_fw_communication_init(sw);
++	if (err)
++		goto err_fw_communication_init;
++
+ 	return 0;
+ 
++
++err_fw_communication_init:
++	pr_fw_communication_fini(sw);
+ err_debugfs_init:
+ 	prestera_event_handlers_unregister(sw);
+ err_event_handlers:
+@@ -2357,6 +2365,7 @@ static void prestera_fini(struct prestera_switch *sw)
+ 
+ 	prestera_hw_keepalive_fini(sw);
+ 	prestera_hw_switch_reset(sw);
++	pr_fw_communication_fini(sw);
+ 	of_node_put(sw->np);
+ }
+ 
+-- 
+2.40.1
+
