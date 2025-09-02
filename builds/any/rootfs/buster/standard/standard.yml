@@ -57,14 +57,14 @@ Multistrap:
 
   Security:
     packages: *Packages
-    source: http://security.debian.org/debian-security
+    source: http://archive.debian.org/debian-security
     suite: buster/updates
     omitdebsrc: true
     arches: amd64, arm64, armel
 
   Security-Local:
     packages: *Packages
-    source: http://${APT_CACHE}security.debian.org/debian-security
+    source: http://${APT_CACHE}archive.debian.org/debian-security
     suite: buster/updates
     omitdebsrc: true
     arches: amd64, arm64, armel

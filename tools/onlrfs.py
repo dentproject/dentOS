@@ -325,7 +325,7 @@ class OnlRfsBuilder(object):
             cmd = ('lsb_release', '-c', '-s',)
             codename = subprocess.check_output(cmd,
                                                universal_newlines=True).strip()
-            if codename == 'stretch':
+            if codename == 'stretch' or codename == 'buster':
                 self.DEFAULTS['DEBIAN_MIRROR'] = 'archive.debian.org/debian/'
 
         self.kwargs.update(self.DEFAULTS)
