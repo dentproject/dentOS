@@ -1,0 +1,1 @@
+!include $ONL_TEMPLATES/onlp-platform-any.yml PLATFORM=arm64-accton-as4581-52pl ARCH=arm64 TOOLCHAIN=aarch64-linux-gnu
