@@ -1,0 +1,93 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree For AC5_db.
+ *
+ * Copyright (C) 2021 Marvell
+ *
+ */
+/*
+ * Device Tree file for Marvell Alleycat 5 development board
+ * This board file supports the B configuration of the board
+ */
+#include "ac5-4gb.dtsi"
+
+/ {
+	sfp25: sfp-25 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp0>;
+		maximum-power-milliwatt = <2000>;
+	};
+
+	sfp26: sfp-26 {
+		compatible = "sff,sfp";
+		i2c-bus = <&i2c0_sfp1>;
+		maximum-power-milliwatt = <2000>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+	i2cmux@70 {
+		compatible = "nxp,pca9548";
+		reg = <0x70>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	i2c-mux-idle-disconnect;
+
+		i2c0_sfp0: i2c@2 {
+			reg = <2>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+		i2c0_sfp1: i2c@3 {
+			reg = <3>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};
+
+&eth0 {
+	status = "okay";
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+	};
+};
+
+&eth1 {
+	status = "okay";
+};
+
+&usb1 {
+	compatible = "chipidea,usb2";
+	phys = <&usb1phy>;
+	phy-names = "usb-phy";
+	dr_mode = "peripheral";
+};
+
+&prestera {
+	compatible = "marvell,prestera";
+	status = "okay";
+	reg = <0x0 0x7F900000 0x0 0x40000>;
+	ports {
+		port25 {
+			prestera,port-num = <25>;
+			sfp = <&sfp25>;
+		};
+		port26 {
+			prestera,port-num = <26>;
+			sfp = <&sfp26>;
+		};
+	};
+};
+
+&sfp25 {
+	status = "okay";
+};
+
+&sfp26 {
+	status = "okay";
+};
+
